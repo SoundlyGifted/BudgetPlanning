@@ -78,7 +78,7 @@ public class ExpensesStructureServlet extends HttpServlet {
             request.getRequestDispatcher("ExpensesStructurePage.jsp").forward(request, response);
         }
 
-        /* Handling dropdown "NAME - TITLE" expense category list for Update operation. */
+        /* Handling dropdown "NAME" expense category list for Update operation. */
         if (request.getParameter("selectForUpdate") != null) {
             /* Getting ID of the selected expense from the form. */
             String updateExpenseUserSelected = request.getParameter("updateExpenseUserSelected");
@@ -94,7 +94,6 @@ public class ExpensesStructureServlet extends HttpServlet {
                 String currentName = expenseSelected.getName();
                 String currentAccount = expenseSelected.getAccountLinked();
                 int linkedToComplexId = expenseSelected.getLinkedToComplexId();
-                String currentTitle = expenseSelected.getTitle();
                 int currentPrice = expenseSelected.getPrice();
                 int currentSafetyStock = expenseSelected.getSafetyStock();
                 int currentOrderQty = expenseSelected.getOrderQty();
@@ -111,7 +110,6 @@ public class ExpensesStructureServlet extends HttpServlet {
                     request.setAttribute("currentLinkedToComplExpName",
                             currentLinkedToComplExpName);
                 }
-                request.setAttribute("currentTitle", currentTitle);
                 request.setAttribute("currentPrice", Integer.toString(currentPrice));
                 request.setAttribute("currentSafetyStock", Integer.toString(currentSafetyStock));
                 request.setAttribute("currentOrderQty", Integer.toString(currentOrderQty));
@@ -129,7 +127,7 @@ public class ExpensesStructureServlet extends HttpServlet {
             String updateExpenseUserSelected = request.getParameter("updateExpenseUserSelected");
             boolean deleted = false;
             if (updateExpenseUserSelected != null && !updateExpenseUserSelected.trim().isEmpty()) {
-                deleted = delete.execute(DBConnection, updateExpenseUserSelected);                
+                deleted = delete.executeDeleteById(DBConnection, updateExpenseUserSelected);                
             }
             if (deleted) {
                 log.add(session, currentDateTime + " [Delete Expense command entered] : Expense deleted");                 
@@ -147,14 +145,13 @@ public class ExpensesStructureServlet extends HttpServlet {
             String inputType = request.getParameter("inputType");
             String inputName = request.getParameter("inputName");
             String inputAccountName = request.getParameter("inputAccountName");
-            String inputTitle = request.getParameter("inputTitle");
             String inputPrice = request.getParameter("inputPrice");
             String inputSafetyStock = request.getParameter("inputSafetyStock");
             String inputOrderQty = request.getParameter("inputOrderQty");
             String inputShopName = request.getParameter("inputShopName");
 
             boolean inserted = insert.execute(DBConnection, inputType, inputName,
-                    inputAccountName, inputTitle, inputPrice, inputSafetyStock,
+                    inputAccountName, inputPrice, inputSafetyStock,
                     inputOrderQty, inputShopName);
             if (inserted) {
                 log.add(session, currentDateTime + " [Add Expense command entered] : Expense added");

@@ -72,14 +72,13 @@ public class ExpensesStructureHandler implements ExpensesStructureHandlerLocal {
     }
     
     @Override
-    public EntityExpense selectFromEntityExpenseListByNameAndTitle(String name, 
-            String title) {
-        if (name == null || name.trim().isEmpty() || title == null) {
+    public EntityExpense selectFromEntityExpenseListByName(String name) {
+        if (name == null || name.trim().isEmpty()) {
             return null;
         }
         ArrayList<EntityExpense> list = getEntityExpenseList();
         for (EntityExpense e : list) {
-            if (name.equals(e.getName()) && title.equals(e.getTitle())) {
+            if (name.equals(e.getName())) {
                 return e;
             }
         }

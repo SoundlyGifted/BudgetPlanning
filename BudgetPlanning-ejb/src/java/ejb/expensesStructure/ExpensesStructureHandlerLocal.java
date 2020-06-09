@@ -23,8 +23,7 @@ public interface ExpensesStructureHandlerLocal {
     
     public void removeFromEntityExpenseList(EntityExpense entity);
     
-    public EntityExpense selectFromEntityExpenseListByNameAndTitle(String name, 
-            String title);
+    public EntityExpense selectFromEntityExpenseListByName(String name);
     
     public EntityExpense selectFromEntityExpenseListById(Integer id);
 }

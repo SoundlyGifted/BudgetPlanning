@@ -11,24 +11,22 @@ public class EntityExpense {
     
     private int id; /* Primary key */
     private String type; /* not null */
-    private String name; /* not null, unique (name, title) */
+    private String name; /* not null, unique*/
     private String accountLinked;
     private int linkedToComplexId;
-    private String title; /* unique (name, title) */
     private int price;
     private int safetyStock;
     private int orderQty;
     private String shopName;
 
     public EntityExpense(int id, String type, String name, String accountLinked, 
-            int linkedToComplexId, String title, int price, int safetyStock, 
+            int linkedToComplexId, int price, int safetyStock, 
             int orderQty, String shopName) {
         this.id = id;
         this.type = type;
         this.name = name;
         this.accountLinked = accountLinked;
         this.linkedToComplexId = linkedToComplexId;
-        this.title = title;
         this.price = price;
         this.safetyStock = safetyStock;
         this.orderQty = orderQty;
@@ -39,7 +37,7 @@ public class EntityExpense {
     public String toString() {
         return "EntityExpense{" + "id=" + id + ", type=" + type + ", name=" + 
                 name + ", accountLinked=" + accountLinked + 
-                ", linkedToComplexId=" + linkedToComplexId + ", title=" + title 
+                ", linkedToComplexId=" + linkedToComplexId 
                 + ", price=" + price + ", safetyStock=" + safetyStock + 
                 ", orderQty=" + orderQty + ", shopName=" + shopName + '}';
     }
@@ -52,7 +50,6 @@ public class EntityExpense {
         hash = 89 * hash + Objects.hashCode(this.name);
         hash = 89 * hash + Objects.hashCode(this.accountLinked);
         hash = 89 * hash + this.linkedToComplexId;
-        hash = 89 * hash + Objects.hashCode(this.title);
         hash = 89 * hash + this.price;
         hash = 89 * hash + this.safetyStock;
         hash = 89 * hash + this.orderQty;
@@ -94,9 +91,6 @@ public class EntityExpense {
             return false;
         }
         if (!Objects.equals(this.accountLinked, other.accountLinked)) {
-            return false;
-        }
-        if (!Objects.equals(this.title, other.title)) {
             return false;
         }
         if (!Objects.equals(this.shopName, other.shopName)) {
@@ -143,14 +137,6 @@ public class EntityExpense {
 
     public void setLinkedToComplexId(int linkedToComplexId) {
         this.linkedToComplexId = linkedToComplexId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public int getPrice() {

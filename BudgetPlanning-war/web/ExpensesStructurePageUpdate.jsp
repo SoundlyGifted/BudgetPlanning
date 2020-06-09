@@ -55,13 +55,7 @@
                         <td><b>${currentLinkedToComplExpName}</b></td>
                         <td><input type="submit" class="button" value="Clear" name="clearAssignmentToComplExp"/></td>                        
                     </tr>
-                    <c:if test="${ExpensesStructure_ExpenseSelectedType == 'GOODS'}">
-                        <tr valign="top">
-                            <td><b>Title</b></td>
-                            <td><input type="text" class="inputTextBox" value="" size="15" name="updateNewTitle" placeholder="${currentTitle}" maxlength="255"/></td>
-                            <td><b>${currentTitle}</b></td>
-                            <td></td>                        
-                        </tr>                    
+                    <c:if test="${ExpensesStructure_ExpenseSelectedType == 'GOODS'}">                 
                         <tr valign="top">
                             <td><b>Price</b></td>
                             <td><input type="text" class="inputTextBox" value="" size="15" name="updatePrice" placeholder="${currentPrice}"/></td>

@@ -10,6 +10,6 @@ import javax.ejb.Local;
  */
 @Local
 public interface ExpensesStructureSQLDeleteLocal {
-    public boolean execute(Connection connection, String name, String title);
-    public boolean execute(Connection connection, String id);
+    public boolean executeDeleteByName(Connection connection, String name);
+    public boolean executeDeleteById(Connection connection, String id);
 }

@@ -13,7 +13,7 @@ import javax.ejb.Local;
 @Local
 public interface ExpensesStructureSQLSelectLocal {
     public ArrayList<EntityExpense> executeSelectAll(Connection connection);
-    public EntityExpense executeSelectByNameAndTitle(Connection connection, 
-            String name, String title);
+    public EntityExpense executeSelectByName(Connection connection, 
+            String name);
     public EntityExpense executeSelectById(Connection connection, Integer id);
 }

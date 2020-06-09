@@ -43,7 +43,6 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
                         resultSet.getString("NAME"),
                         resultSet.getString("ACCOUNT_LINKED"),
                         resultSet.getInt("LINKED_TO_COMPLEX_ID"),
-                        resultSet.getString("TITLE"),
                         resultSet.getInt("PRICE"),
                         resultSet.getInt("SAFETY_STOCK"),
                         resultSet.getInt("ORDER_QTY"),
@@ -61,20 +60,18 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
     }
     
     @Override
-    public EntityExpense executeSelectByNameAndTitle(Connection connection, 
-            String name, String title) {
-        if (name == null || name.trim().isEmpty() || title == null || 
-                title.length() > 255) {
+    public EntityExpense executeSelectByName(Connection connection, 
+            String name) {
+        if (name == null || name.trim().isEmpty()) {
             return null;
         }
         try {
             preparedStatement = createPreparedStatement(connection, 
-                    "select.expense.bynameandtitle");
+                    "select.expense.byname");
             preparedStatement.setString(1, name);
-            preparedStatement.setString(2, title);
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLSelect: "
-                    + "executeSelectByNameAndTitle() "
+                    + "executeSelectByName() "
                     + "SQL PreparedStatement failure: "
                     + ex.getMessage() + " ***");
             return null;
@@ -86,7 +83,6 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
                         resultSet.getString("NAME"),
                         resultSet.getString("ACCOUNT_LINKED"),
                         resultSet.getInt("LINKED_TO_COMPLEX_ID"),
-                        resultSet.getString("TITLE"),
                         resultSet.getInt("PRICE"),
                         resultSet.getInt("SAFETY_STOCK"),
                         resultSet.getInt("ORDER_QTY"),
@@ -96,7 +92,7 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
             }
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLSelect: "
-                    + "executeSelectByNameAndTitle() Error while "
+                    + "executeSelectByName() Error while "
                     + "executing Select Query: "
                     + ex.getMessage() + "***");
             return null;
@@ -127,7 +123,6 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
                     resultSet.getString("NAME"),
                     resultSet.getString("ACCOUNT_LINKED"),
                     resultSet.getInt("LINKED_TO_COMPLEX_ID"),
-                    resultSet.getString("TITLE"),
                     resultSet.getInt("PRICE"),
                     resultSet.getInt("SAFETY_STOCK"),
                     resultSet.getInt("ORDER_QTY"),

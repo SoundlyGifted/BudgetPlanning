@@ -32,25 +32,23 @@ public class ExpensesStructureSQLDelete extends ExpensesStructureSQLAbstract
     private PreparedStatement preparedStatement;
     
     @Override
-    public boolean execute(Connection connection, String name, String title) {
-        if (!inputCheckNullBlank(name) || !inputCheckLength(name) ||
-                !inputCheckLength(title)) {
+    public boolean executeDeleteByName(Connection connection, String name) {
+        if (!inputCheckNullBlank(name) || !inputCheckLength(name)) {
             return false;
         } 
         /* Check if both DB and Expense Object List has record / object with 
-        corresponding name and title given. */
+        corresponding name given. */
         EntityExpense expenseDB = 
-                select.executeSelectByNameAndTitle(connection, name, title);
+                select.executeSelectByName(connection, name);
         EntityExpense expense = 
-                handler.selectFromEntityExpenseListByNameAndTitle(name, title);
+                handler.selectFromEntityExpenseListByName(name);
         if (expenseDB == null || expense == null) {
             return false;
         }
         Integer idInt = expense.getId();
         try {
-            preparedStatement = createPreparedStatement(connection, "delete.expense.bynameandtitle");
+            preparedStatement = createPreparedStatement(connection, "delete.expense.byname");
             preparedStatement.setString(1, name);
-            preparedStatement.setString(2, title);
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLDelete: execute()"
                     + "SQL PreparedStatement failure: "
@@ -70,7 +68,7 @@ public class ExpensesStructureSQLDelete extends ExpensesStructureSQLAbstract
                 for (EntityExpense e : expenseListDB) {
                     if (e.getLinkedToComplexId() == idInt) {
                         update.clearAssignmentToComplexExpense(connection, 
-                                e.getName(), e.getTitle());
+                                e.getName());
                     }
                 }
                 for (EntityExpense e : expenseList) {
@@ -92,13 +90,13 @@ public class ExpensesStructureSQLDelete extends ExpensesStructureSQLAbstract
     }
     
     @Override
-    public boolean execute(Connection connection, String id) {
+    public boolean executeDeleteById(Connection connection, String id) {
         Integer idInt = stringToInt(id);
         if (!inputCheckNullBlank(id) || idInt == null || idInt < 1) {
             return false;
         }
         /* Check if both DB and Expense Object List has record / object with 
-        corresponding name and title given. */
+        corresponding name given. */
         EntityExpense expenseDB = select.executeSelectById(connection, idInt);
         EntityExpense expense = handler.selectFromEntityExpenseListById(idInt);
         if (expenseDB == null || expense == null) {
@@ -128,7 +126,7 @@ public class ExpensesStructureSQLDelete extends ExpensesStructureSQLAbstract
                 for (EntityExpense e : expenseListDB) {
                     if (e.getLinkedToComplexId() == idInt) {
                         update.clearAssignmentToComplexExpense(connection, 
-                                e.getName(), e.getTitle());
+                                e.getName());
                     }
                 }
                 for (EntityExpense e : expenseList) {

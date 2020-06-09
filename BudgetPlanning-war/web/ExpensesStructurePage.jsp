@@ -14,7 +14,7 @@
 
 <!-- JSTL sql query to select all records from EXPENSES_STRUCTURE table -->
 <sql:query dataSource = "${outputDBConnection}" var = "expensesStructureOutput">
-    SELECT T1.ID, T1.TYPE, T1.NAME, T1.ACCOUNT_LINKED, T2.NAME as COMPLEX_EXP_NAME_ASSIGNED, T1.TITLE, T1.PRICE, T1.SAFETY_STOCK, T1.ORDER_QTY, T1.SHOP_NAME 
+    SELECT T1.ID, T1.TYPE, T1.NAME, T1.ACCOUNT_LINKED, T2.NAME as COMPLEX_EXP_NAME_ASSIGNED, T1.PRICE, T1.SAFETY_STOCK, T1.ORDER_QTY, T1.SHOP_NAME 
     from EXPENSES_STRUCTURE T1
     left join
     EXPENSES_STRUCTURE T2
@@ -52,7 +52,6 @@
                 </select>
                 <input type="text" class="inputTextBox" value="" size="15" name="inputName" placeholder="Expense Name" maxlength="255"/>
                 <input type="text" class="inputTextBox" value="" size="15" name="inputAccountName" placeholder="Assigned Account" maxlength="255"/>
-                <input type="text" class="inputTextBox" value="" size="15" name="inputTitle" placeholder="Title [GOODS only]" maxlength="255"/>
                 <input type="text" class="inputTextBox" value="" size="15" name="inputPrice" placeholder="Price [GOODS only]"/>
                 <input type="text" class="inputTextBox" value="" size="15" name="inputSafetyStock" placeholder="Safety Stock [GOODS only]"/>
                 <input type="text" class="inputTextBox" value="" size="15" name="inputOrderQty" placeholder="Order QTY [GOODS only]"/>
@@ -65,12 +64,7 @@
                     <option value="" selected disabled hidden>Choose Expense</option>
                     <c:forEach var="row" items="${expensesStructureOutput.rows}">
                         <option value="${row.ID}">
-                            <c:choose>
-                                <c:when test="${row.TYPE == 'GOODS'}">
-                                    ${row.TYPE}: ${row.NAME} - ${row.TITLE}
-                                </c:when>
-                                <c:otherwise>${row.TYPE}: ${row.NAME}</c:otherwise>
-                            </c:choose>
+                            ${row.TYPE}: ${row.NAME}
                         </option>
                     </c:forEach>
                 </select>
@@ -90,8 +84,7 @@
                     <th>Type</th>
                     <th>Expense Name</th>
                     <th>Linked Account</th>
-                    <th>Linked Complex Expense ID</th>            
-                    <th>Expense Title</th>
+                    <th>Linked To Complex Expense Named</th>            
                     <th>Price</th>
                     <th>Safety Stock</th>
                     <th>Order QTY</th>
@@ -104,7 +97,6 @@
                         <td> <c:out value = "${row.NAME}"/></td>
                         <td> <c:out value = "${row.ACCOUNT_LINKED}"/></td>
                         <td> <c:out value = "${row.COMPLEX_EXP_NAME_ASSIGNED}"/></td>
-                        <td> <c:out value = "${row.TITLE}"/></td>
                         <td> <c:out value = "${row.PRICE}"/></td>
                         <td> <c:out value = "${row.SAFETY_STOCK}"/></td>
                         <td> <c:out value = "${row.ORDER_QTY}"/></td>

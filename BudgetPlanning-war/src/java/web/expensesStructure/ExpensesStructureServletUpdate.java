@@ -63,9 +63,7 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         /* Setting Selected EntityExpense fields as reqeust attributes 
         for passing to the jsp-page. */
         String currentName = expenseSelected.getName();
-        String currentTitle = expenseSelected.getTitle();
         request.setAttribute("currentName", currentName);
-        request.setAttribute("currentTitle", currentTitle);
         selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
 
         /* Processing Refresh the page user command. */
@@ -73,7 +71,6 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
             session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
             request.setAttribute("currentName", expenseSelected.getName());
-            request.setAttribute("currentTitle", expenseSelected.getTitle());
             log.add(session, currentDateTime + " Awaiting for user command...");
             request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
         }
@@ -83,7 +80,6 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
             session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
             request.setAttribute("currentName", expenseSelected.getName());
-            request.setAttribute("currentTitle", expenseSelected.getTitle());
             log.clear(session);
             log.add(session, "Awaiting for initial user command..."); 
             request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
@@ -95,21 +91,18 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             String updateNewName = request.getParameter("updateNewName");
             String updateAccountName = request.getParameter("updateAccountName");
             String updateLinkedComplExpName = request.getParameter("updateLinkedComplExpName");
-            String updateNewTitle = request.getParameter("updateNewTitle");
             String updatePrice = request.getParameter("updatePrice");
             String updateSafetyStock = request.getParameter("updateSafetyStock");
             String updateOrderQty = request.getParameter("updateOrderQty");
             String updateShopName = request.getParameter("updateShopName");
             
             boolean updated = update.execute(DBConnection, currentName, updateNewName,
-                    updateAccountName, updateLinkedComplExpName, currentTitle,
-                    updateNewTitle, updatePrice, updateSafetyStock,
-                    updateOrderQty, updateShopName);
+                    updateAccountName, updateLinkedComplExpName,
+                    updatePrice, updateSafetyStock, updateOrderQty, updateShopName);
             if (updated) {
                 expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
                 session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
                 request.setAttribute("currentName", expenseSelected.getName());
-                request.setAttribute("currentTitle", expenseSelected.getTitle());
                 selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
                 log.add(session, currentDateTime + " [Update Expense command entered] : Expense attributes updated");
             } else {
@@ -121,12 +114,11 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         /* Processing Clear Assignment to Complex Expense user command. */
         if (request.getParameter("clearAssignmentToComplExp") != null) {
             boolean cleared
-                    = update.clearAssignmentToComplexExpense(DBConnection, currentName, currentTitle);
+                    = update.clearAssignmentToComplexExpense(DBConnection, currentName);
             if (cleared) {
                 expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
                 session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
                 request.setAttribute("currentName", expenseSelected.getName());
-                request.setAttribute("currentTitle", expenseSelected.getTitle());
                 selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
                 log.add(session, currentDateTime + " [Update Expense command entered] : Assignment to Complex Expense cleared");
             } else {
@@ -138,12 +130,11 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         /* Processing Clear Assignment to Account user command.*/
         if (request.getParameter("clearAssignmentToAccount") != null) {
             boolean cleared
-                    = update.clearAssignmentToAccount(DBConnection, currentName, currentTitle);
+                    = update.clearAssignmentToAccount(DBConnection, currentName);
             if (cleared) {
                 expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
                 session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
                 request.setAttribute("currentName", expenseSelected.getName());
-                request.setAttribute("currentTitle", expenseSelected.getTitle());
                 selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
                 log.add(session, currentDateTime + " [Update Expense command entered] : Assignment to Account cleared");
             } else {
@@ -155,12 +146,11 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         /* Processing Clear Shop Name user command. */
         if (request.getParameter("clearShopName") != null) {
             boolean cleared
-                    = update.clearShopName(DBConnection, currentName, currentTitle);
+                    = update.clearShopName(DBConnection, currentName);
             if (cleared) {
                 expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
                 session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
                 request.setAttribute("currentName", expenseSelected.getName());
-                request.setAttribute("currentTitle", expenseSelected.getTitle());
                 selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
                 log.add(session, currentDateTime + " [Update Expense command entered] : Shop / Supplier name cleared");
             } else {
