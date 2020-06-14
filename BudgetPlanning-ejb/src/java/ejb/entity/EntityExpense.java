@@ -17,11 +17,10 @@ public class EntityExpense {
     private int price;
     private int safetyStock;
     private int orderQty;
-    private String shopName;
 
     public EntityExpense(int id, String type, String name, String accountLinked, 
             int linkedToComplexId, int price, int safetyStock, 
-            int orderQty, String shopName) {
+            int orderQty) {
         this.id = id;
         this.type = type;
         this.name = name;
@@ -30,7 +29,6 @@ public class EntityExpense {
         this.price = price;
         this.safetyStock = safetyStock;
         this.orderQty = orderQty;
-        this.shopName = shopName;
     }
 
     @Override
@@ -39,7 +37,7 @@ public class EntityExpense {
                 name + ", accountLinked=" + accountLinked + 
                 ", linkedToComplexId=" + linkedToComplexId 
                 + ", price=" + price + ", safetyStock=" + safetyStock + 
-                ", orderQty=" + orderQty + ", shopName=" + shopName + '}';
+                ", orderQty=" + orderQty + '}';
     }
 
     @Override
@@ -53,7 +51,6 @@ public class EntityExpense {
         hash = 89 * hash + this.price;
         hash = 89 * hash + this.safetyStock;
         hash = 89 * hash + this.orderQty;
-        hash = 89 * hash + Objects.hashCode(this.shopName);
         return hash;
     }
 
@@ -91,9 +88,6 @@ public class EntityExpense {
             return false;
         }
         if (!Objects.equals(this.accountLinked, other.accountLinked)) {
-            return false;
-        }
-        if (!Objects.equals(this.shopName, other.shopName)) {
             return false;
         }
         return true;
@@ -162,13 +156,4 @@ public class EntityExpense {
     public void setOrderQty(int orderQty) {
         this.orderQty = orderQty;
     }
-
-    public String getShopName() {
-        return shopName;
-    }
-
-    public void setShopName(String shopName) {
-        this.shopName = shopName;
-    }
-
 }

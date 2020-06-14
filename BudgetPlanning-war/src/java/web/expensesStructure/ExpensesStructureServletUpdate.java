@@ -94,11 +94,10 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             String updatePrice = request.getParameter("updatePrice");
             String updateSafetyStock = request.getParameter("updateSafetyStock");
             String updateOrderQty = request.getParameter("updateOrderQty");
-            String updateShopName = request.getParameter("updateShopName");
             
             boolean updated = update.execute(DBConnection, currentName, updateNewName,
                     updateAccountName, updateLinkedComplExpName,
-                    updatePrice, updateSafetyStock, updateOrderQty, updateShopName);
+                    updatePrice, updateSafetyStock, updateOrderQty);
             if (updated) {
                 expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
                 session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
@@ -141,23 +140,7 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                 log.add(session, currentDateTime + " [Update Expense command entered] : Command declined");
             }
             request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
-        }
-        
-        /* Processing Clear Shop Name user command. */
-        if (request.getParameter("clearShopName") != null) {
-            boolean cleared
-                    = update.clearShopName(DBConnection, currentName);
-            if (cleared) {
-                expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
-                session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
-                request.setAttribute("currentName", expenseSelected.getName());
-                selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
-                log.add(session, currentDateTime + " [Update Expense command entered] : Shop / Supplier name cleared");
-            } else {
-                log.add(session, currentDateTime + " [Update Expense command entered] : Command declined");
-            }
-            request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
-        }        
+        }      
         
         /* Processing Return to Expenses Structure page user command. */
         if (request.getParameter("return") != null) {
@@ -172,8 +155,7 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         int linkedToComplexId = expenseSelected.getLinkedToComplexId();
         int currentPrice = expenseSelected.getPrice();
         int currentSafetyStock = expenseSelected.getSafetyStock();
-        int currentOrderQty = expenseSelected.getOrderQty();
-        String currentShopName = expenseSelected.getShopName();     
+        int currentOrderQty = expenseSelected.getOrderQty();   
 
         request.setAttribute("currentAccount", currentAccount);
         if (linkedToComplexId == 0) {
@@ -184,8 +166,7 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         }
         request.setAttribute("currentPrice", Integer.toString(currentPrice));
         request.setAttribute("currentSafetyStock", Integer.toString(currentSafetyStock));
-        request.setAttribute("currentOrderQty", Integer.toString(currentOrderQty));
-        request.setAttribute("currentShopName", currentShopName);        
+        request.setAttribute("currentOrderQty", Integer.toString(currentOrderQty));    
     }
     
     

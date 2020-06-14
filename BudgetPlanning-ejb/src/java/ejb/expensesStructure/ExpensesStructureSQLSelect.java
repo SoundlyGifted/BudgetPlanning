@@ -1,6 +1,7 @@
 
 package ejb.expensesStructure;
 
+import ejb.common.SQLAbstract;
 import ejb.entity.EntityExpense;
 import java.io.IOException;
 import java.sql.Connection;
@@ -19,7 +20,7 @@ import javax.ejb.Stateless;
  * @author SoundlyGifted
  */
 @Stateless
-public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
+public class ExpensesStructureSQLSelect extends SQLAbstract
         implements ExpensesStructureSQLSelectLocal {
 
     private PreparedStatement preparedStatement;
@@ -28,7 +29,7 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
     public ArrayList<EntityExpense> executeSelectAll(Connection connection) {
         try {
             preparedStatement = createPreparedStatement(connection, 
-                    "select.expense.all");
+                    "expensesStructure/select.all");
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLSelect: "
                     + "executeSelectAll() SQL PreparedStatement failure: "
@@ -45,8 +46,7 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
                         resultSet.getInt("LINKED_TO_COMPLEX_ID"),
                         resultSet.getInt("PRICE"),
                         resultSet.getInt("SAFETY_STOCK"),
-                        resultSet.getInt("ORDER_QTY"),
-                        resultSet.getString("SHOP_NAME")));
+                        resultSet.getInt("ORDER_QTY")));
             }
             return new ArrayList<>(list);
         } catch (SQLException ex) {
@@ -67,7 +67,7 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
         }
         try {
             preparedStatement = createPreparedStatement(connection, 
-                    "select.expense.byname");
+                    "expensesStructure/select.byname");
             preparedStatement.setString(1, name);
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLSelect: "
@@ -85,8 +85,7 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
                         resultSet.getInt("LINKED_TO_COMPLEX_ID"),
                         resultSet.getInt("PRICE"),
                         resultSet.getInt("SAFETY_STOCK"),
-                        resultSet.getInt("ORDER_QTY"),
-                        resultSet.getString("SHOP_NAME"));
+                        resultSet.getInt("ORDER_QTY"));
             } else {
                 return null;
             }
@@ -108,7 +107,7 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
         }
         try {
             preparedStatement = createPreparedStatement(connection, 
-                    "select.expense.byid");
+                    "expensesStructure/select.byid");
             preparedStatement.setInt(1, id);
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLSelect: executeSelectById()"
@@ -125,8 +124,7 @@ public class ExpensesStructureSQLSelect extends ExpensesStructureSQLAbstract
                     resultSet.getInt("LINKED_TO_COMPLEX_ID"),
                     resultSet.getInt("PRICE"),
                     resultSet.getInt("SAFETY_STOCK"),
-                    resultSet.getInt("ORDER_QTY"),
-                    resultSet.getString("SHOP_NAME"));                
+                    resultSet.getInt("ORDER_QTY"));                
             } else {
                 return null;
             }

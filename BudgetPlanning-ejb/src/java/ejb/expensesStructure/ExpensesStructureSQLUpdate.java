@@ -1,6 +1,7 @@
 
 package ejb.expensesStructure;
 
+import ejb.common.SQLAbstract;
 import ejb.entity.EntityExpense;
 import java.io.IOException;
 import java.sql.Connection;
@@ -16,7 +17,7 @@ import javax.ejb.Stateless;
  * @author SoundlyGifted
  */
 @Stateless
-public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
+public class ExpensesStructureSQLUpdate extends SQLAbstract
         implements ExpensesStructureSQLUpdateLocal {
 
     @EJB
@@ -30,12 +31,11 @@ public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
     @Override
     public boolean execute(Connection connection, String name, String newName, 
             String accountName, String linkedComplExpName, String price, 
-            String safetyStock, String orderQty, String shopName) {
+            String safetyStock, String orderQty) {
         /* If no expense name provided for the update operation then cancelling
         this method. Also checking lengths of String variables. */
         if (!inputCheckNullBlank(name) || !inputCheckLength(name)
-                || !inputCheckLength(accountName)
-                || !inputCheckLength(shopName)) {
+                || !inputCheckLength(accountName)) {
             return false;
         }
         /* entityExpense selected from database for the update operation. */
@@ -45,7 +45,7 @@ public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
             return false;
         }
         /* For SIMPLE_EXPENSES and COMPLEX_EXPENSES the following fields 
-        should not be filled: price, safetyStock, orderQty, shopName*/
+        should not be filled: price, safetyStock, orderQty*/
         if (entityExpenseFromDB.getType()
                 .equals(ExpensesTypes.ExpenseType.COMPLEX_EXPENSES.getType())
                 || entityExpenseFromDB.getType()
@@ -53,15 +53,14 @@ public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
                                 .getType())) {
             if ((price != null && !price.trim().isEmpty()) 
                     || (safetyStock != null && !safetyStock.trim().isEmpty()) 
-                    || (orderQty != null && !orderQty.trim().isEmpty()) 
-                    || (shopName != null && !shopName.trim().isEmpty())) {
+                    || (orderQty != null && !orderQty.trim().isEmpty())) {
                 return false;
             }
         }
 
         try {
             preparedStatement = createPreparedStatement(connection, 
-                    "update.expense");
+                    "expensesStructure/update");
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLUpdate: "
                     + "SQL PreparedStatement failure: "
@@ -89,15 +88,14 @@ public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
            cancelling update operation (nothing to update). */
         boolean allInputParamsNullOrBlank = true;
         String[] enteredParams = new String[]{newName, accountName,
-            linkedToComplexId, price, safetyStock, orderQty, shopName};
+            linkedToComplexId, price, safetyStock, orderQty};
         String[] entityExpenseParams = new String[]{
             entityExpenseFromDB.getName(),
             entityExpenseFromDB.getAccountLinked(),
             Integer.toString(entityExpenseFromDB.getLinkedToComplexId()),
             Integer.toString(entityExpenseFromDB.getPrice()),
             Integer.toString(entityExpenseFromDB.getSafetyStock()),
-            Integer.toString(entityExpenseFromDB.getOrderQty()),
-            entityExpenseFromDB.getShopName()};
+            Integer.toString(entityExpenseFromDB.getOrderQty())};
         for (int i = 0; i < enteredParams.length; i++) {
             if (enteredParams[i] == null || enteredParams[i].trim().isEmpty()) {
                 enteredParams[i] = entityExpenseParams[i];
@@ -115,7 +113,6 @@ public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
         price = enteredParams[3];
         safetyStock = enteredParams[4];
         orderQty = enteredParams[5];
-        shopName = enteredParams[6];
 
         int linkedToComplexIdInt = stringToInt(linkedToComplexId);
         int priceInt = stringToInt(price);
@@ -137,7 +134,6 @@ public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
                 entityExpense.setPrice(priceInt);
                 entityExpense.setSafetyStock(safetyStockInt);
                 entityExpense.setOrderQty(orderQtyInt);
-                entityExpense.setShopName(shopName);
             } else {
                 return false;
             }
@@ -148,8 +144,7 @@ public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
             preparedStatement.setInt(4, priceInt);
             preparedStatement.setInt(5, safetyStockInt);
             preparedStatement.setInt(6, orderQtyInt);
-            preparedStatement.setString(7, shopName);
-            preparedStatement.setString(8, name);
+            preparedStatement.setString(7, name);
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLUpdate: Error while "
@@ -192,7 +187,7 @@ public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
 
         try {
             preparedStatement = createPreparedStatement(connection, 
-                    "update.expense.clearComplexExpLink");
+                    "expensesStructure/update.clearComplexExpLink");
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLUpdate: "
                     + "clearAssignmentToComplexExpense() "
@@ -238,7 +233,7 @@ public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
 
         try {
             preparedStatement = createPreparedStatement(connection, 
-                    "update.expense.clearAccount");
+                    "expensesStructure/update.clearAccount");
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLUpdate: "
                     + "clearAssignmentToAccount() "
@@ -268,53 +263,7 @@ public class ExpensesStructureSQLUpdate extends ExpensesStructureSQLAbstract
         }
         return true;
     }    
-
-    @Override
-    public boolean clearShopName(Connection connection, String name) {
-        /* If no expense name provided for the update operation then cancelling
-        this method. */
-        if (!inputCheckNullBlank(name) || !inputCheckLength(name)) {
-            return false;
-        }
-
-        /* Check if corresponding record is in the database. */
-        if (select.executeSelectByName(connection, name) == null) {
-            return false;
-        }
-
-        try {
-            preparedStatement = createPreparedStatement(connection, 
-                    "update.expense.clearShopName");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ExpensesStructureSQLUpdate: "
-                    + "clearShopName() "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
-
-        try {
-            EntityExpense expense = 
-                    handler.selectFromEntityExpenseListByName(name);
-            if (expense != null) {
-                expense.setShopName("");
-            } else {
-                return false;
-            }
-            preparedStatement.setString(1, name);
-            preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("***ExpensesStructureSQLUpdate: "
-                    + "clearShopName() Error while "
-                    + "setting query parameters or executing Update Query: "
-                    + ex.getMessage() + "***");
-            return false;
-        } finally {
-            clear();
-        }
-        return true;
-    }    
-
+  
     private void clear() {
         if (preparedStatement != null) {
             try {

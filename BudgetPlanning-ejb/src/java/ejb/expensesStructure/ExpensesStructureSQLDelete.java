@@ -1,6 +1,7 @@
 
 package ejb.expensesStructure;
 
+import ejb.common.SQLAbstract;
 import ejb.entity.EntityExpense;
 import java.io.IOException;
 import java.sql.Connection;
@@ -17,7 +18,7 @@ import javax.ejb.Stateless;
  * @author SoundlyGifted
  */
 @Stateless
-public class ExpensesStructureSQLDelete extends ExpensesStructureSQLAbstract
+public class ExpensesStructureSQLDelete extends SQLAbstract
         implements ExpensesStructureSQLDeleteLocal {
 
     @EJB
@@ -47,7 +48,7 @@ public class ExpensesStructureSQLDelete extends ExpensesStructureSQLAbstract
         }
         Integer idInt = expense.getId();
         try {
-            preparedStatement = createPreparedStatement(connection, "delete.expense.byname");
+            preparedStatement = createPreparedStatement(connection, "expensesStructure/delete.byname");
             preparedStatement.setString(1, name);
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLDelete: execute()"
@@ -105,7 +106,7 @@ public class ExpensesStructureSQLDelete extends ExpensesStructureSQLAbstract
 
         try {
             preparedStatement = createPreparedStatement(connection, 
-                    "delete.expense.byid");
+                    "expensesStructure/delete.byid");
             preparedStatement.setInt(1, idInt);
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLDelete: execute()"

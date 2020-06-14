@@ -1,39 +1,25 @@
 
-package ejb.expensesStructure;
+package ejb.common;
 
 import ejb.DBConnection.QueryProviderLocal;
+import ejb.expensesStructure.ExpensesTypes;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-//import javax.annotation.PostConstruct;
-//import javax.annotation.PreDestroy;
 import javax.ejb.EJB;
 
 /**
  *
  * @author SoundlyGifted
  */
-public abstract class ExpensesStructureSQLAbstract {
+public abstract class SQLAbstract {
     
     @EJB
     private QueryProviderLocal queryProvider;
     
-//    @PostConstruct
-//    public void initialize() {
-//        String className = this.getClass().getSimpleName();
-//        System.out.println("*** " + className + ": initialize() called. ***");
-//            try {
-//                connection = connectionCheck(connectionProvider.connection());
-//            } catch (SQLException sqlex) {
-//            System.out.println("*** " + className + ": SQL PreparedStatement "
-//                    + " connection establishing failure: "
-//                    + sqlex.getMessage() + " ***");                
-//            }
-//        System.out.println("*** " + className + ": initialize() Connection = " + connection.hashCode());
-//    }
-    
-
     public PreparedStatement createPreparedStatement(Connection connection,
             String path)
             throws SQLException, IOException {
@@ -54,6 +40,26 @@ public abstract class ExpensesStructureSQLAbstract {
         return null;
     }  
 
+    public Double stringToDouble (String stringVal) {
+        stringVal = stringVal.replaceAll(",", ".");
+        try {
+            Double doubleValue = Double.parseDouble(stringVal);
+            return round(doubleValue, 2);
+        } catch (NumberFormatException ex) {
+            System.out.println("Value '" + stringVal + "' cannot be "
+                    + "converted to Double");
+        }
+        return null;
+    }      
+
+    public static double round(double value, int dplaces) {
+        if (dplaces < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(dplaces, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+    
     public boolean inputCheckType(String type) {
         if (type == null || type.trim().isEmpty() || type.length() > 255) {
             return false;
@@ -84,15 +90,4 @@ public abstract class ExpensesStructureSQLAbstract {
         return true;
     }
     
-//    @PreDestroy
-//    public void close() {
-//        if (connection != null) {          
-//            try {
-//                connection.close();
-//                connection = null;
-//            } catch (SQLException ex) {
-//                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }     
-//    }
 }

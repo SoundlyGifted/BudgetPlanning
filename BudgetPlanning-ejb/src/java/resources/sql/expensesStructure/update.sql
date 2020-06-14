@@ -4,7 +4,6 @@ set "NAME" = ?,
     LINKED_TO_COMPLEX_ID = ?,
     PRICE = ?,
     SAFETY_STOCK = ?,
-    ORDER_QTY = ?,
-    SHOP_NAME = ?
+    ORDER_QTY = ?
 where "NAME" = ?
 

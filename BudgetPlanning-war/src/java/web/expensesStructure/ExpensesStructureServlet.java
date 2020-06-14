@@ -97,7 +97,6 @@ public class ExpensesStructureServlet extends HttpServlet {
                 int currentPrice = expenseSelected.getPrice();
                 int currentSafetyStock = expenseSelected.getSafetyStock();
                 int currentOrderQty = expenseSelected.getOrderQty();
-                String currentShopName = expenseSelected.getShopName();
 
                 /* Setting Selected EntityExpense fields as reqeust attributes for passing to the jsp-page. */
                 request.setAttribute("currentName", currentName);
@@ -113,7 +112,6 @@ public class ExpensesStructureServlet extends HttpServlet {
                 request.setAttribute("currentPrice", Integer.toString(currentPrice));
                 request.setAttribute("currentSafetyStock", Integer.toString(currentSafetyStock));
                 request.setAttribute("currentOrderQty", Integer.toString(currentOrderQty));
-                request.setAttribute("currentShopName", currentShopName);
                 request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
             } else {
                 log.add(session, currentDateTime + " [Select Expense command entered] : Expense select error");
@@ -148,11 +146,10 @@ public class ExpensesStructureServlet extends HttpServlet {
             String inputPrice = request.getParameter("inputPrice");
             String inputSafetyStock = request.getParameter("inputSafetyStock");
             String inputOrderQty = request.getParameter("inputOrderQty");
-            String inputShopName = request.getParameter("inputShopName");
 
             boolean inserted = insert.execute(DBConnection, inputType, inputName,
                     inputAccountName, inputPrice, inputSafetyStock,
-                    inputOrderQty, inputShopName);
+                    inputOrderQty);
             if (inserted) {
                 log.add(session, currentDateTime + " [Add Expense command entered] : Expense added");
             } else {

@@ -2,6 +2,7 @@
 package ejb.expensesStructure;
 
 
+import ejb.common.SQLAbstract;
 import ejb.expensesStructure.ExpensesTypes.ExpenseType;
 import java.io.IOException;
 import java.sql.Connection;
@@ -17,7 +18,7 @@ import javax.ejb.EJB;
  * @author SoundlyGifted
  */
 @Stateless
-public class ExpensesStructureSQLInsert extends ExpensesStructureSQLAbstract
+public class ExpensesStructureSQLInsert extends SQLAbstract
         implements ExpensesStructureSQLInsertLocal {
     
     @EJB
@@ -31,25 +32,23 @@ public class ExpensesStructureSQLInsert extends ExpensesStructureSQLAbstract
     @Override
     public boolean execute(Connection connection, String type, String name, 
             String accountName, String price, String safetyStock, 
-            String orderQty, String shopName) {
+            String orderQty) {
         /* Checking of input values. */
         if (!inputCheckType(type) || !inputCheckNullBlank(name) || 
-                !inputCheckLength(name) || !inputCheckLength(accountName) ||
-                !inputCheckLength(shopName)) {
+                !inputCheckLength(name) || !inputCheckLength(accountName)) {
             return false;
         }
         /* For SIMPLE_EXPENSES and COMPLEX_EXPENSES the following fields 
-        should not be filled: price, safetyStock, orderQty, shopName*/
+        should not be filled: price, safetyStock, orderQty*/
         if (type.equals(ExpenseType.COMPLEX_EXPENSES.getType()) 
                 || type.equals(ExpenseType.SIMPLE_EXPENSES.getType())) {
             price = "";
             safetyStock = "";
             orderQty = "";
-            shopName = "";
         }
         try {
             preparedStatement = createPreparedStatement(connection, 
-                    "insert.expense");
+                    "expensesStructure/insert");
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLInsert: "
                     + "SQL PreparedStatement failure: "
@@ -94,7 +93,6 @@ public class ExpensesStructureSQLInsert extends ExpensesStructureSQLAbstract
             preparedStatement.setInt(5, priceInt);
             preparedStatement.setInt(6, safetyStockInt);
             preparedStatement.setInt(7, orderQtyInt);
-            preparedStatement.setString(8, shopName);
             preparedStatement.executeUpdate();
             // Adding Entity to the Entity Object List;
             handler.addToEntityExpenseList(select.

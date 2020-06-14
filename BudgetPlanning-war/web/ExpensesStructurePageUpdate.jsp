@@ -7,7 +7,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link rel="stylesheet" href="css/ExpensesStructurePageStyles.css" />
-        <title>Expenses Structure Page : Update</title>
+        <title>Expenses Structure Module : Update</title>
     </head>
     <body>
         <h1>Expenses Structure module</h1>
@@ -74,12 +74,6 @@
                             <td><b>${currentOrderQty}</b></td>
                             <td></td>                        
                         </tr>                    
-                        <tr valign="top">
-                            <td><b>Shop / Supplier Name</b></td>
-                            <td><input type="text" class="inputTextBox" value="${currentShopName}" size="15" name="updateShopName" placeholder="[not set]" maxlength="255"/></td>
-                            <td><b>${currentShopName}</b></td>
-                            <td><input type="submit" class="button" value="Clear" name="clearShopName"/></td>                        
-                        </tr>
                     </c:if>                    
                 </table>
                 <br>        

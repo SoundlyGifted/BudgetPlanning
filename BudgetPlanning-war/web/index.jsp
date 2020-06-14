@@ -13,6 +13,7 @@
     </head>
     <body>
         <h1>Budget Planning Application [Main Screen]</h1>
-        <a href="ExpensesStructurePage.jsp"><input type="submit" value="Expenses Structure Page" name="goToExpensesStructure"/></a>
+        <a href="ExpensesStructurePage.jsp"><input type="submit" value="Expenses Structure Module" name="goToExpensesStructure"/></a>
+        <a href="ActualExpensesPage.jsp"><input type="submit" value="Actual Expenses module" name="goToActualExpense"/></a>        
     </body>
 </html>

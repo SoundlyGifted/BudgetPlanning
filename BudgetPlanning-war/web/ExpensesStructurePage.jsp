@@ -14,7 +14,7 @@
 
 <!-- JSTL sql query to select all records from EXPENSES_STRUCTURE table -->
 <sql:query dataSource = "${outputDBConnection}" var = "expensesStructureOutput">
-    SELECT T1.ID, T1.TYPE, T1.NAME, T1.ACCOUNT_LINKED, T2.NAME as COMPLEX_EXP_NAME_ASSIGNED, T1.PRICE, T1.SAFETY_STOCK, T1.ORDER_QTY, T1.SHOP_NAME 
+    SELECT T1.ID, T1.TYPE, T1.NAME, T1.ACCOUNT_LINKED, T2.NAME as COMPLEX_EXP_NAME_ASSIGNED, T1.PRICE, T1.SAFETY_STOCK, T1.ORDER_QTY
     from EXPENSES_STRUCTURE T1
     left join
     EXPENSES_STRUCTURE T2
@@ -24,11 +24,11 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link rel="stylesheet" href="css/ExpensesStructurePageStyles.css" />
-        <title>Expenses Structure Page</title>
+        <title>Expenses Structure Module</title>
     </head>
     
-    <body>
-        <h1>Expenses Structure module</h1>
+    <body> 
+        <h1>Expenses Structure Module</h1>
         <div class="inputBlock1">
             <!-- System Message Log text area -->
             <textarea id="systemMessageLog_id" class="systemMessageLogTextArea" rows="2" readonly title="System Message Log">${operationResult}</textarea>
@@ -55,7 +55,6 @@
                 <input type="text" class="inputTextBox" value="" size="15" name="inputPrice" placeholder="Price [GOODS only]"/>
                 <input type="text" class="inputTextBox" value="" size="15" name="inputSafetyStock" placeholder="Safety Stock [GOODS only]"/>
                 <input type="text" class="inputTextBox" value="" size="15" name="inputOrderQty" placeholder="Order QTY [GOODS only]"/>
-                <input type="text" class="inputTextBox" value="" size="15" name="inputShopName" placeholder="Shop Name [GOODS only]" maxlength="255"/>
                 <input type="submit" class="button" value="Create" name="executeInsert"/>
                 
                 <h5>Update / Delete Expense Category</h5>
@@ -87,8 +86,7 @@
                     <th>Linked To Complex Expense Named</th>            
                     <th>Price</th>
                     <th>Safety Stock</th>
-                    <th>Order QTY</th>
-                    <th>Shop Name</th>    
+                    <th>Order QTY</th>  
                 </tr>
                 <c:forEach var = "row" items = "${expensesStructureOutput.rows}">
                     <tr>
@@ -100,7 +98,6 @@
                         <td> <c:out value = "${row.PRICE}"/></td>
                         <td> <c:out value = "${row.SAFETY_STOCK}"/></td>
                         <td> <c:out value = "${row.ORDER_QTY}"/></td>
-                        <td> <c:out value = "${row.SHOP_NAME}"/></td>
                     </tr>
                 </c:forEach>
             </table>  
