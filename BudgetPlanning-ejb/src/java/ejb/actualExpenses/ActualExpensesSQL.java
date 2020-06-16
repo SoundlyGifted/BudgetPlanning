@@ -10,8 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -308,16 +306,5 @@ public class ActualExpensesSQL extends SQLAbstract
         } else {
             return "WK" + String.valueOf(week);
         }
-    }
-    
-    private void clear(PreparedStatement preparedStatement) {        
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-                preparedStatement = null;
-            } catch (SQLException ex) {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-            }
-        } 
     }
 }

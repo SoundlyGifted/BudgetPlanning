@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -25,8 +23,6 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
 
     @EJB
     private ExpensesStructureSQLSelectLocal select;
-
-    private PreparedStatement preparedStatement;
 
     @Override
     public boolean execute(Connection connection, String name, String newName, 
@@ -58,6 +54,7 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             }
         }
 
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection, 
                     "expensesStructure/update");
@@ -152,7 +149,7 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                     + ex.getMessage() + "***");
             return false;
         } finally {
-            clear();
+            clear(preparedStatement);
         }
         return true;
     }
@@ -185,6 +182,7 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             return false;
         }
 
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection, 
                     "expensesStructure/update.clearComplexExpLink");
@@ -213,7 +211,7 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                     + ex.getMessage() + "***");
             return false;
         } finally {
-            clear();
+            clear(preparedStatement);
         }
         return true;
     }
@@ -231,6 +229,7 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             return false;
         }
 
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection, 
                     "expensesStructure/update.clearAccount");
@@ -259,19 +258,8 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                     + ex.getMessage() + "***");
             return false;
         } finally {
-            clear();
+            clear(preparedStatement);
         }
         return true;
-    }    
-  
-    private void clear() {
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-                preparedStatement = null;
-            } catch (SQLException ex) {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     }
 }

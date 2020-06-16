@@ -8,8 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -30,8 +28,6 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
     @EJB
     ExpensesStructureSQLUpdateLocal update;
     
-    private PreparedStatement preparedStatement;
-    
     @Override
     public boolean executeDeleteByName(Connection connection, String name) {
         if (!inputCheckNullBlank(name) || !inputCheckLength(name)) {
@@ -47,6 +43,8 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
             return false;
         }
         Integer idInt = expense.getId();
+        
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection, 
                     "expensesStructure/delete.byname");
@@ -86,7 +84,7 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
                     + ex.getMessage() + "***");
             return false;
         } finally {
-            clear();
+            clear(preparedStatement);
         }
         return true;
     }
@@ -105,6 +103,7 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
             return false;
         }
 
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection, 
                     "expensesStructure/delete.byid");
@@ -144,20 +143,8 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
                     + ex.getMessage() + "***");
             return false;
         } finally {
-            clear();
+            clear(preparedStatement);
         }
         return true;
-    }
-
-    private void clear() {
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-                preparedStatement = null;
-            } catch (SQLException ex) {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     } 
-    
 }

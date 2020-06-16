@@ -1,7 +1,6 @@
 
 package ejb.expensesStructure;
 
-
 import ejb.common.SQLAbstract;
 import ejb.expensesStructure.ExpensesTypes.ExpenseType;
 import java.io.IOException;
@@ -9,8 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.ejb.Stateless;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 
 /**
@@ -26,8 +23,6 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
     
     @EJB
     ExpensesStructureSQLSelectLocal select;
-    
-    private PreparedStatement preparedStatement;
 
     @Override
     public boolean execute(Connection connection, String type, String name, 
@@ -49,6 +44,8 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             safetyStock = "";
             orderQty = "";
         }
+        
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection, 
                     "expensesStructure/insert");
@@ -102,20 +99,8 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
                     + ex.getMessage() + "***");
             return false;
         } finally {
-            clear();
+            clear(preparedStatement);
         }
         return true;
     }
-   
-    private void clear() {        
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-                preparedStatement = null;
-            } catch (SQLException ex) {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-            }
-        } 
-    }
-
 }

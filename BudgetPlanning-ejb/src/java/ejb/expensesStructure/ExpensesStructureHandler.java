@@ -6,7 +6,6 @@ import ejb.entity.EntityExpense;
 import ejb.entity.EntityExpenseList;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -20,8 +19,6 @@ import javax.ejb.Startup;
 @Startup
 public class ExpensesStructureHandler implements ExpensesStructureHandlerLocal {
 
-    private List<String> expenseTypeList;
-
     @EJB
     private ExpensesStructureSQLSelectLocal expensesStructureSelect;
     
@@ -31,20 +28,9 @@ public class ExpensesStructureHandler implements ExpensesStructureHandlerLocal {
     @PostConstruct
     public void initialize() {
         System.out.println("*** ExpensesStructureHandler: initialize() called. ***");
-        ExpensesTypes.ExpenseType[] expensesTypes
-                = ExpensesTypes.ExpenseType.values();
-        expenseTypeList = new ArrayList<>();
-        for (ExpensesTypes.ExpenseType t : expensesTypes) {
-            expenseTypeList.add(t.getType());
-        }
         Connection connection = connector.connection();
         replaceEntityExpenseList(expensesStructureSelect.executeSelectAll(connection));
         connector.closeConnection(connection);
-    }
-
-    @Override
-    public List<String> getExpenseTypeList() {
-        return expenseTypeList;
     }
     
     @Override

@@ -11,8 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.Stateless;
 
 /**
@@ -23,10 +21,9 @@ import javax.ejb.Stateless;
 public class ExpensesStructureSQLSelect extends SQLAbstract
         implements ExpensesStructureSQLSelectLocal {
 
-    private PreparedStatement preparedStatement;
-
     @Override
     public ArrayList<EntityExpense> executeSelectAll(Connection connection) {
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection, 
                     "expensesStructure/select.all");
@@ -55,7 +52,7 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                     + ex.getMessage() + "***");
             return null;
         } finally {
-            clear();
+            clear(preparedStatement);
         }
     }
     
@@ -65,6 +62,8 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
         if (name == null || name.trim().isEmpty()) {
             return null;
         }
+        
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection, 
                     "expensesStructure/select.byname");
@@ -96,7 +95,7 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                     + ex.getMessage() + "***");
             return null;
         } finally {
-            clear();
+            clear(preparedStatement);
         }
     }
     
@@ -105,6 +104,8 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
         if (id == null || id < 1) {
             return null;
         }
+        
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection, 
                     "expensesStructure/select.byid");
@@ -134,18 +135,7 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                     + ex.getMessage() + "***");
             return null;
         } finally {
-            clear();
+            clear(preparedStatement);
         }
-    }    
-
-    private void clear() {
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-                preparedStatement = null;
-            } catch (SQLException ex) {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }  
+    }
 }

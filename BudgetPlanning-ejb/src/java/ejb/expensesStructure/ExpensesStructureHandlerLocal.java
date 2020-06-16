@@ -3,7 +3,6 @@ package ejb.expensesStructure;
 
 import ejb.entity.EntityExpense;
 import java.util.ArrayList;
-import java.util.List;
 import javax.ejb.Local;
 
 /**
@@ -12,9 +11,7 @@ import javax.ejb.Local;
  */
 @Local
 public interface ExpensesStructureHandlerLocal {
-    
-    public List<String> getExpenseTypeList();
-    
+   
     public ArrayList<EntityExpense> getEntityExpenseList();
     
     public void replaceEntityExpenseList(ArrayList<EntityExpense> list);

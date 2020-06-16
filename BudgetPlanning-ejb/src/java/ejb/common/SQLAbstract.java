@@ -93,4 +93,15 @@ public abstract class SQLAbstract {
         return true;
     }
     
+    public void clear(PreparedStatement preparedStatement) {
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+                preparedStatement = null;
+            } catch (SQLException ex) {
+                System.out.println("*** PreparedStatement error "
+                        + "druing closing: " + ex.getMessage());
+            }
+        }
+    }
 }
