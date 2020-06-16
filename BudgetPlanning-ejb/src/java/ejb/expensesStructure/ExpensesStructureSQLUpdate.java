@@ -93,9 +93,9 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             entityExpenseFromDB.getName(),
             entityExpenseFromDB.getAccountLinked(),
             Integer.toString(entityExpenseFromDB.getLinkedToComplexId()),
-            Integer.toString(entityExpenseFromDB.getPrice()),
-            Integer.toString(entityExpenseFromDB.getSafetyStock()),
-            Integer.toString(entityExpenseFromDB.getOrderQty())};
+            Double.toString(entityExpenseFromDB.getPrice()),
+            Double.toString(entityExpenseFromDB.getSafetyStock()),
+            Double.toString(entityExpenseFromDB.getOrderQty())};
         for (int i = 0; i < enteredParams.length; i++) {
             if (enteredParams[i] == null || enteredParams[i].trim().isEmpty()) {
                 enteredParams[i] = entityExpenseParams[i];
@@ -115,9 +115,9 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         orderQty = enteredParams[5];
 
         int linkedToComplexIdInt = stringToInt(linkedToComplexId);
-        int priceInt = stringToInt(price);
-        int safetyStockInt = stringToInt(safetyStock);
-        int orderQtyInt = stringToInt(orderQty);
+        double priceDouble = stringToDouble(price);
+        double safetyStockDouble = stringToDouble(safetyStock);
+        double orderQtyDouble = stringToDouble(orderQty);
 
         try {
             /* Updating Entity in the Entity Object List.
@@ -131,9 +131,9 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                 entityExpense.setName(newName);
                 entityExpense.setAccountLinked(accountName);
                 entityExpense.setLinkedToComplexId(linkedToComplexIdInt);
-                entityExpense.setPrice(priceInt);
-                entityExpense.setSafetyStock(safetyStockInt);
-                entityExpense.setOrderQty(orderQtyInt);
+                entityExpense.setPrice(priceDouble);
+                entityExpense.setSafetyStock(safetyStockDouble);
+                entityExpense.setOrderQty(orderQtyDouble);
             } else {
                 return false;
             }
@@ -141,9 +141,9 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             preparedStatement.setString(1, newName);
             preparedStatement.setString(2, accountName);
             preparedStatement.setInt(3, linkedToComplexIdInt);
-            preparedStatement.setInt(4, priceInt);
-            preparedStatement.setInt(5, safetyStockInt);
-            preparedStatement.setInt(6, orderQtyInt);
+            preparedStatement.setDouble(4, priceDouble);
+            preparedStatement.setDouble(5, safetyStockDouble);
+            preparedStatement.setDouble(6, orderQtyDouble);
             preparedStatement.setString(7, name);
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {

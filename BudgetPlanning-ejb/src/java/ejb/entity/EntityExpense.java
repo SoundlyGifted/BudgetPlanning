@@ -10,17 +10,17 @@ import java.util.Objects;
 public class EntityExpense {
     
     private int id; /* Primary key */
-    private String type; /* not null */
-    private String name; /* not null, unique*/
+    private String type;
+    private String name;
     private String accountLinked;
     private int linkedToComplexId;
-    private int price;
-    private int safetyStock;
-    private int orderQty;
+    private double price;
+    private double safetyStock;
+    private double orderQty;
 
     public EntityExpense(int id, String type, String name, String accountLinked, 
-            int linkedToComplexId, int price, int safetyStock, 
-            int orderQty) {
+            int linkedToComplexId, double price, double safetyStock, 
+            double orderQty) {
         this.id = id;
         this.type = type;
         this.name = name;
@@ -43,14 +43,14 @@ public class EntityExpense {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 89 * hash + this.id;
-        hash = 89 * hash + Objects.hashCode(this.type);
-        hash = 89 * hash + Objects.hashCode(this.name);
-        hash = 89 * hash + Objects.hashCode(this.accountLinked);
-        hash = 89 * hash + this.linkedToComplexId;
-        hash = 89 * hash + this.price;
-        hash = 89 * hash + this.safetyStock;
-        hash = 89 * hash + this.orderQty;
+        hash = 47 * hash + this.id;
+        hash = 47 * hash + Objects.hashCode(this.type);
+        hash = 47 * hash + Objects.hashCode(this.name);
+        hash = 47 * hash + Objects.hashCode(this.accountLinked);
+        hash = 47 * hash + this.linkedToComplexId;
+        hash = 47 * hash + (int) (Double.doubleToLongBits(this.price) ^ (Double.doubleToLongBits(this.price) >>> 32));
+        hash = 47 * hash + (int) (Double.doubleToLongBits(this.safetyStock) ^ (Double.doubleToLongBits(this.safetyStock) >>> 32));
+        hash = 47 * hash + (int) (Double.doubleToLongBits(this.orderQty) ^ (Double.doubleToLongBits(this.orderQty) >>> 32));
         return hash;
     }
 
@@ -72,13 +72,13 @@ public class EntityExpense {
         if (this.linkedToComplexId != other.linkedToComplexId) {
             return false;
         }
-        if (this.price != other.price) {
+        if (Double.doubleToLongBits(this.price) != Double.doubleToLongBits(other.price)) {
             return false;
         }
-        if (this.safetyStock != other.safetyStock) {
+        if (Double.doubleToLongBits(this.safetyStock) != Double.doubleToLongBits(other.safetyStock)) {
             return false;
         }
-        if (this.orderQty != other.orderQty) {
+        if (Double.doubleToLongBits(this.orderQty) != Double.doubleToLongBits(other.orderQty)) {
             return false;
         }
         if (!Objects.equals(this.type, other.type)) {
@@ -133,27 +133,27 @@ public class EntityExpense {
         this.linkedToComplexId = linkedToComplexId;
     }
 
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
-    public int getSafetyStock() {
+    public double getSafetyStock() {
         return safetyStock;
     }
 
-    public void setSafetyStock(int safetyStock) {
+    public void setSafetyStock(double safetyStock) {
         this.safetyStock = safetyStock;
     }
 
-    public int getOrderQty() {
+    public double getOrderQty() {
         return orderQty;
     }
 
-    public void setOrderQty(int orderQty) {
+    public void setOrderQty(double orderQty) {
         this.orderQty = orderQty;
     }
 }

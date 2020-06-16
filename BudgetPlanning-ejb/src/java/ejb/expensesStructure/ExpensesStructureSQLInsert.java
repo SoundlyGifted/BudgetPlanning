@@ -34,8 +34,11 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             String accountName, String price, String safetyStock, 
             String orderQty) {
         /* Checking of input values. */
-        if (!inputCheckType(type) || !inputCheckNullBlank(name) || 
-                !inputCheckLength(name) || !inputCheckLength(accountName)) {
+        if (!inputCheckType(type) || !inputCheckNullBlank(name) 
+                || !inputCheckLength(name) || !inputCheckLength(accountName)
+                || stringToDouble(price) == null 
+                || stringToDouble(safetyStock) == null
+                || stringToDouble(orderQty) == null) {
             return false;
         }
         /* For SIMPLE_EXPENSES and COMPLEX_EXPENSES the following fields 
@@ -56,32 +59,28 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             return false;
         }
         
-        int priceInt;
-        int safetyStockInt;
-        int orderQtyInt;
+        double priceDouble;
+        double safetyStockDouble;
+        double orderQtyDouble;
+        
+        System.out.println("*** PRICE = " + price);
         
         if (price == null || price.trim().isEmpty()) {
-            priceInt = 0;
-        } else if (stringToInt(price) == null) {
-            return false;
+            priceDouble = (double) 0;
         } else {
-            priceInt = stringToInt(price);
+            priceDouble = stringToDouble(price);
         }
         
         if (safetyStock == null || safetyStock.trim().isEmpty()) {
-            safetyStockInt = 0;
-        } else if (stringToInt(safetyStock) == null) {
-            return false;
+            safetyStockDouble = (double) 0;
         } else {
-            safetyStockInt = stringToInt(safetyStock);
+            safetyStockDouble = stringToDouble(safetyStock);
         }        
         
         if (orderQty == null || orderQty.trim().isEmpty()) {
-            orderQtyInt = 0;
-        } else if (stringToInt(orderQty) == null) {
-            return false;
+            orderQtyDouble = (double) 0;
         } else {
-            orderQtyInt = stringToInt(orderQty);
+            orderQtyDouble = stringToDouble(orderQty);
         }      
 
         try {
@@ -90,9 +89,9 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             preparedStatement.setString(2, name);
             preparedStatement.setString(3, accountName);
             preparedStatement.setInt(4, 0); /* LINKED_TO_COMPLEX_ID is 0 for new records.*/
-            preparedStatement.setInt(5, priceInt);
-            preparedStatement.setInt(6, safetyStockInt);
-            preparedStatement.setInt(7, orderQtyInt);
+            preparedStatement.setDouble(5, priceDouble);
+            preparedStatement.setDouble(6, safetyStockDouble);
+            preparedStatement.setDouble(7, orderQtyDouble);
             preparedStatement.executeUpdate();
             // Adding Entity to the Entity Object List;
             handler.addToEntityExpenseList(select.

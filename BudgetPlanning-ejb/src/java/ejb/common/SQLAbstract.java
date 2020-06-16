@@ -41,6 +41,9 @@ public abstract class SQLAbstract {
     }  
 
     public Double stringToDouble (String stringVal) {
+        if (!inputCheckNullBlank(stringVal)) {
+            return (double) 0;
+        }
         stringVal = stringVal.replaceAll(",", ".");
         try {
             Double doubleValue = Double.parseDouble(stringVal);

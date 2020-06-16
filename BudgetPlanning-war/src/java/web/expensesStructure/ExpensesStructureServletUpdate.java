@@ -153,9 +153,9 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
     private void selectedExpenseToRequestAttributes(Connection connection, HttpServletRequest request, EntityExpense expenseSelected) {
         String currentAccount = expenseSelected.getAccountLinked();
         int linkedToComplexId = expenseSelected.getLinkedToComplexId();
-        int currentPrice = expenseSelected.getPrice();
-        int currentSafetyStock = expenseSelected.getSafetyStock();
-        int currentOrderQty = expenseSelected.getOrderQty();   
+        double currentPrice = expenseSelected.getPrice();
+        double currentSafetyStock = expenseSelected.getSafetyStock();
+        double currentOrderQty = expenseSelected.getOrderQty();   
 
         request.setAttribute("currentAccount", currentAccount);
         if (linkedToComplexId == 0) {
@@ -164,9 +164,9 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             request.setAttribute("currentLinkedToComplExpName", 
                 select.executeSelectById(connection, linkedToComplexId).getName());
         }
-        request.setAttribute("currentPrice", Integer.toString(currentPrice));
-        request.setAttribute("currentSafetyStock", Integer.toString(currentSafetyStock));
-        request.setAttribute("currentOrderQty", Integer.toString(currentOrderQty));    
+        request.setAttribute("currentPrice", Double.toString(currentPrice));
+        request.setAttribute("currentSafetyStock", Double.toString(currentSafetyStock));
+        request.setAttribute("currentOrderQty", Double.toString(currentOrderQty));    
     }
     
     

@@ -94,9 +94,9 @@ public class ExpensesStructureServlet extends HttpServlet {
                 String currentName = expenseSelected.getName();
                 String currentAccount = expenseSelected.getAccountLinked();
                 int linkedToComplexId = expenseSelected.getLinkedToComplexId();
-                int currentPrice = expenseSelected.getPrice();
-                int currentSafetyStock = expenseSelected.getSafetyStock();
-                int currentOrderQty = expenseSelected.getOrderQty();
+                double currentPrice = expenseSelected.getPrice();
+                double currentSafetyStock = expenseSelected.getSafetyStock();
+                double currentOrderQty = expenseSelected.getOrderQty();
 
                 /* Setting Selected EntityExpense fields as reqeust attributes for passing to the jsp-page. */
                 request.setAttribute("currentName", currentName);
@@ -109,9 +109,9 @@ public class ExpensesStructureServlet extends HttpServlet {
                     request.setAttribute("currentLinkedToComplExpName",
                             currentLinkedToComplExpName);
                 }
-                request.setAttribute("currentPrice", Integer.toString(currentPrice));
-                request.setAttribute("currentSafetyStock", Integer.toString(currentSafetyStock));
-                request.setAttribute("currentOrderQty", Integer.toString(currentOrderQty));
+                request.setAttribute("currentPrice", Double.toString(currentPrice));
+                request.setAttribute("currentSafetyStock", Double.toString(currentSafetyStock));
+                request.setAttribute("currentOrderQty", Double.toString(currentOrderQty));
                 request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
             } else {
                 log.add(session, currentDateTime + " [Select Expense command entered] : Expense select error");

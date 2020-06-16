@@ -44,9 +44,9 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                         resultSet.getString("NAME"),
                         resultSet.getString("ACCOUNT_LINKED"),
                         resultSet.getInt("LINKED_TO_COMPLEX_ID"),
-                        resultSet.getInt("PRICE"),
-                        resultSet.getInt("SAFETY_STOCK"),
-                        resultSet.getInt("ORDER_QTY")));
+                        resultSet.getDouble("PRICE"),
+                        resultSet.getDouble("SAFETY_STOCK"),
+                        resultSet.getDouble("ORDER_QTY")));
             }
             return new ArrayList<>(list);
         } catch (SQLException ex) {
@@ -83,9 +83,9 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                         resultSet.getString("NAME"),
                         resultSet.getString("ACCOUNT_LINKED"),
                         resultSet.getInt("LINKED_TO_COMPLEX_ID"),
-                        resultSet.getInt("PRICE"),
-                        resultSet.getInt("SAFETY_STOCK"),
-                        resultSet.getInt("ORDER_QTY"));
+                        resultSet.getDouble("PRICE"),
+                        resultSet.getDouble("SAFETY_STOCK"),
+                        resultSet.getDouble("ORDER_QTY"));
             } else {
                 return null;
             }
@@ -122,9 +122,9 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                     resultSet.getString("NAME"),
                     resultSet.getString("ACCOUNT_LINKED"),
                     resultSet.getInt("LINKED_TO_COMPLEX_ID"),
-                    resultSet.getInt("PRICE"),
-                    resultSet.getInt("SAFETY_STOCK"),
-                    resultSet.getInt("ORDER_QTY"));                
+                    resultSet.getDouble("PRICE"),
+                    resultSet.getDouble("SAFETY_STOCK"),
+                    resultSet.getDouble("ORDER_QTY"));                
             } else {
                 return null;
             }

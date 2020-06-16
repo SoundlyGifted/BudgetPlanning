@@ -48,11 +48,12 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
         }
         Integer idInt = expense.getId();
         try {
-            preparedStatement = createPreparedStatement(connection, "expensesStructure/delete.byname");
+            preparedStatement = createPreparedStatement(connection, 
+                    "expensesStructure/delete.byname");
             preparedStatement.setString(1, name);
         } catch (SQLException | IOException ex) {
-            System.out.println("*** ExpensesStructureSQLDelete: execute()"
-                    + "SQL PreparedStatement failure: "
+            System.out.println("*** ExpensesStructureSQLDelete: "
+                    + "executeDeleteByName() SQL PreparedStatement failure: "
                     + ex.getMessage() + " ***");
             return false;
         }
@@ -81,7 +82,7 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
             handler.removeFromEntityExpenseList(expense);
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLDelete: "
-                    + "execute() Error while executing Delete Query: "
+                    + "executeDeleteByName() Error while executing Delete Query: "
                     + ex.getMessage() + "***");
             return false;
         } finally {
@@ -109,8 +110,8 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
                     "expensesStructure/delete.byid");
             preparedStatement.setInt(1, idInt);
         } catch (SQLException | IOException ex) {
-            System.out.println("*** ExpensesStructureSQLDelete: execute()"
-                    + "SQL PreparedStatement failure: "
+            System.out.println("*** ExpensesStructureSQLDelete: "
+                    + "executeDeleteById() SQL PreparedStatement failure: "
                     + ex.getMessage() + " ***");
             return false;
         }
@@ -139,7 +140,7 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
             handler.removeFromEntityExpenseList(expense);
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLDelete: "
-                    + "execute() Error while executing Delete Query: "
+                    + "executeDeleteById() Error while executing Delete Query: "
                     + ex.getMessage() + "***");
             return false;
         } finally {
