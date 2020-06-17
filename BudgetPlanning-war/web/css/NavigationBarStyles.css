@@ -1,0 +1,68 @@
+/***************************************************/
+/************* NAVIGATION BAR SYTLES ***************/
+/***************************************************/
+
+/* Navigation bar fixed to the top of the screen. */
+.fixed_top_navigation_bar {
+    position: fixed;
+    display: block;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 50px;
+    background-color: #00aaff;
+    background-image: linear-gradient(#00aaff, #0088cc);
+}
+
+/* Navigation bar menu buttons. */
+.menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu a {
+    text-decoration: none;
+    font-family: "Arial Black", Gadget, sans-serif; 
+    color: #ffffff;
+    display: inline-block;
+    padding: 8px 35px;
+    background-color: #005a87;
+    background-image: linear-gradient(#005a87, #0088cc);
+    border-bottom: 7px solid white;
+    
+    transition: 0.1s linear;    
+}
+
+.menu a:hover {
+        color: chartreuse;
+        text-decoration: overline;  
+}
+
+.menu li {
+    float: left;
+}
+
+/* Navigation bar Module Title. */
+.App_Title_Nav_Bar1 {
+    text-align: left;
+    text-decoration: underline;
+    font-family: "Arial Black", Gadget, sans-serif; 
+    font-weight: bold;
+    font-size: 16px;
+    color: #ffffff;
+    padding: 13px 15px;
+    float: left;
+}
+
+/* Navigation bar Main Title. */
+.App_Title_Nav_Bar2 {
+    text-align: right;
+    font-family: "Arial Black", Gadget, sans-serif; 
+    font-weight: bold;
+    font-size: 23px;
+    color: #ffffff;
+    padding: 8px 20px;
+    float: right;
+}

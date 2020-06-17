@@ -23,12 +23,24 @@
 
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link rel="stylesheet" href="css/ExpensesStructurePageStyles.css" />
+        <link rel="stylesheet" href="css/NavigationBarStyles.css" />
+        <link rel="stylesheet" href="css/GeneralStyles.css" />
         <title>Expenses Structure Module</title>
     </head>
     
-    <body> 
-        <h1>Expenses Structure Module</h1>
+    <body>
+        
+        <!-- Navigation Bar at the top of the screen -->
+        <div class="fixed_top_navigation_bar">
+            <ul class="menu">
+                <li><a href="index.jsp">Main Screen</a></li>
+                <li><a href="ExpensesStructurePage.jsp">Expenses Structure</a></li>
+                <li><a href="ActualExpensesPage.jsp">Actual Expenses</a></li>
+            </ul>
+            <div class="App_Title_Nav_Bar1">Expenses Structure Module</div>
+            <div class="App_Title_Nav_Bar2">Budget Planning Application</div>
+        </div>
+        
         <div class="inputBlock1">
             <!-- System Message Log text area -->
             <textarea id="systemMessageLog_id" class="systemMessageLogTextArea" rows="2" readonly title="System Message Log">${operationResult}</textarea>

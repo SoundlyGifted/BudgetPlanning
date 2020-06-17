@@ -1,0 +1,155 @@
+/***************************************************/
+/************* STYLES FOR INPUT AREA ***************/
+/***************************************************/
+
+/* System Message Log Text Area Style */
+.systemMessageLogTextArea {
+    outline: none;
+    width: 50%;
+    resize: none;
+    font:15px "Arial Black", Gadget, sans-serif;
+    text-align: left;
+    overflow: auto;
+}
+
+.systemMessageLogTextArea:hover {
+    outline-color: #005a87;
+    outline-style: solid;
+    outline-width: thin;
+}
+
+/* Input Div Style */  
+.inputBlock1 {
+    width: 99%;
+    background: #ccc;
+    padding: 10px;
+    padding-top: 55px;
+    float: left;
+}
+
+.button{
+    outline: none; /* remove margins of the button */
+    width:100px;
+    text-decoration:none; 
+    text-align:center; 
+    padding:5px 9px; 
+    border:none; 
+
+    font:15px "Arial Black", Gadget, sans-serif; 
+    font-weight:bold; 
+    color:#E5FFFF; 
+    background:#00aaff;
+
+    transition:  all 0.05s linear;
+}
+
+.button:hover{
+    background-image: linear-gradient(#00aaff, #0088cc);     
+}
+
+.button:active{
+    outline: solid #005a87;
+}
+
+.inputTextBox{
+    outline: none;
+    text-decoration:none; 
+    text-align:left; 
+    padding:5px 9px; 
+    border: solid 2px #00aaff; 
+
+    font:15px "Arial Black", Gadget, sans-serif; 
+    font-weight:bold; 
+    color:#00aaff; 
+    background:#ffffff; 
+
+    transition:  all 0.08s linear;
+}
+
+.inputTextBox:hover{
+    border: solid 2px #005a87; 
+}
+
+.inputTextBox:focus{
+    border: solid 2px #005a87;
+    color: #005a87;
+}
+
+/***************************************************/
+/************ STYLES FOR OUTPUT AREA ***************/
+/***************************************************/
+
+/* Output Div Style */
+.outputBlock1 {
+    width: 99%; 
+    /*    background: #87ffa9;*/
+    background: white;    
+    padding: 10px;
+    float: left;
+}
+
+/* Output Table Style */
+.outputTable {
+    width: 99%; 
+    /*  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;*/
+    font-family: "Arial Black", Gadget, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #005a87;
+    
+    border-collapse: collapse;
+    border-bottom: 3px solid #00aaff;
+}
+.outputTable caption {
+    padding: 10px;
+    color: white;
+    background: #00aaff;
+    font-size: 18px;
+    text-align: left;
+    font-weight: bold;
+}
+.outputTable th {
+    color: black;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 3px solid #00aaff;
+}
+.outputTable td {
+    padding: 10px;
+}
+.outputTable tr:nth-child(odd) {
+    background: white;
+}
+.outputTable tr:nth-child(even) {
+    background: #e8e8e8;
+}
+
+/***************************************************/
+/***************** COMMON SYTLES *******************/
+/***************************************************/
+
+h1 {
+    font:35px "Arial Black", Gadget, sans-serif;
+    color: black;
+}
+
+h2 {
+    font:30px "Arial Black", Gadget, sans-serif;
+    color: black;
+}
+
+h3 {
+    font:25px "Arial Black", Gadget, sans-serif;
+    color: black;
+}
+
+h4 {
+    font:20px "Arial Black", Gadget, sans-serif;
+    color: black;
+}
+
+h5 {
+    font:15px "Arial Black", Gadget, sans-serif;
+    color: black;
+}
+
