@@ -92,12 +92,12 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             String updateAccountName = request.getParameter("updateAccountName");
             String updateLinkedComplExpName = request.getParameter("updateLinkedComplExpName");
             String updatePrice = request.getParameter("updatePrice");
-            String updateSafetyStock = request.getParameter("updateSafetyStock");
-            String updateOrderQty = request.getParameter("updateOrderQty");
+            String updateSafetyStockPcs = request.getParameter("updateSafetyStockPcs");
+            String updateOrderQtyPcs = request.getParameter("updateOrderQtyPcs");
             
             boolean updated = update.execute(DBConnection, currentName, updateNewName,
                     updateAccountName, updateLinkedComplExpName,
-                    updatePrice, updateSafetyStock, updateOrderQty);
+                    updatePrice, updateSafetyStockPcs, updateOrderQtyPcs);
             if (updated) {
                 expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
                 session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
@@ -154,8 +154,8 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         String currentAccount = expenseSelected.getAccountLinked();
         int linkedToComplexId = expenseSelected.getLinkedToComplexId();
         double currentPrice = expenseSelected.getPrice();
-        double currentSafetyStock = expenseSelected.getSafetyStock();
-        double currentOrderQty = expenseSelected.getOrderQty();   
+        double currentSafetyStockPcs = expenseSelected.getSafetyStockPcs();
+        double currentOrderQtyPcs = expenseSelected.getOrderQtyPcs();   
 
         request.setAttribute("currentAccount", currentAccount);
         if (linkedToComplexId == 0) {
@@ -165,8 +165,8 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                 select.executeSelectById(connection, linkedToComplexId).getName());
         }
         request.setAttribute("currentPrice", Double.toString(currentPrice));
-        request.setAttribute("currentSafetyStock", Double.toString(currentSafetyStock));
-        request.setAttribute("currentOrderQty", Double.toString(currentOrderQty));    
+        request.setAttribute("currentSafetyStockPcs", Double.toString(currentSafetyStockPcs));
+        request.setAttribute("currentOrderQtyPcs", Double.toString(currentOrderQtyPcs));    
     }
     
     

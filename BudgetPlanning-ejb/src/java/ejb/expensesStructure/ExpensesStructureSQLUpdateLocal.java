@@ -13,7 +13,7 @@ public interface ExpensesStructureSQLUpdateLocal {
     
     public boolean execute(Connection connection, String name, String newName, 
             String accountName, String linkedToComplexId, String price, 
-            String safetyStock, String orderQty);
+            String safetyStockPcs, String orderQtyPcs);
     
     public boolean clearAssignmentToComplexExpense(Connection connection, 
             String name);

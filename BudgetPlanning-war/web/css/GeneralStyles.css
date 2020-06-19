@@ -75,14 +75,43 @@
     color: #005a87;
 }
 
+/* Input Table Style */
+.inputTable {
+    width: 50%;
+    font-family: "Arial Black", Gadget, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #005a87;
+    
+    border-collapse: collapse;
+    border-bottom: 3px solid #00aaff;
+}
+.inputTable caption {
+    padding: 10px;
+    color: white;
+    background: #00aaff;
+    font-size: 18px;
+    text-align: left;
+    font-weight: bold;
+}
+.inputTable th {
+    color: black;
+    padding: 10px;
+    text-align: left;
+    background: white;
+    border-bottom: 3px solid #00aaff;
+}
+.inputTable td {
+    padding: 15px;
+}
+
 /***************************************************/
 /************ STYLES FOR OUTPUT AREA ***************/
 /***************************************************/
 
 /* Output Div Style */
 .outputBlock1 {
-    width: 99%; 
-    /*    background: #87ffa9;*/
+    width: 99%;
     background: white;    
     padding: 10px;
     float: left;
@@ -91,7 +120,6 @@
 /* Output Table Style */
 .outputTable {
     width: 99%; 
-    /*  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;*/
     font-family: "Arial Black", Gadget, sans-serif;
     font-size: 14px;
     font-weight: bold;

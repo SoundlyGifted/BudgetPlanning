@@ -95,8 +95,8 @@ public class ExpensesStructureServlet extends HttpServlet {
                 String currentAccount = expenseSelected.getAccountLinked();
                 int linkedToComplexId = expenseSelected.getLinkedToComplexId();
                 double currentPrice = expenseSelected.getPrice();
-                double currentSafetyStock = expenseSelected.getSafetyStock();
-                double currentOrderQty = expenseSelected.getOrderQty();
+                double currentSafetyStockPcs = expenseSelected.getSafetyStockPcs();
+                double currentOrderQtyPcs = expenseSelected.getOrderQtyPcs();
 
                 /* Setting Selected EntityExpense fields as reqeust attributes for passing to the jsp-page. */
                 request.setAttribute("currentName", currentName);
@@ -110,8 +110,8 @@ public class ExpensesStructureServlet extends HttpServlet {
                             currentLinkedToComplExpName);
                 }
                 request.setAttribute("currentPrice", Double.toString(currentPrice));
-                request.setAttribute("currentSafetyStock", Double.toString(currentSafetyStock));
-                request.setAttribute("currentOrderQty", Double.toString(currentOrderQty));
+                request.setAttribute("currentSafetyStockPcs", Double.toString(currentSafetyStockPcs));
+                request.setAttribute("currentOrderQtyPcs", Double.toString(currentOrderQtyPcs));
                 request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
             } else {
                 log.add(session, currentDateTime + " [Select Expense command entered] : Expense select error");
@@ -144,12 +144,12 @@ public class ExpensesStructureServlet extends HttpServlet {
             String inputName = request.getParameter("inputName");
             String inputAccountName = request.getParameter("inputAccountName");
             String inputPrice = request.getParameter("inputPrice");
-            String inputSafetyStock = request.getParameter("inputSafetyStock");
-            String inputOrderQty = request.getParameter("inputOrderQty");
+            String inputSafetyStockPcs = request.getParameter("inputSafetyStockPcs");
+            String inputOrderQtyPcs = request.getParameter("inputOrderQtyPcs");
 
             boolean inserted = insert.execute(DBConnection, inputType, inputName,
-                    inputAccountName, inputPrice, inputSafetyStock,
-                    inputOrderQty);
+                    inputAccountName, inputPrice, inputSafetyStockPcs,
+                    inputOrderQtyPcs);
             if (inserted) {
                 log.add(session, currentDateTime + " [Add Expense command entered] : Expense added");
             } else {

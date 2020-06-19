@@ -26,14 +26,14 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
 
     @Override
     public boolean execute(Connection connection, String type, String name, 
-            String accountName, String price, String safetyStock, 
-            String orderQty) {
+            String accountName, String price, String safetyStockPcs, 
+            String orderQtyPcs) {
         /* Checking of input values. */
         if (!inputCheckType(type) || !inputCheckNullBlank(name) 
                 || !inputCheckLength(name) || !inputCheckLength(accountName)
                 || stringToDouble(price) == null 
-                || stringToDouble(safetyStock) == null
-                || stringToDouble(orderQty) == null) {
+                || stringToDouble(safetyStockPcs) == null
+                || stringToDouble(orderQtyPcs) == null) {
             return false;
         }
         /* For SIMPLE_EXPENSES and COMPLEX_EXPENSES the following fields 
@@ -41,8 +41,8 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
         if (type.equals(ExpenseType.COMPLEX_EXPENSES.getType()) 
                 || type.equals(ExpenseType.SIMPLE_EXPENSES.getType())) {
             price = "";
-            safetyStock = "";
-            orderQty = "";
+            safetyStockPcs = "";
+            orderQtyPcs = "";
         }
         
         PreparedStatement preparedStatement;
@@ -57,10 +57,10 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
         }
         
         double priceDouble;
-        double safetyStockDouble;
-        double orderQtyDouble;
-        
-        System.out.println("*** PRICE = " + price);
+        double safetyStockPcsDouble;
+        double safetyStockCurDouble;
+        double orderQtyPcsDouble;
+        double orderQtyCurDouble;        
         
         if (price == null || price.trim().isEmpty()) {
             priceDouble = (double) 0;
@@ -68,18 +68,21 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             priceDouble = stringToDouble(price);
         }
         
-        if (safetyStock == null || safetyStock.trim().isEmpty()) {
-            safetyStockDouble = (double) 0;
+        if (safetyStockPcs == null || safetyStockPcs.trim().isEmpty()) {
+            safetyStockPcsDouble = (double) 0;
         } else {
-            safetyStockDouble = stringToDouble(safetyStock);
+            safetyStockPcsDouble = stringToDouble(safetyStockPcs);
         }        
         
-        if (orderQty == null || orderQty.trim().isEmpty()) {
-            orderQtyDouble = (double) 0;
+        if (orderQtyPcs == null || orderQtyPcs.trim().isEmpty()) {
+            orderQtyPcsDouble = (double) 0;
         } else {
-            orderQtyDouble = stringToDouble(orderQty);
+            orderQtyPcsDouble = stringToDouble(orderQtyPcs);
         }      
 
+        safetyStockCurDouble = round(priceDouble * safetyStockPcsDouble, 2);
+        orderQtyCurDouble = round(priceDouble * orderQtyPcsDouble, 2);
+        
         try {
             //Setting Query Parameters and executing Query;
             preparedStatement.setString(1, type);
@@ -87,8 +90,10 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             preparedStatement.setString(3, accountName);
             preparedStatement.setInt(4, 0); /* LINKED_TO_COMPLEX_ID is 0 for new records.*/
             preparedStatement.setDouble(5, priceDouble);
-            preparedStatement.setDouble(6, safetyStockDouble);
-            preparedStatement.setDouble(7, orderQtyDouble);
+            preparedStatement.setDouble(6, safetyStockPcsDouble);
+            preparedStatement.setDouble(7, safetyStockCurDouble);
+            preparedStatement.setDouble(8, orderQtyPcsDouble);
+            preparedStatement.setDouble(9, orderQtyCurDouble);
             preparedStatement.executeUpdate();
             // Adding Entity to the Entity Object List;
             handler.addToEntityExpenseList(select.

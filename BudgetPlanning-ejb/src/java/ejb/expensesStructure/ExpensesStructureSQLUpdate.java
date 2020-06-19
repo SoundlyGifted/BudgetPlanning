@@ -27,33 +27,42 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
     @Override
     public boolean execute(Connection connection, String name, String newName, 
             String accountName, String linkedComplExpName, String price, 
-            String safetyStock, String orderQty) {
+            String safetyStockPcs, String orderQtyPcs) {
         /* If no expense name provided for the update operation then cancelling
         this method. Also checking lengths of String variables. */
         if (!inputCheckNullBlank(name) || !inputCheckLength(name)
                 || !inputCheckLength(accountName)) {
             return false;
         }
+        
+        /* If both Link to Complex Expense and Link to Account operations 
+        requested then return false (unable to handle such request).*/
+        if (linkedComplExpName != null && !linkedComplExpName.trim().isEmpty()
+                && accountName != null && !accountName.trim().isEmpty()) {
+            return false;
+        }
+        
         /* entityExpense selected from database for the update operation. */
         EntityExpense entityExpenseFromDB
                 = select.executeSelectByName(connection, name);
         if (entityExpenseFromDB == null) {
             return false;
         }
+        
         /* For SIMPLE_EXPENSES and COMPLEX_EXPENSES the following fields 
-        should not be filled: price, safetyStock, orderQty*/
+        should not be filled: price, safetyStockPcs, orderQtyPcs*/
         if (entityExpenseFromDB.getType()
                 .equals(ExpensesTypes.ExpenseType.COMPLEX_EXPENSES.getType())
                 || entityExpenseFromDB.getType()
                         .equals(ExpensesTypes.ExpenseType.SIMPLE_EXPENSES
                                 .getType())) {
             if ((price != null && !price.trim().isEmpty()) 
-                    || (safetyStock != null && !safetyStock.trim().isEmpty()) 
-                    || (orderQty != null && !orderQty.trim().isEmpty())) {
+                    || (safetyStockPcs != null && !safetyStockPcs.trim().isEmpty()) 
+                    || (orderQtyPcs != null && !orderQtyPcs.trim().isEmpty())) {
                 return false;
             }
         }
-
+        
         PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection, 
@@ -73,9 +82,15 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                 linkedToComplexId = "";
             } else {
                 /* If linked to Complex Expense the account assignment 
-                should be removed. */
-                accountName = "";
-                entityExpenseFromDB.setAccountLinked("");
+                should be removed. 
+                If requested to assign an Account and the link to Complex 
+                Expense already exists then return false. */
+                if (accountName != null && !accountName.trim().isEmpty()) {
+                    return false;
+                } else {
+                    accountName = "";
+                    entityExpenseFromDB.setAccountLinked("");
+                }
             }
         }
 
@@ -85,14 +100,14 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
            cancelling update operation (nothing to update). */
         boolean allInputParamsNullOrBlank = true;
         String[] enteredParams = new String[]{newName, accountName,
-            linkedToComplexId, price, safetyStock, orderQty};
+            linkedToComplexId, price, safetyStockPcs, orderQtyPcs};
         String[] entityExpenseParams = new String[]{
             entityExpenseFromDB.getName(),
             entityExpenseFromDB.getAccountLinked(),
             Integer.toString(entityExpenseFromDB.getLinkedToComplexId()),
             Double.toString(entityExpenseFromDB.getPrice()),
-            Double.toString(entityExpenseFromDB.getSafetyStock()),
-            Double.toString(entityExpenseFromDB.getOrderQty())};
+            Double.toString(entityExpenseFromDB.getSafetyStockPcs()),
+            Double.toString(entityExpenseFromDB.getOrderQtyPcs())};
         for (int i = 0; i < enteredParams.length; i++) {
             if (enteredParams[i] == null || enteredParams[i].trim().isEmpty()) {
                 enteredParams[i] = entityExpenseParams[i];
@@ -108,14 +123,19 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         accountName = enteredParams[1];
         linkedToComplexId = enteredParams[2];
         price = enteredParams[3];
-        safetyStock = enteredParams[4];
-        orderQty = enteredParams[5];
+        safetyStockPcs = enteredParams[4];
+        orderQtyPcs = enteredParams[5];
 
         int linkedToComplexIdInt = stringToInt(linkedToComplexId);
         double priceDouble = stringToDouble(price);
-        double safetyStockDouble = stringToDouble(safetyStock);
-        double orderQtyDouble = stringToDouble(orderQty);
+        double safetyStockPcsDouble = stringToDouble(safetyStockPcs);
+        double safetyStockCurDouble;
+        double orderQtyPcsDouble = stringToDouble(orderQtyPcs);
+        double orderQtyCurDouble;
 
+        safetyStockCurDouble = round(priceDouble * safetyStockPcsDouble, 2);
+        orderQtyCurDouble = round(priceDouble * orderQtyPcsDouble, 2);
+        
         try {
             /* Updating Entity in the Entity Object List.
             entityExpense selected from Entity Object List for the update 
@@ -129,8 +149,10 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                 entityExpense.setAccountLinked(accountName);
                 entityExpense.setLinkedToComplexId(linkedToComplexIdInt);
                 entityExpense.setPrice(priceDouble);
-                entityExpense.setSafetyStock(safetyStockDouble);
-                entityExpense.setOrderQty(orderQtyDouble);
+                entityExpense.setSafetyStockPcs(safetyStockPcsDouble);
+                entityExpense.setSafetyStockCur(safetyStockCurDouble);
+                entityExpense.setOrderQtyPcs(orderQtyPcsDouble);
+                entityExpense.setOrderQtyCur(orderQtyCurDouble);
             } else {
                 return false;
             }
@@ -139,9 +161,11 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             preparedStatement.setString(2, accountName);
             preparedStatement.setInt(3, linkedToComplexIdInt);
             preparedStatement.setDouble(4, priceDouble);
-            preparedStatement.setDouble(5, safetyStockDouble);
-            preparedStatement.setDouble(6, orderQtyDouble);
-            preparedStatement.setString(7, name);
+            preparedStatement.setDouble(5, safetyStockPcsDouble);
+            preparedStatement.setDouble(6, safetyStockCurDouble);
+            preparedStatement.setDouble(7, orderQtyPcsDouble);
+            preparedStatement.setDouble(8, orderQtyCurDouble);
+            preparedStatement.setString(9, name);
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLUpdate: Error while "

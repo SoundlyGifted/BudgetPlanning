@@ -42,8 +42,10 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                         resultSet.getString("ACCOUNT_LINKED"),
                         resultSet.getInt("LINKED_TO_COMPLEX_ID"),
                         resultSet.getDouble("PRICE"),
-                        resultSet.getDouble("SAFETY_STOCK"),
-                        resultSet.getDouble("ORDER_QTY")));
+                        resultSet.getDouble("SAFETY_STOCK_PCS"),
+                        resultSet.getDouble("SAFETY_STOCK_CUR"),
+                        resultSet.getDouble("ORDER_QTY_PCS"),
+                        resultSet.getDouble("ORDER_QTY_CUR")));
             }
             return new ArrayList<>(list);
         } catch (SQLException ex) {
@@ -83,8 +85,10 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                         resultSet.getString("ACCOUNT_LINKED"),
                         resultSet.getInt("LINKED_TO_COMPLEX_ID"),
                         resultSet.getDouble("PRICE"),
-                        resultSet.getDouble("SAFETY_STOCK"),
-                        resultSet.getDouble("ORDER_QTY"));
+                        resultSet.getDouble("SAFETY_STOCK_PCS"),
+                        resultSet.getDouble("SAFETY_STOCK_CUR"),
+                        resultSet.getDouble("ORDER_QTY_PCS"),
+                        resultSet.getDouble("ORDER_QTY_CUR"));
             } else {
                 return null;
             }
@@ -124,8 +128,10 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                     resultSet.getString("ACCOUNT_LINKED"),
                     resultSet.getInt("LINKED_TO_COMPLEX_ID"),
                     resultSet.getDouble("PRICE"),
-                    resultSet.getDouble("SAFETY_STOCK"),
-                    resultSet.getDouble("ORDER_QTY"));                
+                    resultSet.getDouble("SAFETY_STOCK_PCS"),
+                    resultSet.getDouble("SAFETY_STOCK_CUR"),
+                    resultSet.getDouble("ORDER_QTY_PCS"),
+                    resultSet.getDouble("ORDER_QTY_CUR"));                
             } else {
                 return null;
             }

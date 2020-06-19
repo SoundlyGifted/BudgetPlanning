@@ -7,6 +7,7 @@
     
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="css/NavigationBarStyles.css" />
         <link rel="stylesheet" href="css/GeneralStyles.css" />
         <title>Expenses Structure Module : Update</title>
     </head>
@@ -24,7 +25,6 @@
             <div class="App_Title_Nav_Bar2">Budget Planning Application</div>
         </div>        
 
-        <h4>Update selected Expense Category:</h4>
         <div class="inputBlock1">        
             <!-- System Message Log text area -->
             <textarea id="systemMessageLog_id" class="systemMessageLogTextArea" rows="2" readonly title="System Message Log">${operationResult}</textarea>
@@ -76,15 +76,15 @@
                             <td></td>                        
                         </tr>                    
                         <tr valign="top">
-                            <td><b>Safety Stock</b></td>
-                            <td><input type="text" class="inputTextBox" value="" size="15" name="updateSafetyStock" placeholder="${currentSafetyStock}"/></td>
-                            <td><b>${currentSafetyStock}</b></td>
+                            <td><b>Safety Stock, pcs</b></td>
+                            <td><input type="text" class="inputTextBox" value="" size="15" name="updateSafetyStockPcs" placeholder="${currentSafetyStockPcs}"/></td>
+                            <td><b>${currentSafetyStockPcs}</b></td>
                             <td></td>                        
                         </tr>                    
                         <tr valign="top">
-                            <td><b>Order QTY</b></td>
-                            <td><input type="text" class="inputTextBox" value="" size="15" name="updateOrderQty" placeholder="${currentOrderQty}"/></td>
-                            <td><b>${currentOrderQty}</b></td>
+                            <td><b>Order QTY, pcs</b></td>
+                            <td><input type="text" class="inputTextBox" value="" size="15" name="updateOrderQtyPcs" placeholder="${currentOrderQtyPcs}"/></td>
+                            <td><b>${currentOrderQtyPcs}</b></td>
                             <td></td>                        
                         </tr>                    
                     </c:if>                    

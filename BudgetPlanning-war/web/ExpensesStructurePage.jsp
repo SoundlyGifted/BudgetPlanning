@@ -14,7 +14,10 @@
 
 <!-- JSTL sql query to select all records from EXPENSES_STRUCTURE table -->
 <sql:query dataSource = "${outputDBConnection}" var = "expensesStructureOutput">
-    SELECT T1.ID, T1.TYPE, T1.NAME, T1.ACCOUNT_LINKED, T2.NAME as COMPLEX_EXP_NAME_ASSIGNED, T1.PRICE, T1.SAFETY_STOCK, T1.ORDER_QTY
+    SELECT T1.ID, T1.TYPE, T1.NAME, T1.ACCOUNT_LINKED, 
+    T2.NAME as COMPLEX_EXP_NAME_ASSIGNED, T1.PRICE, 
+    T1.SAFETY_STOCK_PCS, T1.SAFETY_STOCK_CUR,
+    T1.ORDER_QTY_PCS, T1.ORDER_QTY_CUR
     from EXPENSES_STRUCTURE T1
     left join
     EXPENSES_STRUCTURE T2
@@ -65,8 +68,8 @@
                 <input type="text" class="inputTextBox" value="" size="15" name="inputName" placeholder="Expense Name" maxlength="255"/>
                 <input type="text" class="inputTextBox" value="" size="15" name="inputAccountName" placeholder="Assigned Account" maxlength="255"/>
                 <input type="text" class="inputTextBox" value="" size="15" name="inputPrice" placeholder="Price [GOODS only]"/>
-                <input type="text" class="inputTextBox" value="" size="15" name="inputSafetyStock" placeholder="Safety Stock [GOODS only]"/>
-                <input type="text" class="inputTextBox" value="" size="15" name="inputOrderQty" placeholder="Order QTY [GOODS only]"/>
+                <input type="text" class="inputTextBox" value="" size="15" name="inputSafetyStockPcs" placeholder="Safety Stock [GOODS only]"/>
+                <input type="text" class="inputTextBox" value="" size="15" name="inputOrderQtyPcs" placeholder="Order QTY [GOODS only]"/>
                 <input type="submit" class="button" value="Create" name="executeInsert"/>
                 
                 <h5>Update / Delete Expense Category</h5>
@@ -97,8 +100,10 @@
                     <th>Linked Account</th>
                     <th>Linked To Complex Expense Named</th>            
                     <th>Price</th>
-                    <th>Safety Stock</th>
-                    <th>Order QTY</th>  
+                    <th>Safety Stock, pcs</th>
+                    <th>Safety Stock, cur</th>
+                    <th>Order QTY, pcs</th> 
+                    <th>Order QTY, cur</th> 
                 </tr>
                 <c:forEach var = "row" items = "${expensesStructureOutput.rows}">
                     <tr>
@@ -108,8 +113,21 @@
                         <td> <c:out value = "${row.ACCOUNT_LINKED}"/></td>
                         <td> <c:out value = "${row.COMPLEX_EXP_NAME_ASSIGNED}"/></td>
                         <td> <c:out value = "${row.PRICE}"/></td>
-                        <td> <c:out value = "${row.SAFETY_STOCK}"/></td>
-                        <td> <c:out value = "${row.ORDER_QTY}"/></td>
+                        <c:choose>
+                            <c:when test="${row.TYPE == 'GOODS'}">
+                                <td> <c:out value = "${row.SAFETY_STOCK_PCS}"/></td>
+                                <td> <c:out value = "${row.SAFETY_STOCK_CUR}"/></td>
+                                <td> <c:out value = "${row.ORDER_QTY_PCS}"/></td>
+                                <td> <c:out value = "${row.ORDER_QTY_CUR}"/></td>                                
+                            </c:when>
+                            <c:otherwise>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>                                   
+                            </c:otherwise>
+                        </c:choose>
+
                     </tr>
                 </c:forEach>
             </table>  

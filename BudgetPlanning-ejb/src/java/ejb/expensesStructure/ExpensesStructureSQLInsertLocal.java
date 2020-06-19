@@ -11,6 +11,6 @@ import javax.ejb.Local;
 @Local
 public interface ExpensesStructureSQLInsertLocal {
     public boolean execute(Connection connection, String type, String name, 
-            String accountName, String price, String safetyStock, 
-            String orderQty);
+            String accountName, String price, String safetyStockPcs, 
+            String orderQtyPcs);
 }

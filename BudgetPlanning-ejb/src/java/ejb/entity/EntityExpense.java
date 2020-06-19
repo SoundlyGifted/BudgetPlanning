@@ -15,42 +15,49 @@ public class EntityExpense {
     private String accountLinked;
     private int linkedToComplexId;
     private double price;
-    private double safetyStock;
-    private double orderQty;
+    private double safetyStockPcs;
+    private double safetyStockCur;
+    private double orderQtyPcs;
+    private double orderQtyCur;
 
     public EntityExpense(int id, String type, String name, String accountLinked, 
-            int linkedToComplexId, double price, double safetyStock, 
-            double orderQty) {
+            int linkedToComplexId, double price, double safetyStockPcs, 
+            double safetyStockCur, double orderQtyPcs, double orderQtyCur) {
         this.id = id;
         this.type = type;
         this.name = name;
         this.accountLinked = accountLinked;
         this.linkedToComplexId = linkedToComplexId;
         this.price = price;
-        this.safetyStock = safetyStock;
-        this.orderQty = orderQty;
+        this.safetyStockPcs = safetyStockPcs;
+        this.safetyStockCur = safetyStockCur;
+        this.orderQtyPcs = orderQtyPcs;
+        this.orderQtyCur = orderQtyCur;
     }
 
     @Override
     public String toString() {
-        return "EntityExpense{" + "id=" + id + ", type=" + type + ", name=" + 
-                name + ", accountLinked=" + accountLinked + 
-                ", linkedToComplexId=" + linkedToComplexId 
-                + ", price=" + price + ", safetyStock=" + safetyStock + 
-                ", orderQty=" + orderQty + '}';
+        return "EntityExpense{" + "id=" + id + ", type=" + type + ", name=" 
+                + name + ", accountLinked=" + accountLinked 
+                + ", linkedToComplexId=" + linkedToComplexId + ", price=" 
+                + price + ", safetyStockPcs=" + safetyStockPcs 
+                + ", safetyStockCur=" + safetyStockCur + ", orderQtyPcs=" 
+                + orderQtyPcs + ", orderQtyCur=" + orderQtyCur + '}';
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 47 * hash + this.id;
-        hash = 47 * hash + Objects.hashCode(this.type);
-        hash = 47 * hash + Objects.hashCode(this.name);
-        hash = 47 * hash + Objects.hashCode(this.accountLinked);
-        hash = 47 * hash + this.linkedToComplexId;
-        hash = 47 * hash + (int) (Double.doubleToLongBits(this.price) ^ (Double.doubleToLongBits(this.price) >>> 32));
-        hash = 47 * hash + (int) (Double.doubleToLongBits(this.safetyStock) ^ (Double.doubleToLongBits(this.safetyStock) >>> 32));
-        hash = 47 * hash + (int) (Double.doubleToLongBits(this.orderQty) ^ (Double.doubleToLongBits(this.orderQty) >>> 32));
+        int hash = 5;
+        hash = 53 * hash + this.id;
+        hash = 53 * hash + Objects.hashCode(this.type);
+        hash = 53 * hash + Objects.hashCode(this.name);
+        hash = 53 * hash + Objects.hashCode(this.accountLinked);
+        hash = 53 * hash + this.linkedToComplexId;
+        hash = 53 * hash + (int) (Double.doubleToLongBits(this.price) ^ (Double.doubleToLongBits(this.price) >>> 32));
+        hash = 53 * hash + (int) (Double.doubleToLongBits(this.safetyStockPcs) ^ (Double.doubleToLongBits(this.safetyStockPcs) >>> 32));
+        hash = 53 * hash + (int) (Double.doubleToLongBits(this.safetyStockCur) ^ (Double.doubleToLongBits(this.safetyStockCur) >>> 32));
+        hash = 53 * hash + (int) (Double.doubleToLongBits(this.orderQtyPcs) ^ (Double.doubleToLongBits(this.orderQtyPcs) >>> 32));
+        hash = 53 * hash + (int) (Double.doubleToLongBits(this.orderQtyCur) ^ (Double.doubleToLongBits(this.orderQtyCur) >>> 32));
         return hash;
     }
 
@@ -75,10 +82,16 @@ public class EntityExpense {
         if (Double.doubleToLongBits(this.price) != Double.doubleToLongBits(other.price)) {
             return false;
         }
-        if (Double.doubleToLongBits(this.safetyStock) != Double.doubleToLongBits(other.safetyStock)) {
+        if (Double.doubleToLongBits(this.safetyStockPcs) != Double.doubleToLongBits(other.safetyStockPcs)) {
             return false;
         }
-        if (Double.doubleToLongBits(this.orderQty) != Double.doubleToLongBits(other.orderQty)) {
+        if (Double.doubleToLongBits(this.safetyStockCur) != Double.doubleToLongBits(other.safetyStockCur)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.orderQtyPcs) != Double.doubleToLongBits(other.orderQtyPcs)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.orderQtyCur) != Double.doubleToLongBits(other.orderQtyCur)) {
             return false;
         }
         if (!Objects.equals(this.type, other.type)) {
@@ -141,19 +154,35 @@ public class EntityExpense {
         this.price = price;
     }
 
-    public double getSafetyStock() {
-        return safetyStock;
+    public double getSafetyStockPcs() {
+        return safetyStockPcs;
     }
 
-    public void setSafetyStock(double safetyStock) {
-        this.safetyStock = safetyStock;
+    public void setSafetyStockPcs(double safetyStockPcs) {
+        this.safetyStockPcs = safetyStockPcs;
     }
 
-    public double getOrderQty() {
-        return orderQty;
+    public double getSafetyStockCur() {
+        return safetyStockCur;
     }
 
-    public void setOrderQty(double orderQty) {
-        this.orderQty = orderQty;
+    public void setSafetyStockCur(double safetyStockCur) {
+        this.safetyStockCur = safetyStockCur;
+    }    
+    
+    public double getOrderQtyPcs() {
+        return orderQtyPcs;
+    }
+
+    public void setOrderQtyPcs(double orderQtyPcs) {
+        this.orderQtyPcs = orderQtyPcs;
+    }
+    
+    public double getOrderQtyCur() {
+        return orderQtyCur;
+    }
+
+    public void setOrderQtyCur(double orderQtyCur) {
+        this.orderQtyCur = orderQtyCur;
     }
 }
