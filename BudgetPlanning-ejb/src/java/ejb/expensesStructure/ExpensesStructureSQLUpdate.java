@@ -34,21 +34,23 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                 || !inputCheckLength(accountName)) {
             return false;
         }
-        
-        /* If both Link to Complex Expense and Link to Account operations 
-        requested then return false (unable to handle such request).*/
-        if (linkedComplExpName != null && !linkedComplExpName.trim().isEmpty()
-                && accountName != null && !accountName.trim().isEmpty()) {
-            return false;
-        }
-        
+             
         /* entityExpense selected from database for the update operation. */
         EntityExpense entityExpenseFromDB
                 = select.executeSelectByName(connection, name);
         if (entityExpenseFromDB == null) {
             return false;
+        } else {
+            /* If Link to Complex Expense already set and Link to Account 
+            operation requested then return false 
+            (unable to handle such request).*/
+            if (entityExpenseFromDB.getLinkedToComplexId() != 0) {
+                if (accountName != null && !accountName.trim().isEmpty()) {
+                    return false;
+                }
+            }
         }
-        
+
         /* For SIMPLE_EXPENSES and COMPLEX_EXPENSES the following fields 
         should not be filled: price, safetyStockPcs, orderQtyPcs*/
         if (entityExpenseFromDB.getType()
@@ -81,16 +83,8 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                 /* Complex expense Category cannot be linked to itself. */
                 linkedToComplexId = "";
             } else {
-                /* If linked to Complex Expense the account assignment 
-                should be removed. 
-                If requested to assign an Account and the link to Complex 
-                Expense already exists then return false. */
-                if (accountName != null && !accountName.trim().isEmpty()) {
-                    return false;
-                } else {
                     accountName = "";
                     entityExpenseFromDB.setAccountLinked("");
-                }
             }
         }
 

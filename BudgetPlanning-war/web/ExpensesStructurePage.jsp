@@ -89,21 +89,25 @@
 
         <!-- Output Block Table showing current DB data -->        
         <div class="outputBlock1">  
-            <table class="outputTable">
+            <table class="outputTable1">
                 <caption>
                     Expense Categories List
                 </caption>
                 <tr>
-                    <th>ID</th>
-                    <th>Type</th>
-                    <th>Expense Name</th>
-                    <th>Linked Account</th>
-                    <th>Linked To Complex Expense Named</th>            
-                    <th>Price</th>
-                    <th>Safety Stock, pcs</th>
-                    <th>Safety Stock, cur</th>
-                    <th>Order QTY, pcs</th> 
-                    <th>Order QTY, cur</th> 
+                    <th rowspan="2">ID</th>
+                    <th rowspan="2">Type</th>
+                    <th rowspan="2">Expense Name</th>
+                    <th rowspan="2">Linked Account</th>
+                    <th rowspan="2">Linked To Complex Expense Named</th>            
+                    <th rowspan="2">Price</th>
+                    <th colspan="2" >Safety Stock</th>
+                    <th colspan="2">Order QTY</th> 
+                </tr>
+                <tr>
+                    <th>pcs</th>
+                    <th>cur</th>
+                    <th>pcs</th> 
+                    <th>cur</th> 
                 </tr>
                 <c:forEach var = "row" items = "${expensesStructureOutput.rows}">
                     <tr>
@@ -112,9 +116,9 @@
                         <td> <c:out value = "${row.NAME}"/></td>
                         <td> <c:out value = "${row.ACCOUNT_LINKED}"/></td>
                         <td> <c:out value = "${row.COMPLEX_EXP_NAME_ASSIGNED}"/></td>
-                        <td> <c:out value = "${row.PRICE}"/></td>
                         <c:choose>
                             <c:when test="${row.TYPE == 'GOODS'}">
+                                <td> <c:out value = "${row.PRICE}"/></td>
                                 <td> <c:out value = "${row.SAFETY_STOCK_PCS}"/></td>
                                 <td> <c:out value = "${row.SAFETY_STOCK_CUR}"/></td>
                                 <td> <c:out value = "${row.ORDER_QTY_PCS}"/></td>
@@ -124,10 +128,10 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
+                                <td></td>
                                 <td></td>                                   
                             </c:otherwise>
                         </c:choose>
-
                     </tr>
                 </c:forEach>
             </table>  

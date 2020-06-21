@@ -1,0 +1,65 @@
+
+.planningDataTable {
+/*    width: 99%; */
+    font-family: "Arial Black", Gadget, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    color: #005a87;
+    border-collapse: collapse;
+    border-bottom: 3px solid #00aaff;
+}
+
+.planningDataTable caption {
+    padding: 10px;
+    color: white;
+    background: #00aaff;
+    font-size: 16px;
+    text-align: left;
+    font-weight: bold;  
+}
+
+.planningDataTable th {
+    color: black;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+    
+    position: -webkit-sticky;
+    position: sticky;
+}
+
+.planningDataTable th.sticky-header1 {
+  background-color: #e8e8e8;    
+  z-index: 10;
+}
+
+.planningDataTable th.sticky-header2 {
+  background-color: #ddcfff;
+  z-index: 11;
+}
+
+.planningDataTable td {
+    padding: 10px;
+}
+
+/* Rows of Timeline */
+.planningDataTable tr:nth-child(-n+6) {
+    font-size: 12px;
+    background: #e8e8e8;
+}
+
+/* Rows of Table Header */
+.planningDataTable tr:nth-child(n+7):nth-child(-n+8) {
+    font-size: 12px;
+    background: #ddcfff;
+}
+
+/* First row after the Table Header */
+.planningDataTable tr:nth-child(9) {
+    border-top: 3px solid #00aaff;    
+}
+
+
+

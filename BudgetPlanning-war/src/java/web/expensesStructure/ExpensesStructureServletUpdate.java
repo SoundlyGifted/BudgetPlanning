@@ -51,40 +51,47 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(Calendar.getInstance().getTime());        
-        
+        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(Calendar.getInstance().getTime());
+
         HttpSession session = request.getSession();
         Connection DBConnection = connector.connection(session, "expensesStructureDBConnection");
 
         /* EntityExpense Selected by User for the Update operation.*/
         EntityExpense expenseSelected = (EntityExpense) session.getAttribute("ExpensesStructure_ExpenseSelected");
-        int expenseSelectedId = expenseSelected.getId();
-        
-        /* Setting Selected EntityExpense fields as reqeust attributes 
-        for passing to the jsp-page. */
-        String currentName = expenseSelected.getName();
-        request.setAttribute("currentName", currentName);
-        selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
+        Integer expenseSelectedId = null;
+        String currentName = null;
+        if (expenseSelected != null) {
+            expenseSelectedId = expenseSelected.getId();
+            /* Setting Selected EntityExpense fields as reqeust attributes 
+            for passing to the jsp-page. */
+            currentName = expenseSelected.getName();
+            request.setAttribute("currentName", currentName);
+            selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
+        }
 
         /* Processing Refresh the page user command. */
         if (request.getParameter("refresh") != null) {
-            expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
-            session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
-            request.setAttribute("currentName", expenseSelected.getName());
+            if (expenseSelectedId != null) {
+                expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
+                session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
+                request.setAttribute("currentName", expenseSelected.getName());
+            }
             log.add(session, currentDateTime + " Awaiting for user command...");
             request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
         }
-        
+
         /* Clearing System message log. */
         if (request.getParameter("clearLog") != null) {
-            expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
-            session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
-            request.setAttribute("currentName", expenseSelected.getName());
+            if (expenseSelectedId != null) {
+                expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
+                session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
+                request.setAttribute("currentName", expenseSelected.getName());
+            }
             log.clear(session);
-            log.add(session, "Awaiting for initial user command..."); 
+            log.add(session, "Awaiting for initial user command...");
             request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
-        }        
-        
+        }
+
         /* Processing of Update user command. */
         if (request.getParameter("executeUpdate") != null) {
             /* Getting values for update existing records in the system. */
@@ -94,7 +101,7 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             String updatePrice = request.getParameter("updatePrice");
             String updateSafetyStockPcs = request.getParameter("updateSafetyStockPcs");
             String updateOrderQtyPcs = request.getParameter("updateOrderQtyPcs");
-            
+
             boolean updated = update.execute(DBConnection, currentName, updateNewName,
                     updateAccountName, updateLinkedComplExpName,
                     updatePrice, updateSafetyStockPcs, updateOrderQtyPcs);
@@ -140,8 +147,8 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                 log.add(session, currentDateTime + " [Update Expense command entered] : Command declined");
             }
             request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
-        }      
-        
+        }
+
         /* Processing Return to Expenses Structure page user command. */
         if (request.getParameter("return") != null) {
             session.removeAttribute("ExpensesStructure_ExpenseSelected");

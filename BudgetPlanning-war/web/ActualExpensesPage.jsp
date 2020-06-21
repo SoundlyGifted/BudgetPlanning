@@ -60,7 +60,7 @@
         <!-- Output Block Table showing current DB data -->
         <div class="outputBlock1">
             <form action="ActualExpensesServlet">
-                <table class="outputTable">
+                <table class="outputTable2">
                     <caption>
                         Actual Expenses Log
                     </caption>
