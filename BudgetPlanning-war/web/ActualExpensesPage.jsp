@@ -110,7 +110,7 @@
                             <td></td>
                         </tr>                 
 
-                        <!-- Data table rows with Update / Delete, Submit / Cancel buttons. -->
+                    <!-- Data table rows with Update / Delete, Submit / Cancel buttons. -->
                     <c:forEach var = "row" items = "${actualExpensesResultSet.rows}">
                         <tr>
                             <c:set var="thisRow" value="${row.ID}"/>

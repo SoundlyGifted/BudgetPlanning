@@ -27,28 +27,38 @@
     float: left;
 }
 
-.button{
+input[type=submit]{
     outline: none; /* remove margins of the button */
-    width:100px;
     text-decoration:none; 
     text-align:center; 
-    padding:5px 9px; 
     border:none; 
 
-    font:15px "Arial Black", Gadget, sans-serif; 
-    font-weight:bold; 
+    font-family: "Arial Black", Gadget, sans-serif; 
+    font-weight: bold; 
     color:#E5FFFF; 
+    padding:5px 9px;
+    
     background:#00aaff;
 
     transition:  all 0.05s linear;
 }
 
-.button:hover{
+input[type=submit]:hover{
     background-image: linear-gradient(#00aaff, #0088cc);     
 }
 
-.button:active{
+input[type=submit]:active{
     outline: solid #005a87;
+}
+
+input[type=submit].button {
+    font-size: 15px;
+    width:100px;
+}
+
+input[type=submit].smallButton {
+    font-size: 10px;
+    width:55px;
 }
 
 .inputTextBox{
