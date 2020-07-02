@@ -1,8 +1,8 @@
 
-package web.actualExpenses;
+package web.accountsStructure;
 
 import ejb.DBConnection.DBConnectionLocal;
-import ejb.actualExpenses.ActualExpensesSQLLocal;
+import ejb.accountsStructure.AccountsStructureSQLLocal;
 import ejb.common.OperationResultLogLocal;
 import java.io.IOException;
 import java.sql.Connection;
@@ -26,8 +26,8 @@ import javax.servlet.http.HttpSession;
  *
  * @author SoundlyGifted
  */
-@WebServlet(name = "ActualExpensesServlet", urlPatterns = {"/ActualExpensesServlet"})
-public class ActualExpensesServlet extends HttpServlet {
+@WebServlet(name = "AccountsStructureServlet", urlPatterns = {"/AccountsStructureServlet"})
+public class AccountsStructureServlet extends HttpServlet {
 
     @EJB
     private DBConnectionLocal connector;
@@ -36,7 +36,7 @@ public class ActualExpensesServlet extends HttpServlet {
     private OperationResultLogLocal log;
     
     @EJB
-    private ActualExpensesSQLLocal sql;
+    private AccountsStructureSQLLocal sql;    
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -55,117 +55,105 @@ public class ActualExpensesServlet extends HttpServlet {
         String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
-        Connection DBConnection = connector.connection(session, "expensesStructureDBConnection");
+        Connection DBConnection = connector.connection(session, "accountsStructureDBConnection");
         
-        ArrayList<Integer> ActualExpensesIdList = getActualExpensesIdList(DBConnection);
+        ArrayList<Integer> AccountIdList = getIdList(DBConnection);
         
         /* Refreshing the page. */
         if (request.getParameter("refresh") != null) {
             log.add(session, currentDateTime + " Awaiting for user command...");       
-            request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
+            request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
         }
         
         /* Clearing System message log. */
         if (request.getParameter("clearLog") != null) {
             log.clear(session);
             log.add(session, "Awaiting for initial user command..."); 
-            request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
-        }
+            request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
+        }        
         
-        /* Processing Add operation. */
-        if (request.getParameter("addActualExpense") != null) {
-            String inputDate = request.getParameter("inputDate");
+         /* Processing Add operation. */
+        if (request.getParameter("addAccount") != null) {
             String inputName = request.getParameter("inputName");
-            String inputTitle = request.getParameter("inputTitle");
-            String inputShop = request.getParameter("inputShop");
-            String inputPrice = request.getParameter("inputPrice");
-            String inputQty = request.getParameter("inputQty");
-            String inputComment = request.getParameter("inputComment");
-            boolean added = sql.executeInsert(DBConnection, inputDate, 
-                    inputName, inputTitle, inputShop, inputPrice, inputQty, 
-                    inputComment);
+            String inputCurrentRemainder = request.getParameter("inputCurrentRemainder");
+            
+            boolean added = sql.executeInsert(DBConnection, inputName, 
+                    inputCurrentRemainder);
             if (added) {
-                log.add(session, currentDateTime + " [Add Actual Expense "
-                        + "command entered] : Actual Expense added");
+                log.add(session, currentDateTime + " [Add Account "
+                        + "command entered] : Account added");
             } else {
-                log.add(session, currentDateTime + " [Add Actual Expense "
+                log.add(session, currentDateTime + " [Add Account "
                         + "command entered] : Command declined");
             }
-            request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
-        }
-
+            request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
+        }       
+        
         /* Processing Update operation. */
         /* Defining ID of row which was selected for update and passing it 
         as request attribute. */
-        for (Integer id : ActualExpensesIdList) {
+        for (Integer id : AccountIdList) {
             if (request.getParameter("update_" + String.valueOf(id)) != null) {
                 request.setAttribute("rowSelectedForUpdate", id);
-                request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
+                request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
             }
         }
         /* Defining ID of row which was submitted for update and passing it 
         to Bean for update operation. */
-        for (Integer id : ActualExpensesIdList) {
+        for (Integer id : AccountIdList) {
             if (request.getParameter("submitUpdate_" + String.valueOf(id)) != null) {
                 String idToUpdate = String.valueOf(id);
-                String updateDate = request.getParameter("updateDate");
                 String updateName = request.getParameter("updateName");
-                String updateTitle = request.getParameter("updateTitle");
-                String updateShop = request.getParameter("updateShop");
-                String updatePrice = request.getParameter("updatePrice");
-                String updateQty = request.getParameter("updateQty");
-                String updateComment = request.getParameter("updateComment");
-                boolean updated = sql.executeUpdate(DBConnection, idToUpdate,
-                        updateDate, updateName, updateTitle, updateShop, 
-                        updatePrice, updateQty, updateComment);
+                String updateCurrentRemainder = request.getParameter("updateCurrentRemainder");
+                boolean updated = sql.executeUpdate(DBConnection, idToUpdate, 
+                        updateName, updateCurrentRemainder);
                 if (updated) {
-                    log.add(session, currentDateTime + " [Update Actual Expense "
-                            + "command entered] : Actual Expense updated");
+                    log.add(session, currentDateTime + " [Update Account "
+                            + "command entered] : Account updated");
                 } else {
-                    log.add(session, currentDateTime + " [Update Actual Expense "
+                    log.add(session, currentDateTime + " [Update Account "
                             + "command entered] : Command declined");
                 }
-                request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
+                request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
             }
         }
         /* Defining ID of row which was cancelled for update and passing it 
         as request attribute. */
-        for (Integer id : ActualExpensesIdList) {
+        for (Integer id : AccountIdList) {
             if (request.getParameter("cancelUpdate_" + String.valueOf(id)) != null) {
-                request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
+                request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
             }
-        }
+        }        
         
         /* Processing Delete operation. */
         /* Defining ID of row which was selected for delete and passing it 
         to Bean for delete operation. */
-        for (Integer id : ActualExpensesIdList) {
+        for (Integer id : AccountIdList) {
             if (request.getParameter("delete_" + String.valueOf(id)) != null) {
                 boolean deleted = sql.executeDelete(DBConnection, 
                         String.valueOf(id));
                 if (deleted) {
-                    log.add(session, currentDateTime + " [Delete Actual Expense "
-                            + "command entered] : Actual Expense deleted");
+                    log.add(session, currentDateTime + " [Delete Account "
+                            + "command entered] : Account deleted");
                 } else {
-                    log.add(session, currentDateTime + " [Delete Actual Expense "
+                    log.add(session, currentDateTime + " [Delete Account "
                             + "command entered] : Command declined");
                 }
-                request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
+                request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
             }
         }
     }
 
-    /* returns Collection of IDs from ACTUAL_EXPENSES database table. */
-    private ArrayList<Integer> getActualExpensesIdList(Connection connection) {
+    /* returns Collection of IDs from ACCOUNTS_STRUCTURE database table. */
+    private ArrayList<Integer> getIdList(Connection connection) {
 
         Statement statement = null;
-        String query = "select ID from ACTUAL_EXPENSES";
+        String query = "select ID from ACCOUNTS_STRUCTURE";
 
         try {
             statement = connection.createStatement();
         } catch (SQLException ex) {
-            System.out.println("*** ActualExpensesServlet : error while "
-                    + "getting Actual Expenses ID list: " + ex.getMessage());
+            getIdListErrorMsg(ex);
             return null;
         }
 
@@ -176,20 +164,24 @@ public class ActualExpensesServlet extends HttpServlet {
             }
             return new ArrayList<>(IdList);
         } catch (SQLException ex) {
-            System.out.println("*** ActualExpensesServlet : error while "
-                    + "getting Actual Expenses ID list: " + ex.getMessage());
+            getIdListErrorMsg(ex);
             return null;
         } finally {
             try {
                 statement.close();
             } catch (SQLException ex) {
-                System.out.println("*** ActualExpensesServlet : error "
-                        + "while getting Actual Expenses ID list: "
-                        + ex.getMessage());
+                getIdListErrorMsg(ex);
             }
         }
     }
 
+    private void getIdListErrorMsg (SQLException ex) {
+        System.out.println("*** AccountsStructureServlet : error "
+                        + "while getting Accounts Structure ID list: "
+                        + ex.getMessage());
+    }
+    
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

@@ -183,6 +183,7 @@
                 <li><a href="index.jsp">Main Screen</a></li>
                 <li><a href="ExpensesStructurePage.jsp">Expenses Structure</a></li>
                 <li><a href="ActualExpensesPage.jsp">Actual Expenses</a></li>
+                <li><a href="AccountsStructurePage.jsp">Accounts Structure</a></li>
             </ul>
             <div class="App_Title_Nav_Bar1">Main Screen</div>
             <div class="App_Title_Nav_Bar2">Budget Planning Application</div>
