@@ -31,7 +31,7 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
     
     @Override
     public boolean execute(Connection connection, String name, String newName, 
-            String accountId, String linkedComplExpName, String price, 
+            String accountId, String linkedToComplexId, String price, 
             String safetyStockPcs, String orderQtyPcs) {
         /* If no expense name provided for the update operation then cancelling
         this method. Also checking lengths of String variables. */
@@ -89,15 +89,18 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         }
 
         /* Processing assigning to the Complex Expense. */
-        String linkedToComplexId = getComplexExpenseId(connection, linkedComplExpName);
-        if (linkedToComplexId != null) {
+        int linkedToComplexIdInt;
+        if (inputCheckNullBlank(linkedToComplexId)) {
+            linkedToComplexIdInt = stringToInt(linkedToComplexId);
             if (entityExpenseFromDB.getId() == stringToInt(linkedToComplexId)) {
                 /* Complex expense Category cannot be linked to itself. */
                 linkedToComplexId = "";
             } else {
-                accountId = "0";
-                accountName = "NOT SET";
-                entityExpenseFromDB.setAccountLinked("");
+                if (linkedToComplexIdInt != 0) {
+                    accountId = "0";
+                    accountName = "NOT SET";
+                    entityExpenseFromDB.setAccountLinked("");                    
+                }
             }
         }
 
@@ -136,7 +139,7 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         orderQtyPcs = enteredParams[6];
 
         accountIdInt = stringToInt(accountId);
-        int linkedToComplexIdInt = stringToInt(linkedToComplexId);
+        linkedToComplexIdInt = stringToInt(linkedToComplexId);
         double priceDouble = stringToDouble(price);
         double safetyStockPcsDouble = stringToDouble(safetyStockPcs);
         double safetyStockCurDouble;
@@ -188,20 +191,6 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             clear(preparedStatement);
         }
         return true;
-    }
-
-    private String getComplexExpenseId(Connection connection, String complexExpenseName) {
-        if (complexExpenseName == null || complexExpenseName.trim().isEmpty()) {
-            return null;
-        }
-        EntityExpense entityDB
-                = select.executeSelectByName(connection, 
-                        complexExpenseName);
-        if (entityDB == null || 
-                !entityDB.getType().equals("COMPLEX_EXPENSES")) {
-            return null;
-        }
-        return Integer.toString(entityDB.getId());
     }
 
     @Override

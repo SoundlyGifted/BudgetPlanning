@@ -3,7 +3,6 @@ package ejb.accountsStructure;
 
 import ejb.common.SQLAbstract;
 import ejb.entity.EntityAccount;
-import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 /**
@@ -22,13 +20,6 @@ import javax.ejb.Stateless;
 @Stateless
 public class AccountsStructureSQL extends SQLAbstract
         implements AccountsStructureSQLLocal {
-
-    
-    @EJB
-    private ExpensesStructureSQLSelectLocal expenseSelect;
-    
-    @EJB
-    private ExpensesStructureSQLSelectLocal expenseUpdate;
     
     @Override
     public boolean executeInsert(Connection connection, String name,

@@ -100,13 +100,17 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             if (updateAccountId == null || updateAccountId.trim().isEmpty()) {
                 updateAccountId = (String) request.getAttribute("currentAccountId");
             }
-            String updateLinkedComplExpName = request.getParameter("updateLinkedComplExpName");
+            String updateLinkedComplExpId = request.getParameter("complexExpenseIDSelected");
+            if (updateLinkedComplExpId == null || updateLinkedComplExpId.trim().isEmpty()) {
+                updateLinkedComplExpId = (String) request.getAttribute("currentComplexExpenseId");
+            }            
+
             String updatePrice = request.getParameter("updatePrice");
             String updateSafetyStockPcs = request.getParameter("updateSafetyStockPcs");
             String updateOrderQtyPcs = request.getParameter("updateOrderQtyPcs");
 
             boolean updated = update.execute(DBConnection, currentName, updateNewName,
-                    updateAccountId, updateLinkedComplExpName,
+                    updateAccountId, updateLinkedComplExpId,
                     updatePrice, updateSafetyStockPcs, updateOrderQtyPcs);
             
             if (updated) {
@@ -115,22 +119,6 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                 request.setAttribute("currentName", expenseSelected.getName());
                 selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
                 log.add(session, currentDateTime + " [Update Expense command entered] : Expense attributes updated");
-            } else {
-                log.add(session, currentDateTime + " [Update Expense command entered] : Command declined");
-            }
-            request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
-        }
-
-        /* Processing Clear Assignment to Complex Expense user command. */
-        if (request.getParameter("clearAssignmentToComplExp") != null) {
-            boolean cleared
-                    = update.clearAssignmentToComplexExpense(DBConnection, currentName);
-            if (cleared) {
-                expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
-                session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
-                request.setAttribute("currentName", expenseSelected.getName());
-                selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
-                log.add(session, currentDateTime + " [Update Expense command entered] : Assignment to Complex Expense cleared");
             } else {
                 log.add(session, currentDateTime + " [Update Expense command entered] : Command declined");
             }
@@ -155,8 +143,9 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
 
         request.setAttribute("currentAccountId", Integer.toString(currentAccountId));
         request.setAttribute("currentAccount", currentAccount);
+        request.setAttribute("currentComplexExpenseId", Integer.toString(linkedToComplexId));
         if (linkedToComplexId == 0) {
-            request.setAttribute("currentLinkedToComplExpName", "");
+            request.setAttribute("currentLinkedToComplExpName", "NOT SET");
         } else {
             request.setAttribute("currentLinkedToComplExpName", 
                 select.executeSelectById(connection, linkedToComplexId).getName());

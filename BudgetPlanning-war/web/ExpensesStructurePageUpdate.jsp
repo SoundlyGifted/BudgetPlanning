@@ -11,10 +11,16 @@
                    user = "app"  password = "app"/>        
     
 <!-- JSTL sql query to select ID and NAME from ACCOUNTS_STRUCTURE table -->
+<sql:query dataSource = "${outputDBConnection}" var = "complexExpenseResultSet">
+    SELECT ID, NAME FROM EXPENSES_STRUCTURE
+    WHERE TYPE = 'COMPLEX_EXPENSES'
+</sql:query>
+
+<!-- JSTL sql query to select ID and NAME from ACCOUNTS_STRUCTURE table -->
 <sql:query dataSource = "${outputDBConnection}" var = "accountsStructureResultSet">
     SELECT ID, NAME FROM ACCOUNTS_STRUCTURE
 </sql:query>   
-
+    
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link rel="stylesheet" href="css/NavigationBarStyles.css" />
@@ -58,14 +64,12 @@
                     <tr>
                         <th>Expense Attribute Name</th>
                         <th>Change Value</th>
-                        <th>Current Value</th>
-                        <th>Clear Attribute</th>   
+                        <th>Current Value</th>   
                     </tr>
                     <tr valign="top">
                         <td><b>Name</b></td>
                         <td><input type="text" class="inputTextBox" value="${currentName}" size="15" name="updateNewName" placeholder="[not set]" maxlength="255"/></td>
-                        <td><b>${currentName}</b></td>
-                        <td></td>                        
+                        <td><b>${currentName}</b></td>                       
                     </tr>
                     <tr valign="top">
                         <td><b>Account Name</b></td>
@@ -80,33 +84,39 @@
                                 </c:forEach>
                             </select>
                         </td>
-                        <td><b>${currentAccount}</b></td>
-                        <td></td>                        
+                        <td><b>${currentAccount}</b></td>                      
                     </tr>                    
                     <tr valign="top">
                         <td><b>Linked to Complex Expense Name</b></td>
-                        <td><input type="text" class="inputTextBox" value="${currentLinkedToComplExpName}" size="15" name="updateLinkedComplExpName" placeholder="[not set]"/></td>
-                        <td><b>${currentLinkedToComplExpName}</b></td>
-                        <td><input type="submit" class="button" value="Clear" name="clearAssignmentToComplExp"/></td>                        
+                        <td>
+                            <!--Complex Expense selection dropdown list.-->              
+                            <select name="complexExpenseIDSelected" class="inputTextBox">
+                                <option value="${currentComplexExpenseId}" selected disabled hidden>${currentLinkedToComplExpName}</option>
+                                <option value="0">NOT SET</option>
+                                <c:forEach var="row" items="${complexExpenseResultSet.rows}">
+                                    <option value="${row.ID}">
+                                        ${row.NAME}
+                                    </option>
+                                </c:forEach>
+                            </select>
+                        </td>
+                        <td><b>${currentLinkedToComplExpName}</b></td>                 
                     </tr>
                     <c:if test="${ExpensesStructure_ExpenseSelectedType == 'GOODS'}">                 
                         <tr valign="top">
                             <td><b>Price</b></td>
                             <td><input type="text" class="inputTextBox" value="" size="15" name="updatePrice" placeholder="${currentPrice}"/></td>
-                            <td><b>${currentPrice}</b></td>
-                            <td></td>                        
+                            <td><b>${currentPrice}</b></td>                      
                         </tr>                    
                         <tr valign="top">
                             <td><b>Safety Stock, pcs</b></td>
                             <td><input type="text" class="inputTextBox" value="" size="15" name="updateSafetyStockPcs" placeholder="${currentSafetyStockPcs}"/></td>
-                            <td><b>${currentSafetyStockPcs}</b></td>
-                            <td></td>                        
+                            <td><b>${currentSafetyStockPcs}</b></td>                       
                         </tr>                    
                         <tr valign="top">
                             <td><b>Order QTY, pcs</b></td>
                             <td><input type="text" class="inputTextBox" value="" size="15" name="updateOrderQtyPcs" placeholder="${currentOrderQtyPcs}"/></td>
-                            <td><b>${currentOrderQtyPcs}</b></td>
-                            <td></td>                        
+                            <td><b>${currentOrderQtyPcs}</b></td>                     
                         </tr>                    
                     </c:if>                    
                 </table>

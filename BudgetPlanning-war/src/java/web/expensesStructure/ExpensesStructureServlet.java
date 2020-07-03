@@ -105,8 +105,9 @@ public class ExpensesStructureServlet extends HttpServlet {
                 request.setAttribute("currentName", currentName);
                 request.setAttribute("currentAccountId", Integer.toString(currentAccountId));
                 request.setAttribute("currentAccount", currentAccount);
+                request.setAttribute("currentComplexExpenseId", Integer.toString(linkedToComplexId));
                 if (linkedToComplexId == 0) {
-                    request.setAttribute("currentLinkedToComplExpName", "");
+                    request.setAttribute("currentLinkedToComplExpName", "NOT SET");
                 } else {
                 String currentLinkedToComplExpName
                         = select.executeSelectById(DBConnection, linkedToComplexId).getName();
