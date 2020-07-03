@@ -1,7 +1,9 @@
 
 package ejb.expensesStructure;
 
+import ejb.accountsStructure.AccountsStructureSQLLocal;
 import ejb.common.SQLAbstract;
+import ejb.entity.EntityAccount;
 import ejb.expensesStructure.ExpensesTypes.ExpenseType;
 import java.io.IOException;
 import java.sql.Connection;
@@ -23,14 +25,17 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
     
     @EJB
     ExpensesStructureSQLSelectLocal select;
+    
+    @EJB
+    private AccountsStructureSQLLocal accountsSQL;    
 
     @Override
     public boolean execute(Connection connection, String type, String name, 
-            String accountName, String price, String safetyStockPcs, 
+            String accountId, String price, String safetyStockPcs, 
             String orderQtyPcs) {
         /* Checking of input values. */
         if (!inputCheckType(type) || !inputCheckNullBlank(name) 
-                || !inputCheckLength(name) || !inputCheckLength(accountName)
+                || !inputCheckLength(name)
                 || stringToDouble(price) == null 
                 || stringToDouble(safetyStockPcs) == null
                 || stringToDouble(orderQtyPcs) == null) {
@@ -44,6 +49,14 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             safetyStockPcs = "";
             orderQtyPcs = "";
         }
+        
+        /* Checking accountId. */
+        Integer accountIdInt = stringToInt(accountId);
+        if (accountIdInt == null) {
+            accountIdInt = 0;
+        }
+        EntityAccount accountSelected = accountsSQL.executeSelectById(connection, accountIdInt);
+        String accountName = accountSelected.getName();
         
         PreparedStatement preparedStatement;
         try {
@@ -87,13 +100,14 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             //Setting Query Parameters and executing Query;
             preparedStatement.setString(1, type);
             preparedStatement.setString(2, name);
-            preparedStatement.setString(3, accountName);
-            preparedStatement.setInt(4, 0); /* LINKED_TO_COMPLEX_ID is 0 for new records.*/
-            preparedStatement.setDouble(5, priceDouble);
-            preparedStatement.setDouble(6, safetyStockPcsDouble);
-            preparedStatement.setDouble(7, safetyStockCurDouble);
-            preparedStatement.setDouble(8, orderQtyPcsDouble);
-            preparedStatement.setDouble(9, orderQtyCurDouble);
+            preparedStatement.setInt(3, accountIdInt);
+            preparedStatement.setString(4, accountName);
+            preparedStatement.setInt(5, 0); /* LINKED_TO_COMPLEX_ID is 0 for new records.*/
+            preparedStatement.setDouble(6, priceDouble);
+            preparedStatement.setDouble(7, safetyStockPcsDouble);
+            preparedStatement.setDouble(8, safetyStockCurDouble);
+            preparedStatement.setDouble(9, orderQtyPcsDouble);
+            preparedStatement.setDouble(10, orderQtyCurDouble);
             preparedStatement.executeUpdate();
             // Adding Entity to the Entity Object List;
             handler.addToEntityExpenseList(select.

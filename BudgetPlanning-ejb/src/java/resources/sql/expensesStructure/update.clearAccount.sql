@@ -1,4 +1,4 @@
 update EXPENSES_STRUCTURE 
-set ACCOUNT_LINKED = ''
+set ACCOUNT_ID = 0, ACCOUNT_LINKED = 'NOT SET'
 where "NAME" = ?
 

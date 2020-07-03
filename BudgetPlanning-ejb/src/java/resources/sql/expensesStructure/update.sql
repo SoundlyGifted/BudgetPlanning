@@ -1,5 +1,6 @@
 update EXPENSES_STRUCTURE 
 set "NAME" = ?,
+    ACCOUNT_ID = ?,
     ACCOUNT_LINKED = ?,
     LINKED_TO_COMPLEX_ID = ?,
     PRICE = ?,

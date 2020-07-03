@@ -12,12 +12,9 @@ import javax.ejb.Local;
 public interface ExpensesStructureSQLUpdateLocal {
     
     public boolean execute(Connection connection, String name, String newName, 
-            String accountName, String linkedToComplexId, String price, 
+            String accountId, String linkedToComplexId, String price, 
             String safetyStockPcs, String orderQtyPcs);
     
     public boolean clearAssignmentToComplexExpense(Connection connection, 
-            String name);
-    
-    public boolean clearAssignmentToAccount(Connection connection, String name);
-    
+            String name);  
 }

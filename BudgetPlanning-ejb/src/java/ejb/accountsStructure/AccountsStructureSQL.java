@@ -1,7 +1,9 @@
+
 package ejb.accountsStructure;
 
 import ejb.common.SQLAbstract;
 import ejb.entity.EntityAccount;
+import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 /**
@@ -20,6 +23,13 @@ import javax.ejb.Stateless;
 public class AccountsStructureSQL extends SQLAbstract
         implements AccountsStructureSQLLocal {
 
+    
+    @EJB
+    private ExpensesStructureSQLSelectLocal expenseSelect;
+    
+    @EJB
+    private ExpensesStructureSQLSelectLocal expenseUpdate;
+    
     @Override
     public boolean executeInsert(Connection connection, String name,
             String currentRemainder) {
@@ -34,7 +44,7 @@ public class AccountsStructureSQL extends SQLAbstract
         PreparedStatement preparedStatement;
         try {
             preparedStatement = createPreparedStatement(connection,
-                    "accountsStructure/insert");
+                    "accountsStructure/insert");        
         } catch (SQLException | IOException ex) {
             System.out.println("*** AccountsStructureSQL - executeInsert(): "
                     + "SQL PreparedStatement failure: "
@@ -72,9 +82,12 @@ public class AccountsStructureSQL extends SQLAbstract
         double CurrentRemainderDouble = stringToDouble(currentRemainder);
 
         PreparedStatement preparedStatement;
+        PreparedStatement preparedStatementExpensesAccounts;
         try {
             preparedStatement = createPreparedStatement(connection,
                     "accountsStructure/update");
+            preparedStatementExpensesAccounts = createPreparedStatement(connection,
+                    "accountsStructure/updateExpensesAccounts");            
         } catch (SQLException | IOException ex) {
             System.out.println("*** AccountsStructureSQL - executeUpdate(): "
                     + "SQL PreparedStatement failure: "
@@ -88,6 +101,11 @@ public class AccountsStructureSQL extends SQLAbstract
             preparedStatement.setDouble(2, CurrentRemainderDouble);
             preparedStatement.setInt(3, idForUpdateInt);
             preparedStatement.executeUpdate();
+            
+            preparedStatementExpensesAccounts.setInt(1, idForUpdateInt);
+            preparedStatementExpensesAccounts.setString(2, name);
+            preparedStatementExpensesAccounts.setInt(3, idForUpdateInt);
+            preparedStatementExpensesAccounts.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("*** AccountsStructureSQL - executeUpdate(): "
                     + "Error while setting query parameters or executing "
@@ -107,9 +125,12 @@ public class AccountsStructureSQL extends SQLAbstract
         int idInt = stringToInt(id);
 
         PreparedStatement preparedStatement;
+        PreparedStatement preparedStatementExpensesAccounts;
         try {
             preparedStatement = createPreparedStatement(connection,
                     "accountsStructure/delete");
+            preparedStatementExpensesAccounts = createPreparedStatement(connection,
+                    "accountsStructure/updateExpensesAccounts");              
         } catch (SQLException | IOException ex) {
             System.out.println("*** AccountsStructureSQL - executeDelete(): "
                     + "SQL PreparedStatement failure: "
@@ -119,6 +140,11 @@ public class AccountsStructureSQL extends SQLAbstract
 
         try {
             //Setting Query Parameters and executing Query;
+            preparedStatementExpensesAccounts.setInt(1, 0);
+            preparedStatementExpensesAccounts.setString(2, "NOT SET");
+            preparedStatementExpensesAccounts.setInt(3, idInt);
+            preparedStatementExpensesAccounts.executeUpdate();            
+            
             preparedStatement.setInt(1, idInt);
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
@@ -201,7 +227,7 @@ public class AccountsStructureSQL extends SQLAbstract
 
     @Override
     public EntityAccount executeSelectById(Connection connection, Integer id) {
-        if (id == null || id < 1) {
+        if (id == null || id < 0) {
             return null;
         }
 

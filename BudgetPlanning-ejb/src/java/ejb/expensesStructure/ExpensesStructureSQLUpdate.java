@@ -1,7 +1,9 @@
 
 package ejb.expensesStructure;
 
+import ejb.accountsStructure.AccountsStructureSQLLocal;
 import ejb.common.SQLAbstract;
+import ejb.entity.EntityAccount;
 import ejb.entity.EntityExpense;
 import java.io.IOException;
 import java.sql.Connection;
@@ -24,17 +26,27 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
     @EJB
     private ExpensesStructureSQLSelectLocal select;
 
+    @EJB
+    private AccountsStructureSQLLocal accountsSQL;  
+    
     @Override
     public boolean execute(Connection connection, String name, String newName, 
-            String accountName, String linkedComplExpName, String price, 
+            String accountId, String linkedComplExpName, String price, 
             String safetyStockPcs, String orderQtyPcs) {
         /* If no expense name provided for the update operation then cancelling
         this method. Also checking lengths of String variables. */
-        if (!inputCheckNullBlank(name) || !inputCheckLength(name)
-                || !inputCheckLength(accountName)) {
+        if (!inputCheckNullBlank(name) || !inputCheckLength(name)) {
             return false;
         }
-             
+        
+        /* Checking accountId. */
+        Integer accountIdInt = stringToInt(accountId);
+        if (accountIdInt == null) {
+            accountIdInt = 0;
+        }
+        EntityAccount accountSelected = accountsSQL.executeSelectById(connection, accountIdInt);
+        String accountName = accountSelected.getName();
+
         /* entityExpense selected from database for the update operation. */
         EntityExpense entityExpenseFromDB
                 = select.executeSelectByName(connection, name);
@@ -45,7 +57,7 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             operation requested then return false 
             (unable to handle such request).*/
             if (entityExpenseFromDB.getLinkedToComplexId() != 0) {
-                if (accountName != null && !accountName.trim().isEmpty()) {
+                if (accountIdInt != 0) {
                     return false;
                 }
             }
@@ -83,8 +95,9 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                 /* Complex expense Category cannot be linked to itself. */
                 linkedToComplexId = "";
             } else {
-                    accountName = "";
-                    entityExpenseFromDB.setAccountLinked("");
+                accountId = "0";
+                accountName = "NOT SET";
+                entityExpenseFromDB.setAccountLinked("");
             }
         }
 
@@ -93,10 +106,11 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
            2) If all input parameters not entered (are null or blank) then
            cancelling update operation (nothing to update). */
         boolean allInputParamsNullOrBlank = true;
-        String[] enteredParams = new String[]{newName, accountName,
+        String[] enteredParams = new String[]{newName, accountId, accountName,
             linkedToComplexId, price, safetyStockPcs, orderQtyPcs};
         String[] entityExpenseParams = new String[]{
             entityExpenseFromDB.getName(),
+            Integer.toString(entityExpenseFromDB.getAccountId()),
             entityExpenseFromDB.getAccountLinked(),
             Integer.toString(entityExpenseFromDB.getLinkedToComplexId()),
             Double.toString(entityExpenseFromDB.getPrice()),
@@ -114,12 +128,14 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         }
 
         newName = enteredParams[0];
-        accountName = enteredParams[1];
-        linkedToComplexId = enteredParams[2];
-        price = enteredParams[3];
-        safetyStockPcs = enteredParams[4];
-        orderQtyPcs = enteredParams[5];
+        accountId = enteredParams[1];
+        accountName = enteredParams[2];
+        linkedToComplexId = enteredParams[3];
+        price = enteredParams[4];
+        safetyStockPcs = enteredParams[5];
+        orderQtyPcs = enteredParams[6];
 
+        accountIdInt = stringToInt(accountId);
         int linkedToComplexIdInt = stringToInt(linkedToComplexId);
         double priceDouble = stringToDouble(price);
         double safetyStockPcsDouble = stringToDouble(safetyStockPcs);
@@ -140,6 +156,7 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                                     .getId());
             if (entityExpense != null) {
                 entityExpense.setName(newName);
+                entityExpense.setAccountId(accountIdInt);
                 entityExpense.setAccountLinked(accountName);
                 entityExpense.setLinkedToComplexId(linkedToComplexIdInt);
                 entityExpense.setPrice(priceDouble);
@@ -152,14 +169,15 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             }
 
             preparedStatement.setString(1, newName);
-            preparedStatement.setString(2, accountName);
-            preparedStatement.setInt(3, linkedToComplexIdInt);
-            preparedStatement.setDouble(4, priceDouble);
-            preparedStatement.setDouble(5, safetyStockPcsDouble);
-            preparedStatement.setDouble(6, safetyStockCurDouble);
-            preparedStatement.setDouble(7, orderQtyPcsDouble);
-            preparedStatement.setDouble(8, orderQtyCurDouble);
-            preparedStatement.setString(9, name);
+            preparedStatement.setInt(2, accountIdInt);
+            preparedStatement.setString(3, accountName);
+            preparedStatement.setInt(4, linkedToComplexIdInt);
+            preparedStatement.setDouble(5, priceDouble);
+            preparedStatement.setDouble(6, safetyStockPcsDouble);
+            preparedStatement.setDouble(7, safetyStockCurDouble);
+            preparedStatement.setDouble(8, orderQtyPcsDouble);
+            preparedStatement.setDouble(9, orderQtyCurDouble);
+            preparedStatement.setString(10, name);
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLUpdate: Error while "
@@ -225,53 +243,6 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLUpdate: "
                     + "clearAssignmentToComplexExpense() Error while "
-                    + "setting query parameters or executing Update Query: "
-                    + ex.getMessage() + "***");
-            return false;
-        } finally {
-            clear(preparedStatement);
-        }
-        return true;
-    }
-    
-    @Override
-    public boolean clearAssignmentToAccount(Connection connection, String name) {
-        /* If no expense name provided for the update operation then cancelling
-        this method. */
-        if (!inputCheckNullBlank(name) || !inputCheckLength(name)) {
-            return false;
-        }
-
-        /* Check if corresponding record is in the database. */
-        if (select.executeSelectByName(connection, name) == null) {
-            return false;
-        }
-
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection, 
-                    "expensesStructure/update.clearAccount");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ExpensesStructureSQLUpdate: "
-                    + "clearAssignmentToAccount() "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
-
-        try {
-            EntityExpense expense = 
-                    handler.selectFromEntityExpenseListByName(name);
-            if (expense != null) {
-                expense.setAccountLinked("");
-            } else {
-                return false;
-            }
-            preparedStatement.setString(1, name);
-            preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("***ExpensesStructureSQLUpdate: "
-                    + "clearAssignmentToAccount() Error while "
                     + "setting query parameters or executing Update Query: "
                     + ex.getMessage() + "***");
             return false;

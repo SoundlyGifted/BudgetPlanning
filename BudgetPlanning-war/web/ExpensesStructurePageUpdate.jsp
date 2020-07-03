@@ -5,6 +5,16 @@
 <!DOCTYPE html>
 <html>
     
+<!-- JSTL database connection -->
+<sql:setDataSource var = "outputDBConnection" driver = "org.apache.derby.jdbc.ClientDriver"
+                   url = "jdbc:derby://localhost:1527/BudgetPlanningAppDB"
+                   user = "app"  password = "app"/>        
+    
+<!-- JSTL sql query to select ID and NAME from ACCOUNTS_STRUCTURE table -->
+<sql:query dataSource = "${outputDBConnection}" var = "accountsStructureResultSet">
+    SELECT ID, NAME FROM ACCOUNTS_STRUCTURE
+</sql:query>   
+
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link rel="stylesheet" href="css/NavigationBarStyles.css" />
@@ -59,9 +69,19 @@
                     </tr>
                     <tr valign="top">
                         <td><b>Account Name</b></td>
-                        <td><input type="text" class="inputTextBox" value="${currentAccount}" size="15" name="updateAccountName" placeholder="[not set]" maxlength="255"/></td>
+                        <td>
+                            <!--Account selection dropdown list.-->              
+                            <select name="accountIDSelected" class="inputTextBox">
+                                <option value="${currentAccountId}" selected disabled hidden>${currentAccount}</option>
+                                <c:forEach var="row" items="${accountsStructureResultSet.rows}">
+                                    <option value="${row.ID}">
+                                        ${row.NAME}
+                                    </option>
+                                </c:forEach>
+                            </select>
+                        </td>
                         <td><b>${currentAccount}</b></td>
-                        <td><input type="submit" class="button" value="Clear" name="clearAssignmentToAccount"/></td>                        
+                        <td></td>                        
                     </tr>                    
                     <tr valign="top">
                         <td><b>Linked to Complex Expense Name</b></td>

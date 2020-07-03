@@ -31,6 +31,9 @@ public abstract class SQLAbstract {
     }
     
     public Integer stringToInt (String stringVal) {
+        if (!inputCheckNullBlank(stringVal)) {
+            return null;
+        }
         try {
             return Integer.parseInt(stringVal);          
         } catch (NumberFormatException ex) {

@@ -96,15 +96,19 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         if (request.getParameter("executeUpdate") != null) {
             /* Getting values for update existing records in the system. */
             String updateNewName = request.getParameter("updateNewName");
-            String updateAccountName = request.getParameter("updateAccountName");
+            String updateAccountId = request.getParameter("accountIDSelected");
+            if (updateAccountId == null || updateAccountId.trim().isEmpty()) {
+                updateAccountId = (String) request.getAttribute("currentAccountId");
+            }
             String updateLinkedComplExpName = request.getParameter("updateLinkedComplExpName");
             String updatePrice = request.getParameter("updatePrice");
             String updateSafetyStockPcs = request.getParameter("updateSafetyStockPcs");
             String updateOrderQtyPcs = request.getParameter("updateOrderQtyPcs");
 
             boolean updated = update.execute(DBConnection, currentName, updateNewName,
-                    updateAccountName, updateLinkedComplExpName,
+                    updateAccountId, updateLinkedComplExpName,
                     updatePrice, updateSafetyStockPcs, updateOrderQtyPcs);
+            
             if (updated) {
                 expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
                 session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
@@ -133,22 +137,6 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
         }
 
-        /* Processing Clear Assignment to Account user command.*/
-        if (request.getParameter("clearAssignmentToAccount") != null) {
-            boolean cleared
-                    = update.clearAssignmentToAccount(DBConnection, currentName);
-            if (cleared) {
-                expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
-                session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
-                request.setAttribute("currentName", expenseSelected.getName());
-                selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
-                log.add(session, currentDateTime + " [Update Expense command entered] : Assignment to Account cleared");
-            } else {
-                log.add(session, currentDateTime + " [Update Expense command entered] : Command declined");
-            }
-            request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
-        }
-
         /* Processing Return to Expenses Structure page user command. */
         if (request.getParameter("return") != null) {
             session.removeAttribute("ExpensesStructure_ExpenseSelected");
@@ -158,12 +146,14 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
     }
 
     private void selectedExpenseToRequestAttributes(Connection connection, HttpServletRequest request, EntityExpense expenseSelected) {
+        int currentAccountId = expenseSelected.getAccountId();
         String currentAccount = expenseSelected.getAccountLinked();
         int linkedToComplexId = expenseSelected.getLinkedToComplexId();
         double currentPrice = expenseSelected.getPrice();
         double currentSafetyStockPcs = expenseSelected.getSafetyStockPcs();
         double currentOrderQtyPcs = expenseSelected.getOrderQtyPcs();   
 
+        request.setAttribute("currentAccountId", Integer.toString(currentAccountId));
         request.setAttribute("currentAccount", currentAccount);
         if (linkedToComplexId == 0) {
             request.setAttribute("currentLinkedToComplExpName", "");

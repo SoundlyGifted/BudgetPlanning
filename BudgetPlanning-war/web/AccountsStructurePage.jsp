@@ -76,25 +76,27 @@
 
                     <!-- Data table rows with Update / Delete, Submit / Cancel buttons. -->
                     <c:forEach var = "row" items = "${accountsStructureResultSet.rows}">
-                        <tr>
-                            <c:set var="thisRow" value="${row.ID}"/>
-                            <c:choose>
-                                <c:when test="${row.ID == requestScope.rowSelectedForUpdate}">
-                                    <td><c:out value = "${row.ID}"/></td>
-                                    <td><input type="text" class="inputTextBox" value="${row.NAME}" size="10" name="updateName" placeholder="..." maxlength="255"/></td>
-                                    <td><input type="text" class="inputTextBox" value="${row.CURRENT_REMAINDER_CUR}" size="10" name="updateCurrentRemainder" placeholder="..."/></td>
-                                    <td><input type="submit" class="button" value="Submit" name="submitUpdate_${row.ID}"/></td>
-                                    <td><input type="submit" class="button" value="Cancel" name="cancelUpdate_${row.ID}"/></td>                             
-                                </c:when>
-                                <c:otherwise>
-                                    <td> <c:out value = "${row.ID}"/></td>
-                                    <td> <c:out value = "${row.NAME}"/></td>
-                                    <td> <c:out value = "${row.CURRENT_REMAINDER_CUR}"/></td>                        
-                                    <td><input type="submit" class="button" value="Update" name="update_${row.ID}"/></td>
-                                    <td><input type="submit" class="button" value="Delete" name="delete_${row.ID}"/></td>
-                                </c:otherwise>                          
-                            </c:choose>     
-                        </tr>
+                        <c:if test="${row.ID != 0}"> 
+                            <tr>
+                                <c:set var="thisRow" value="${row.ID}"/>
+                                <c:choose>
+                                    <c:when test="${row.ID == requestScope.rowSelectedForUpdate}">
+                                        <td><c:out value = "${row.ID}"/></td>
+                                        <td><input type="text" class="inputTextBox" value="${row.NAME}" size="10" name="updateName" placeholder="..." maxlength="255"/></td>
+                                        <td><input type="text" class="inputTextBox" value="${row.CURRENT_REMAINDER_CUR}" size="10" name="updateCurrentRemainder" placeholder="..."/></td>
+                                        <td><input type="submit" class="button" value="Submit" name="submitUpdate_${row.ID}"/></td>
+                                        <td><input type="submit" class="button" value="Cancel" name="cancelUpdate_${row.ID}"/></td>                             
+                                    </c:when>
+                                    <c:otherwise>
+                                        <td> <c:out value = "${row.ID}"/></td>
+                                        <td> <c:out value = "${row.NAME}"/></td>
+                                        <td> <c:out value = "${row.CURRENT_REMAINDER_CUR}"/></td>                        
+                                        <td><input type="submit" class="button" value="Update" name="update_${row.ID}"/></td>
+                                        <td><input type="submit" class="button" value="Delete" name="delete_${row.ID}"/></td>
+                                    </c:otherwise>                          
+                                </c:choose>     
+                            </tr>
+                        </c:if>
                     </c:forEach>
                 </table>
             </form>

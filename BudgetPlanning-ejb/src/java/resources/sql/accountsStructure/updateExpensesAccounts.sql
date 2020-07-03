@@ -1,0 +1,4 @@
+update EXPENSES_STRUCTURE
+set ACCOUNT_ID = ?, ACCOUNT_LINKED = ?
+where ACCOUNT_ID = ?
+
