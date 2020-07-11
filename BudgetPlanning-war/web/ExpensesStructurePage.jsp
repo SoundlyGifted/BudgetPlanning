@@ -71,10 +71,10 @@
                     <option value="COMPLEX_EXPENSES">COMPLEX_EXPENSES</option>
                     <option value="GOODS">GOODS</option>
                 </select>
-                <input type="text" class="inputTextBox" value="" size="15" name="inputName" placeholder="Expense Name" maxlength="255"/>
+                <input type="text" class="inputTextBox" value="" size="30" name="inputName" placeholder="Expense Name" maxlength="255"/>
 
                 <!--Account selection dropdown list.-->              
-                <select name="accountIDSelected" class="inputTextBox">
+                <select name="accountIDSelected" class="inputTextBox" style="width:200px">
                     <option value="" selected disabled hidden>Choose Account</option>
                     <c:forEach var="row" items="${accountsStructureResultSet.rows}">
                         <option value="${row.ID}">
@@ -82,8 +82,6 @@
                         </option>
                     </c:forEach>
                 </select>                
-
-<!--                <input type="text" class="inputTextBox" value="" size="15" name="inputAccountName" placeholder="Assigned Account" maxlength="255"/>-->
 
                 <input type="text" class="inputTextBox" value="" size="15" name="inputPrice" placeholder="Price [GOODS only]"/>
                 <input type="text" class="inputTextBox" value="" size="15" name="inputSafetyStockPcs" placeholder="Safety Stock [GOODS only]"/>

@@ -53,8 +53,8 @@
                 <input type="submit" class="button" value="Clear Log" name="clearLog"/>
                 
                 <h5>Add Account</h5>
-                <input type="text" class="inputTextBox" value="" size="15" name="inputName" placeholder="Account Name" maxlength="255"/>
-                <input type="text" class="inputTextBox" value="" size="15" name="inputCurrentRemainder" placeholder="Current Remainder"/>
+                <input type="text" class="inputTextBox" value="" size="30" name="inputName" placeholder="Account Name" maxlength="255"/>
+                <input type="text" class="inputTextBox" value="" size="20" name="inputCurrentRemainder" placeholder="Current Remainder, cur"/>
                 <input type="submit" class="button" value="Create" name="addAccount"/>
             </form>
         </div>
@@ -62,16 +62,16 @@
         <!-- Output Block Table showing current DB data -->
         <div class="outputBlock1">
             <form action="AccountsStructureServlet">
-                <table class="outputTable2">
+                <table class="outputTable2" style="width:55%">
                     <caption>
                         Accounts List
                     </caption>
                     <tr>
-                        <th>ID</th>
-                        <th>Account Name</th>
-                        <th>Current Remainder, cur</th>
-                        <th></th>
-                        <th></th>
+                        <th style="width:5%">ID</th>
+                        <th style="width:40%">Account Name</th>
+                        <th style="width:25%">Current Remainder, cur</th>
+                        <th style="width:15%"></th>
+                        <th style="width:15%"></th>
                     </tr>                
 
                     <!-- Data table rows with Update / Delete, Submit / Cancel buttons. -->
@@ -82,8 +82,8 @@
                                 <c:choose>
                                     <c:when test="${row.ID == requestScope.rowSelectedForUpdate}">
                                         <td><c:out value = "${row.ID}"/></td>
-                                        <td><input type="text" class="inputTextBox" value="${row.NAME}" size="10" name="updateName" placeholder="..." maxlength="255"/></td>
-                                        <td><input type="text" class="inputTextBox" value="${row.CURRENT_REMAINDER_CUR}" size="10" name="updateCurrentRemainder" placeholder="..."/></td>
+                                        <td><input type="text" class="inputTextBox" value="${row.NAME}" size="30" name="updateName" placeholder="..." maxlength="255"/></td>
+                                        <td><input type="text" class="inputTextBox" value="${row.CURRENT_REMAINDER_CUR}" size="15" name="updateCurrentRemainder" placeholder="..."/></td>
                                         <td><input type="submit" class="button" value="Submit" name="submitUpdate_${row.ID}"/></td>
                                         <td><input type="submit" class="button" value="Cancel" name="cancelUpdate_${row.ID}"/></td>                             
                                     </c:when>

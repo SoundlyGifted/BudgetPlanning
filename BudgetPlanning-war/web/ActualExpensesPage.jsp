@@ -61,7 +61,7 @@
         <!-- Output Block Table showing current DB data -->
         <div class="outputBlock1">
             <form action="ActualExpensesServlet">
-                <table class="outputTable2">
+                <table class="outputTable2" style="font-size:12px">
                     <caption>
                         Actual Expenses Log
                     </caption>
@@ -87,29 +87,29 @@
                         <%  SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
                             request.setAttribute("currentDate", fmt.format(new Date()));
                         %>                        
-                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="date" class="inputTextBox" value="${currentDate}" size="15" name="inputDate"/></td>
+                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="date" name="inputDate" class="inputTextBox" value="${currentDate}" style="font-size:12px"/></td>
                             <td></td>
                             <td></td>                        
                             <td></td>
                             <td></td>
                             <td>
                                 <!--entered expense selection dropdown list.-->              
-                                <select <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> name="inputName" class="inputTextBox">
+                                <select <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> name="inputName" class="inputTextBox" style="font-size:12px">
                                     <option value="" selected disabled hidden>Choose Expense</option>
                                 <c:forEach var="row2" items="${expensesStructureResultSet.rows}">
                                     <option value="${row2.NAME}">${row2.NAME}</option>
                                 </c:forEach>
                             </select>                            
                         </td>
-                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" value="" size="10" name="inputTitle" placeholder="..." maxlength="255"/></td>
-                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" value="" size="10" name="inputShop" placeholder="..." maxlength="255"/></td>
-                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" value="" size="10" name="inputPrice" placeholder="..."/></td>
-                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" value="" size="10" name="inputQty" placeholder="..."/></td>
+                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputTitle" placeholder="..." maxlength="255"/></td>
+                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputShop" placeholder="..." maxlength="255"/></td>
+                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputPrice" placeholder="..."/></td>
+                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputQty" placeholder="..."/></td>
                             <td></td>
-                            <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" value="" size="15" name="inputComment" placeholder="..."/></td>
+                            <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="15" name="inputComment" placeholder="..."/></td>
                         <td><c:if test="${requestScope.rowSelectedForUpdate == null}"><input type="submit" class="button" value="Add" name="addActualExpense"/></c:if></td>
                             <td></td>
-                        </tr>                 
+                    </tr>                 
 
                     <!-- Data table rows with Update / Delete, Submit / Cancel buttons. -->
                     <c:forEach var = "row" items = "${actualExpensesResultSet.rows}">

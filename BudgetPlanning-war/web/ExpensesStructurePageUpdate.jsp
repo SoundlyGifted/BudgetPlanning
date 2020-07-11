@@ -57,25 +57,25 @@
                 <input type="submit" class="button" value="Clear Log" name="clearLog"/>
                 <br>                
                 <br>
-                <table class="inputTable" cellpadding="10" rules="cols">
+                <table class="inputTable" cellpadding="10" rules="cols" style="width:65%">
                     <caption>
                         Expense Category to Update
                     </caption>
                     <tr>
-                        <th>Expense Attribute Name</th>
-                        <th>Change Value</th>
-                        <th>Current Value</th>   
+                        <th style="width:28%">Expense Attribute Name</th>
+                        <th style="width:35%">Change Value</th>
+                        <th style="width:35%">Current Value</th>   
                     </tr>
                     <tr valign="top">
                         <td><b>Name</b></td>
-                        <td><input type="text" class="inputTextBox" value="${currentName}" size="15" name="updateNewName" placeholder="[not set]" maxlength="255"/></td>
+                        <td><input type="text" class="inputTextBox" value="${currentName}" size="30" name="updateNewName" placeholder="[not set]" maxlength="255"/></td>
                         <td><b>${currentName}</b></td>                       
                     </tr>
                     <tr valign="top">
                         <td><b>Account Name</b></td>
                         <td>
                             <!--Account selection dropdown list.-->              
-                            <select name="accountIDSelected" class="inputTextBox">
+                            <select name="accountIDSelected" class="inputTextBox" style="width:340px">
                                 <option value="${currentAccountId}" selected disabled hidden>${currentAccount}</option>
                                 <c:forEach var="row" items="${accountsStructureResultSet.rows}">
                                     <option value="${row.ID}">
@@ -90,7 +90,7 @@
                         <td><b>Linked to Complex Expense Name</b></td>
                         <td>
                             <!--Complex Expense selection dropdown list.-->              
-                            <select name="complexExpenseIDSelected" class="inputTextBox">
+                            <select name="complexExpenseIDSelected" class="inputTextBox" style="width:340px">
                                 <option value="${currentComplexExpenseId}" selected disabled hidden>${currentLinkedToComplExpName}</option>
                                 <option value="0">NOT SET</option>
                                 <c:forEach var="row" items="${complexExpenseResultSet.rows}">
@@ -105,17 +105,17 @@
                     <c:if test="${ExpensesStructure_ExpenseSelectedType == 'GOODS'}">                 
                         <tr valign="top">
                             <td><b>Price</b></td>
-                            <td><input type="text" class="inputTextBox" value="" size="15" name="updatePrice" placeholder="${currentPrice}"/></td>
+                            <td><input type="text" class="inputTextBox" value="" size="30" name="updatePrice" placeholder="${currentPrice}"/></td>
                             <td><b>${currentPrice}</b></td>                      
                         </tr>                    
                         <tr valign="top">
                             <td><b>Safety Stock, pcs</b></td>
-                            <td><input type="text" class="inputTextBox" value="" size="15" name="updateSafetyStockPcs" placeholder="${currentSafetyStockPcs}"/></td>
+                            <td><input type="text" class="inputTextBox" value="" size="30" name="updateSafetyStockPcs" placeholder="${currentSafetyStockPcs}"/></td>
                             <td><b>${currentSafetyStockPcs}</b></td>                       
                         </tr>                    
                         <tr valign="top">
                             <td><b>Order QTY, pcs</b></td>
-                            <td><input type="text" class="inputTextBox" value="" size="15" name="updateOrderQtyPcs" placeholder="${currentOrderQtyPcs}"/></td>
+                            <td><input type="text" class="inputTextBox" value="" size="30" name="updateOrderQtyPcs" placeholder="${currentOrderQtyPcs}"/></td>
                             <td><b>${currentOrderQtyPcs}</b></td>                     
                         </tr>                    
                     </c:if>                    
