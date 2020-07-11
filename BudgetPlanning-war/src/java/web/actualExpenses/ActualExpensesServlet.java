@@ -58,20 +58,7 @@ public class ActualExpensesServlet extends HttpServlet {
         Connection DBConnection = connector.connection(session, "expensesStructureDBConnection");
         
         ArrayList<Integer> ActualExpensesIdList = getActualExpensesIdList(DBConnection);
-        
-        /* Refreshing the page. */
-        if (request.getParameter("refresh") != null) {
-            log.add(session, currentDateTime + " Awaiting for user command...");       
-            request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
-        }
-        
-        /* Clearing System message log. */
-        if (request.getParameter("clearLog") != null) {
-            log.clear(session);
-            log.add(session, "Awaiting for initial user command..."); 
-            request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
-        }
-        
+                
         /* Processing Add operation. */
         if (request.getParameter("addActualExpense") != null) {
             String inputDate = request.getParameter("inputDate");

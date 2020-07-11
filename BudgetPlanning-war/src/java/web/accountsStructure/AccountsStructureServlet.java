@@ -58,20 +58,7 @@ public class AccountsStructureServlet extends HttpServlet {
         Connection DBConnection = connector.connection(session, "accountsStructureDBConnection");
         
         ArrayList<Integer> AccountIdList = getIdList(DBConnection);
-        
-        /* Refreshing the page. */
-        if (request.getParameter("refresh") != null) {
-            log.add(session, currentDateTime + " Awaiting for user command...");       
-            request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
-        }
-        
-        /* Clearing System message log. */
-        if (request.getParameter("clearLog") != null) {
-            log.clear(session);
-            log.add(session, "Awaiting for initial user command..."); 
-            request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
-        }        
-        
+                     
          /* Processing Add operation. */
         if (request.getParameter("addAccount") != null) {
             String inputName = request.getParameter("inputName");

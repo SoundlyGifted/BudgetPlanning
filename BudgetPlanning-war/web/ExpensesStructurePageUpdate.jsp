@@ -50,11 +50,11 @@
                 var textarea = document.getElementById('systemMessageLog_id');
                 textarea.scrollTop = textarea.scrollHeight;
             </script>
-            
+
             <!-- User form -->
             <form action="ExpensesStructureServletUpdate">
                 <input type="submit" class="button" value="Refresh" name="refresh"/>
-                <input type="submit" class="button" value="Clear Log" name="clearLog"/>
+                <input type="submit" class="button" value="Clear Log" name="clearLog"/>               
                 <br>                
                 <br>
                 <table class="inputTable" cellpadding="10" rules="cols" style="width:65%">

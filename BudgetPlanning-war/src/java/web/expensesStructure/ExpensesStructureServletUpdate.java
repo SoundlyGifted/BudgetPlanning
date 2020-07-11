@@ -67,8 +67,8 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             currentName = expenseSelected.getName();
             request.setAttribute("currentName", currentName);
             selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
-        }
-
+        }     
+        
         /* Processing Refresh the page user command. */
         if (request.getParameter("refresh") != null) {
             if (expenseSelectedId != null) {

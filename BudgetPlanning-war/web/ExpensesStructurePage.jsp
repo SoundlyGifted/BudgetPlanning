@@ -59,11 +59,17 @@
                 textarea.scrollTop = textarea.scrollHeight;
             </script>
             
-            <!-- User form -->
-            <form action="ExpensesStructureServlet">            
+            <form action="LogServlet">
+                <% String uri = request.getRequestURI();
+                   String pageName = uri.substring(uri.lastIndexOf("/")+1);
+                %>
+                <input type="hidden" name="pageName" value=<%= pageName %>>
                 <input type="submit" class="button" value="Refresh" name="refresh"/>
                 <input type="submit" class="button" value="Clear Log" name="clearLog"/>
-                
+            </form>            
+            
+            <!-- User form -->
+            <form action="ExpensesStructureServlet">               
                 <h5>Add Expense Category</h5>
                 <select name="inputType" class="inputTextBox">
                     <option value="" selected disabled hidden>Choose Expense Type</option>

@@ -46,12 +46,18 @@
                 var textarea = document.getElementById('systemMessageLog_id');
                 textarea.scrollTop = textarea.scrollHeight;
             </script>
-            
-            <!-- User form -->
-            <form action="AccountsStructureServlet">            
+
+            <form action="LogServlet">
+                <% String uri = request.getRequestURI();
+                   String pageName = uri.substring(uri.lastIndexOf("/")+1);
+                %>
+                <input type="hidden" name="pageName" value=<%= pageName %>>
                 <input type="submit" class="button" value="Refresh" name="refresh"/>
                 <input type="submit" class="button" value="Clear Log" name="clearLog"/>
-                
+            </form>
+  
+            <!-- User form -->               
+            <form action="AccountsStructureServlet">                
                 <h5>Add Account</h5>
                 <input type="text" class="inputTextBox" value="" size="30" name="inputName" placeholder="Account Name" maxlength="255"/>
                 <input type="text" class="inputTextBox" value="" size="20" name="inputCurrentRemainder" placeholder="Current Remainder, cur"/>

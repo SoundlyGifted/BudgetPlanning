@@ -66,19 +66,6 @@ public class ExpensesStructureServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
         Connection DBConnection = connector.connection(session, "expensesStructureDBConnection");
-        
-        /* Refreshing the page. */
-        if (request.getParameter("refresh") != null) {
-            log.add(session, currentDateTime + " Awaiting for user command...");       
-            request.getRequestDispatcher("ExpensesStructurePage.jsp").forward(request, response);
-        }
-        
-        /* Clearing System message log. */
-        if (request.getParameter("clearLog") != null) {
-            log.clear(session);
-            log.add(session, "Awaiting for initial user command..."); 
-            request.getRequestDispatcher("ExpensesStructurePage.jsp").forward(request, response);
-        }
 
         /* Handling dropdown "NAME" expense category list for Update operation. */
         if (request.getParameter("selectForUpdate") != null) {
