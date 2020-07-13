@@ -12,8 +12,8 @@ import javax.ejb.Local;
 public interface ExpensesStructureSQLUpdateLocal {
     
     public boolean execute(Connection connection, String name, String newName, 
-            String accountId, String linkedToComplexId, String price, 
-            String safetyStockPcs, String orderQtyPcs);
+            String accountId, String linkedToComplexId, String price,
+            String currentStockPcs, String safetyStockPcs, String orderQtyPcs);
     
     public boolean clearAssignmentToComplexExpense(Connection connection, 
             String name);  

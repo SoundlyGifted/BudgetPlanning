@@ -60,8 +60,11 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         EntityExpense expenseSelected = (EntityExpense) session.getAttribute("ExpensesStructure_ExpenseSelected");
         Integer expenseSelectedId = null;
         String currentName = null;
+        String currentStockPcs = null;
+        
         if (expenseSelected != null) {
             expenseSelectedId = expenseSelected.getId();
+            currentStockPcs = String.valueOf(expenseSelected.getCurrentStockPcs());
             /* Setting Selected EntityExpense fields as reqeust attributes 
             for passing to the jsp-page. */
             currentName = expenseSelected.getName();
@@ -108,10 +111,10 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             String updatePrice = request.getParameter("updatePrice");
             String updateSafetyStockPcs = request.getParameter("updateSafetyStockPcs");
             String updateOrderQtyPcs = request.getParameter("updateOrderQtyPcs");
-
+            
             boolean updated = update.execute(DBConnection, currentName, updateNewName,
-                    updateAccountId, updateLinkedComplExpId,
-                    updatePrice, updateSafetyStockPcs, updateOrderQtyPcs);
+                    updateAccountId, updateLinkedComplExpId, updatePrice, 
+                    currentStockPcs, updateSafetyStockPcs, updateOrderQtyPcs);
             
             if (updated) {
                 expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);

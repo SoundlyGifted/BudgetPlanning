@@ -20,13 +20,13 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
         implements ExpensesStructureSQLDeleteLocal {
 
     @EJB
-    ExpensesStructureSQLSelectLocal select;
+    private ExpensesStructureSQLSelectLocal select;
     
     @EJB
-    ExpensesStructureHandlerLocal handler;
+    private ExpensesStructureHandlerLocal handler;
     
     @EJB
-    ExpensesStructureSQLUpdateLocal update;
+    private ExpensesStructureSQLUpdateLocal update;
     
     @Override
     public boolean executeDeleteByName(Connection connection, String name) {

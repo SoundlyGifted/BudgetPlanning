@@ -21,10 +21,10 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
         implements ExpensesStructureSQLInsertLocal {
     
     @EJB
-    ExpensesStructureHandlerLocal handler;
+    private ExpensesStructureHandlerLocal handler;
     
     @EJB
-    ExpensesStructureSQLSelectLocal select;
+    private ExpensesStructureSQLSelectLocal select;
     
     @EJB
     private AccountsStructureSQLLocal accountsSQL;    
@@ -110,8 +110,8 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             preparedStatement.setDouble(10, orderQtyCurDouble);
             preparedStatement.executeUpdate();
             // Adding Entity to the Entity Object List;
-            handler.addToEntityExpenseList(select.
-                    executeSelectByName(connection, name));
+//            handler.addToEntityExpenseList(select.
+//                    executeSelectByName(connection, name));
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLInsert: Error while "
                     + "setting query parameters or executing Insert Query: "

@@ -9,29 +9,47 @@ import java.util.Objects;
  */
 public class EntityExpense {
     
-    private int id; /* Primary key */
-    private String type;
-    private String name;
-    private int accountId;
-    private String accountLinked;
-    private int linkedToComplexId;
-    private double price;
-    private double safetyStockPcs;
-    private double safetyStockCur;
-    private double orderQtyPcs;
-    private double orderQtyCur;
+    /* Constant parameters for each Expense Category. */
+    private final int id;      /* fixed */
+    private final String type; /* fixed */
+    
+    /* Common Fixed parameter variables for all Expense types. */    
+    private String name;            /* changeable */
+    private int accountId;          /* changeable */
+    private String accountLinked;   /* changeable */
+    private int linkedToComplexId;  /* changeable */
+    
+    /* Fixed parameter variables for 'GOODS' Expense type only. */
+    private double price;               /* changeable */
+    private double currentStockPcs;     /* changeable and calculated */
+    private double currentStockCur;     /* calculated */
+    private double currentStockWscPcs;  /* calculated */
+    private double currentStockWscCur;  /* calculated */
+    private double safetyStockPcs;      /* changeable */
+    private double safetyStockCur;      /* calculated */
+    private double orderQtyPcs;         /* changeable */
+    private double orderQtyCur;         /* calculated */
 
+    /* Constructor for Selection from Database case. */
     public EntityExpense(int id, String type, String name, int accountId, 
-            String accountLinked, int linkedToComplexId, double price, 
+            String accountLinked, int linkedToComplexId, double price,
+            double currentStockPcs, double currentStockCur,
+            double currentStockWscPcs, double currentStockWscCur,
             double safetyStockPcs, double safetyStockCur, double orderQtyPcs, 
             double orderQtyCur) {
+        
         this.id = id;
         this.type = type;
         this.name = name;
         this.accountId = accountId;
         this.accountLinked = accountLinked;
         this.linkedToComplexId = linkedToComplexId;
+        
         this.price = price;
+        this.currentStockPcs = currentStockPcs;
+        this.currentStockCur = currentStockCur;
+        this.currentStockWscPcs = currentStockWscPcs;
+        this.currentStockWscCur = currentStockWscCur;
         this.safetyStockPcs = safetyStockPcs;
         this.safetyStockCur = safetyStockCur;
         this.orderQtyPcs = orderQtyPcs;
@@ -43,29 +61,47 @@ public class EntityExpense {
         return "EntityExpense{" + "id=" + id + ", type=" + type + ", name=" 
                 + name + ", accountId=" + accountId + ", accountLinked=" 
                 + accountLinked + ", linkedToComplexId=" + linkedToComplexId 
-                + ", price=" + price + ", safetyStockPcs=" + safetyStockPcs 
-                + ", safetyStockCur=" + safetyStockCur + ", orderQtyPcs=" 
-                + orderQtyPcs + ", orderQtyCur=" + orderQtyCur + '}';
+                + ", price=" + price + ", currentStockPcs=" + currentStockPcs 
+                + ", currentStockCur=" + currentStockCur 
+                + ", currentStockWscPcs=" + currentStockWscPcs 
+                + ", currentStockWscCur=" + currentStockWscCur 
+                + ", safetyStockPcs=" + safetyStockPcs + ", safetyStockCur=" 
+                + safetyStockCur + ", orderQtyPcs=" + orderQtyPcs 
+                + ", orderQtyCur=" + orderQtyCur + '}';
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 47 * hash + this.id;
-        hash = 47 * hash + Objects.hashCode(this.type);
-        hash = 47 * hash + Objects.hashCode(this.name);
-        hash = 47 * hash + this.accountId;
-        hash = 47 * hash + Objects.hashCode(this.accountLinked);
-        hash = 47 * hash + this.linkedToComplexId;
-        hash = 47 * hash + (int) (Double.doubleToLongBits(this.price) 
+        int hash = 5;
+        hash = 89 * hash + this.id;
+        hash = 89 * hash + Objects.hashCode(this.type);
+        hash = 89 * hash + Objects.hashCode(this.name);
+        hash = 89 * hash + this.accountId;
+        hash = 89 * hash + Objects.hashCode(this.accountLinked);
+        hash = 89 * hash + this.linkedToComplexId;
+        hash = 89 * hash + (int) (Double.doubleToLongBits(this.price) 
                 ^ (Double.doubleToLongBits(this.price) >>> 32));
-        hash = 47 * hash + (int) (Double.doubleToLongBits(this.safetyStockPcs) 
+        hash = 89 * hash + (int) (Double.doubleToLongBits(this.currentStockPcs) 
+                ^ (Double.doubleToLongBits(this.currentStockPcs) >>> 32));
+        hash = 89 * hash + (int) (Double.doubleToLongBits(this.currentStockCur) 
+                ^ (Double.doubleToLongBits(this.currentStockCur) >>> 32));
+        hash = 89 * hash 
+                + (int) (Double.doubleToLongBits(this.currentStockWscPcs) 
+                ^ (Double.doubleToLongBits(this.currentStockWscPcs) >>> 32));
+        hash = 89 * hash 
+                + (int) (Double.doubleToLongBits(this.currentStockWscCur) 
+                ^ (Double.doubleToLongBits(this.currentStockWscCur) >>> 32));
+        hash = 89 * hash 
+                + (int) (Double.doubleToLongBits(this.safetyStockPcs) 
                 ^ (Double.doubleToLongBits(this.safetyStockPcs) >>> 32));
-        hash = 47 * hash + (int) (Double.doubleToLongBits(this.safetyStockCur) 
+        hash = 89 * hash 
+                + (int) (Double.doubleToLongBits(this.safetyStockCur) 
                 ^ (Double.doubleToLongBits(this.safetyStockCur) >>> 32));
-        hash = 47 * hash + (int) (Double.doubleToLongBits(this.orderQtyPcs) 
+        hash = 89 * hash 
+                + (int) (Double.doubleToLongBits(this.orderQtyPcs) 
                 ^ (Double.doubleToLongBits(this.orderQtyPcs) >>> 32));
-        hash = 47 * hash + (int) (Double.doubleToLongBits(this.orderQtyCur) 
+        hash = 89 * hash 
+                + (int) (Double.doubleToLongBits(this.orderQtyCur) 
                 ^ (Double.doubleToLongBits(this.orderQtyCur) >>> 32));
         return hash;
     }
@@ -93,6 +129,22 @@ public class EntityExpense {
         }
         if (Double.doubleToLongBits(this.price) 
                 != Double.doubleToLongBits(other.price)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.currentStockPcs) 
+                != Double.doubleToLongBits(other.currentStockPcs)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.currentStockCur) 
+                != Double.doubleToLongBits(other.currentStockCur)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.currentStockWscPcs) 
+                != Double.doubleToLongBits(other.currentStockWscPcs)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.currentStockWscCur) 
+                != Double.doubleToLongBits(other.currentStockWscCur)) {
             return false;
         }
         if (Double.doubleToLongBits(this.safetyStockPcs) 
@@ -123,20 +175,44 @@ public class EntityExpense {
         return true;
     }
 
+    public double getCurrentStockPcs() {
+        return currentStockPcs;
+    }
+
+    public void setCurrentStockPcs(double currentStockPcs) {
+        this.currentStockPcs = currentStockPcs;
+    }
+
+    public double getCurrentStockCur() {
+        return currentStockCur;
+    }
+
+    public void setCurrentStockCur(double currentStockCur) {
+        this.currentStockCur = currentStockCur;
+    }
+
+    public double getCurrentStockWscPcs() {
+        return currentStockWscPcs;
+    }
+
+    public void setCurrentStockWscPcs(double currentStockWscPcs) {
+        this.currentStockWscPcs = currentStockWscPcs;
+    }
+
+    public double getCurrentStockWscCur() {
+        return currentStockWscCur;
+    }
+
+    public void setCurrentStockWscCur(double currentStockWscCur) {
+        this.currentStockWscCur = currentStockWscCur;
+    }
+
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getType() {
         return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public String getName() {

@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSessionListener;
  * @author SoundlyGifted
  */
 @WebListener
-public class SessionListener implements HttpSessionListener, HttpSessionAttributeListener {
+public class NewListener implements HttpSessionListener, HttpSessionAttributeListener {
 
     @EJB
     private DBConnectionLocal connector;

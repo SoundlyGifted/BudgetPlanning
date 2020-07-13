@@ -31,8 +31,8 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
     
     @Override
     public boolean execute(Connection connection, String name, String newName, 
-            String accountId, String linkedToComplexId, String price, 
-            String safetyStockPcs, String orderQtyPcs) {
+            String accountId, String linkedToComplexId, String price,
+            String currentStockPcs, String safetyStockPcs, String orderQtyPcs) {
         /* If no expense name provided for the update operation then cancelling
         this method. Also checking lengths of String variables. */
         if (!inputCheckNullBlank(name) || !inputCheckLength(name)) {
@@ -109,16 +109,20 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
            2) If all input parameters not entered (are null or blank) then
            cancelling update operation (nothing to update). */
         boolean allInputParamsNullOrBlank = true;
-        String[] enteredParams = new String[]{newName, accountId, accountName,
-            linkedToComplexId, price, safetyStockPcs, orderQtyPcs};
+        
+        String[] enteredParams = new String[] {newName, accountId, accountName,
+            linkedToComplexId, price, currentStockPcs, safetyStockPcs, orderQtyPcs};
+        
         String[] entityExpenseParams = new String[]{
             entityExpenseFromDB.getName(),
             Integer.toString(entityExpenseFromDB.getAccountId()),
             entityExpenseFromDB.getAccountLinked(),
             Integer.toString(entityExpenseFromDB.getLinkedToComplexId()),
             Double.toString(entityExpenseFromDB.getPrice()),
+            Double.toString(entityExpenseFromDB.getCurrentStockPcs()),
             Double.toString(entityExpenseFromDB.getSafetyStockPcs()),
             Double.toString(entityExpenseFromDB.getOrderQtyPcs())};
+        
         for (int i = 0; i < enteredParams.length; i++) {
             if (enteredParams[i] == null || enteredParams[i].trim().isEmpty()) {
                 enteredParams[i] = entityExpenseParams[i];
@@ -135,52 +139,65 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         accountName = enteredParams[2];
         linkedToComplexId = enteredParams[3];
         price = enteredParams[4];
-        safetyStockPcs = enteredParams[5];
-        orderQtyPcs = enteredParams[6];
+        currentStockPcs = enteredParams[5];
+        safetyStockPcs = enteredParams[6];
+        orderQtyPcs = enteredParams[7];
 
         accountIdInt = stringToInt(accountId);
         linkedToComplexIdInt = stringToInt(linkedToComplexId);
         double priceDouble = stringToDouble(price);
+        double currentStockPcsDouble = stringToDouble(currentStockPcs);
+        double currentStockCurDouble;
+        double currentStockWscPcsDouble;
+        double currentStockWscCurDouble;
         double safetyStockPcsDouble = stringToDouble(safetyStockPcs);
         double safetyStockCurDouble;
         double orderQtyPcsDouble = stringToDouble(orderQtyPcs);
         double orderQtyCurDouble;
 
+        currentStockCurDouble = round(priceDouble * currentStockPcsDouble, 2);
         safetyStockCurDouble = round(priceDouble * safetyStockPcsDouble, 2);
         orderQtyCurDouble = round(priceDouble * orderQtyPcsDouble, 2);
+        
+        currentStockWscPcsDouble = currentStockPcsDouble - safetyStockPcsDouble;
+        currentStockWscCurDouble = round(priceDouble * currentStockWscPcsDouble, 2);
         
         try {
             /* Updating Entity in the Entity Object List.
             entityExpense selected from Entity Object List for the update 
             operation. */
-            EntityExpense entityExpense
-                    = handler
-                            .selectFromEntityExpenseListById(entityExpenseFromDB
-                                    .getId());
-            if (entityExpense != null) {
-                entityExpense.setName(newName);
-                entityExpense.setAccountId(accountIdInt);
-                entityExpense.setAccountLinked(accountName);
-                entityExpense.setLinkedToComplexId(linkedToComplexIdInt);
-                entityExpense.setPrice(priceDouble);
-                entityExpense.setSafetyStockPcs(safetyStockPcsDouble);
-                entityExpense.setSafetyStockCur(safetyStockCurDouble);
-                entityExpense.setOrderQtyPcs(orderQtyPcsDouble);
-                entityExpense.setOrderQtyCur(orderQtyCurDouble);
-            } else {
-                return false;
-            }
+//            EntityExpense entityExpense
+//                    = handler
+//                            .selectFromEntityExpenseListById(entityExpenseFromDB
+//                                    .getId());
+//            if (entityExpense != null) {
+//                entityExpense.setName(newName);
+//                entityExpense.setAccountId(accountIdInt);
+//                entityExpense.setAccountLinked(accountName);
+//                entityExpense.setLinkedToComplexId(linkedToComplexIdInt);
+//                entityExpense.setPrice(priceDouble);
+//                entityExpense.setSafetyStockPcs(safetyStockPcsDouble);
+//                entityExpense.setSafetyStockCur(safetyStockCurDouble);
+//                entityExpense.setOrderQtyPcs(orderQtyPcsDouble);
+//                entityExpense.setOrderQtyCur(orderQtyCurDouble);
+//            } else {
+//                return false;
+//            }
 
             preparedStatement.setString(1, newName);
             preparedStatement.setInt(2, accountIdInt);
             preparedStatement.setString(3, accountName);
             preparedStatement.setInt(4, linkedToComplexIdInt);
             preparedStatement.setDouble(5, priceDouble);
-            preparedStatement.setDouble(6, safetyStockPcsDouble);
-            preparedStatement.setDouble(7, safetyStockCurDouble);
-            preparedStatement.setDouble(8, orderQtyPcsDouble);
-            preparedStatement.setDouble(9, orderQtyCurDouble);
-            preparedStatement.setString(10, name);
+            preparedStatement.setDouble(6, currentStockPcsDouble);
+            preparedStatement.setDouble(7, currentStockCurDouble);
+            preparedStatement.setDouble(8, currentStockWscPcsDouble);
+            preparedStatement.setDouble(9, currentStockWscCurDouble);
+            preparedStatement.setDouble(10, safetyStockPcsDouble);
+            preparedStatement.setDouble(11, safetyStockCurDouble);
+            preparedStatement.setDouble(12, orderQtyPcsDouble);
+            preparedStatement.setDouble(13, orderQtyCurDouble);
+            preparedStatement.setString(14, name);
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLUpdate: Error while "
@@ -220,13 +237,13 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         }
 
         try {
-            EntityExpense entity = 
-                    handler.selectFromEntityExpenseListByName(name);
-            if (entity != null) {
-                entity.setLinkedToComplexId(0);
-            } else {
-                return false;
-            }
+//            EntityExpense entity = 
+//                    handler.selectFromEntityExpenseListByName(name);
+//            if (entity != null) {
+//                entity.setLinkedToComplexId(0);
+//            } else {
+//                return false;
+//            }
             preparedStatement.setString(1, name);
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {

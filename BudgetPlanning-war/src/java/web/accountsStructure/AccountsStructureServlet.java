@@ -6,14 +6,9 @@ import ejb.accountsStructure.AccountsStructureSQLLocal;
 import ejb.common.OperationResultLogLocal;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.LinkedList;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import web.common.WebServletCommonMethods;
 
 /**
  *
@@ -37,6 +33,9 @@ public class AccountsStructureServlet extends HttpServlet {
     
     @EJB
     private AccountsStructureSQLLocal sql;    
+    
+    @EJB
+    private WebServletCommonMethods commonMethods;
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -57,7 +56,7 @@ public class AccountsStructureServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Connection DBConnection = connector.connection(session, "accountsStructureDBConnection");
         
-        ArrayList<Integer> AccountIdList = getIdList(DBConnection);
+        ArrayList<Integer> accountsIdList = commonMethods.getIdList(DBConnection, "ACCOUNTS_STRUCTURE");
                      
          /* Processing Add operation. */
         if (request.getParameter("addAccount") != null) {
@@ -79,7 +78,7 @@ public class AccountsStructureServlet extends HttpServlet {
         /* Processing Update operation. */
         /* Defining ID of row which was selected for update and passing it 
         as request attribute. */
-        for (Integer id : AccountIdList) {
+        for (Integer id : accountsIdList) {
             if (request.getParameter("update_" + String.valueOf(id)) != null) {
                 request.setAttribute("rowSelectedForUpdate", id);
                 request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
@@ -87,7 +86,7 @@ public class AccountsStructureServlet extends HttpServlet {
         }
         /* Defining ID of row which was submitted for update and passing it 
         to Bean for update operation. */
-        for (Integer id : AccountIdList) {
+        for (Integer id : accountsIdList) {
             if (request.getParameter("submitUpdate_" + String.valueOf(id)) != null) {
                 String idToUpdate = String.valueOf(id);
                 String updateName = request.getParameter("updateName");
@@ -106,7 +105,7 @@ public class AccountsStructureServlet extends HttpServlet {
         }
         /* Defining ID of row which was cancelled for update and passing it 
         as request attribute. */
-        for (Integer id : AccountIdList) {
+        for (Integer id : accountsIdList) {
             if (request.getParameter("cancelUpdate_" + String.valueOf(id)) != null) {
                 request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
             }
@@ -115,7 +114,7 @@ public class AccountsStructureServlet extends HttpServlet {
         /* Processing Delete operation. */
         /* Defining ID of row which was selected for delete and passing it 
         to Bean for delete operation. */
-        for (Integer id : AccountIdList) {
+        for (Integer id : accountsIdList) {
             if (request.getParameter("delete_" + String.valueOf(id)) != null) {
                 boolean deleted = sql.executeDelete(DBConnection, 
                         String.valueOf(id));
@@ -130,45 +129,7 @@ public class AccountsStructureServlet extends HttpServlet {
             }
         }
     }
-
-    /* returns Collection of IDs from ACCOUNTS_STRUCTURE database table. */
-    private ArrayList<Integer> getIdList(Connection connection) {
-
-        Statement statement = null;
-        String query = "select ID from ACCOUNTS_STRUCTURE";
-
-        try {
-            statement = connection.createStatement();
-        } catch (SQLException ex) {
-            getIdListErrorMsg(ex);
-            return null;
-        }
-
-        try (ResultSet resultSet = statement.executeQuery(query)) {
-            Collection<Integer> IdList = new LinkedList<>();
-            while (resultSet.next()) {
-                IdList.add(resultSet.getInt("ID"));
-            }
-            return new ArrayList<>(IdList);
-        } catch (SQLException ex) {
-            getIdListErrorMsg(ex);
-            return null;
-        } finally {
-            try {
-                statement.close();
-            } catch (SQLException ex) {
-                getIdListErrorMsg(ex);
-            }
-        }
-    }
-
-    private void getIdListErrorMsg (SQLException ex) {
-        System.out.println("*** AccountsStructureServlet : error "
-                        + "while getting Accounts Structure ID list: "
-                        + ex.getMessage());
-    }
-    
-    
+  
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

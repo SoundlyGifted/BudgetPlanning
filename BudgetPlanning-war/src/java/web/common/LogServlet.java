@@ -43,15 +43,23 @@ public class LogServlet extends HttpServlet {
         
         /* Refreshing the page. */
         if (request.getParameter("refresh") != null) {
-            log.add(session, currentDateTime + " Awaiting for user command...");       
-            request.getRequestDispatcher(request.getParameter("pageName")).forward(request, response);
+            log.add(session, currentDateTime + " Awaiting for user command...");
+            String pageName = request.getParameter("pageName");
+            if (pageName == null || pageName.trim().isEmpty()) {
+                pageName = "index.jsp";
+            } 
+            request.getRequestDispatcher(pageName).forward(request, response);
         }
         
         /* Clearing System message log. */
         if (request.getParameter("clearLog") != null) {
             log.clear(session);
-            log.add(session, "Awaiting for initial user command..."); 
-            request.getRequestDispatcher(request.getParameter("pageName")).forward(request, response);
+            log.add(session, "Awaiting for initial user command...");
+                        String pageName = request.getParameter("pageName");
+            if (pageName == null || pageName.trim().isEmpty()) {
+                pageName = "index.jsp";
+            }
+            request.getRequestDispatcher(pageName).forward(request, response);
         }
     }
 

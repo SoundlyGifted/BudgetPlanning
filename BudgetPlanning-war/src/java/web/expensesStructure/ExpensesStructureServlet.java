@@ -2,9 +2,7 @@
 package web.expensesStructure;
 
 import ejb.DBConnection.DBConnectionLocal;
-import ejb.accountsStructure.AccountsStructureSQLLocal;
 import ejb.common.OperationResultLogLocal;
-import ejb.entity.EntityAccount;
 import ejb.entity.EntityExpense;
 import ejb.expensesStructure.ExpensesStructureHandlerLocal;
 import ejb.expensesStructure.ExpensesStructureSQLInsertLocal;

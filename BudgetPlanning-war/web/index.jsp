@@ -85,6 +85,31 @@
         </script>
         
         <script>
+            
+            // Keeping scroll position after 'input' field is clicked.
+            // (preventing browser from scrolling to the top.
+            ;(function($){
+            $.fn.saveScrollPosition = function () {
+                if (sessionStorage) {
+                    var tempScrollTop = sessionStorage.getItem("tempScrollTop");
+                    if (tempScrollTop) {
+                        $(window).scrollTop(tempScrollTop);
+                        sessionStorage.removeItem("tempScrollTop");
+                    }
+                    $(this).click(function(e) {
+                        sessionStorage.setItem("tempScrollTop", $(window).scrollTop());
+                    });
+                    return true;
+                }
+                return false;
+            };
+
+            $(document).ready(function () {
+                $('input').saveScrollPosition();
+            });
+
+            }(jQuery));
+        
             // This code is to keep the same collapse/expand status of each 
             // Complex Expense on the page after the page is refreshed.
             // The statuses are kept in a separate sessionStorage attributes 
@@ -171,7 +196,7 @@
                     }
                     return children;
                 });
-            });
+            });  
         </script>
     </head>
 
@@ -209,7 +234,7 @@
         </div>
 
         <div class="outputBlock1">
-
+            <form action="MainScreenServlet">
             <table class="planningDataTable" id="planningTable">
 
                 <caption>
@@ -405,8 +430,16 @@
                                 <td></td>
                                 <td>Stock Current</td>
                                 <td>PCS</td>
-                                <td><input type="submit" class="smallButton" value="Adjust" name="update_${row.ID}_CURRENT_STOCK_PCS"/></td>
-                                <td><c:out value = "${row.CURRENT_STOCK_PCS}"/></td>
+                                <c:choose>
+                                    <c:when test="${row.ID == requestScope.rowSelectedForCurrentStockUpdate}">
+                                        <td><input type="submit" class="smallButton" value="Submit" name="submitUpdate_CURRENT_STOCK_PCS_${row.ID}"/></td>
+                                        <td><input type="text" class="inputTextBox" style="font-size: 10px; padding: 2px 5px" value="${row.CURRENT_STOCK_PCS}" size="5" name="updateCurrentStock" placeholder="..."/></td>                                          
+                                    </c:when>
+                                    <c:otherwise>
+                                        <td><input type="submit" class="smallButton" value="Adjust" name="update_CURRENT_STOCK_PCS_${row.ID}"/></td>
+                                        <td><c:out value = "${row.CURRENT_STOCK_PCS}"/></td>                                        
+                                    </c:otherwise>
+                                </c:choose>
                                 <td>Expenses Plan</td>
                                 <td>PCS</td>
                                 <td><input type="submit" class="smallButton" value="Update" name="update_${row.ID}_PLANNED_PCS"/></td>
@@ -628,7 +661,7 @@
                 </c:forEach>
 
             </table>
-
+            </form>
         </div>
 
     </body>
