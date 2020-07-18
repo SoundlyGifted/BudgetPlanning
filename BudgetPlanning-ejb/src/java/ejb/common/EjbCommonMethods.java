@@ -6,7 +6,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- *
+ * Abstract class to contain common Methods that are used in the EJB module.
+ * 
  * @author SoundlyGifted
  */
 public abstract class EjbCommonMethods {
