@@ -2,6 +2,7 @@
 package web.mainScreen;
 
 import ejb.DBConnection.DBConnectionLocal;
+import ejb.MainScreen.PlannedVariableParamsSQLLocal;
 import ejb.common.OperationResultLogLocal;
 import web.common.WebServletCommonMethods;
 import ejb.entity.EntityExpense;
@@ -12,6 +13,7 @@ import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -39,6 +41,9 @@ public class MainScreenServlet extends HttpServlet {
 
     @EJB
     private ExpensesStructureSQLUpdateLocal update;
+    
+    @EJB
+    private PlannedVariableParamsSQLLocal plannedParams;
     
     @EJB
     private WebServletCommonMethods commonMethods;    
@@ -100,6 +105,111 @@ public class MainScreenServlet extends HttpServlet {
                 } else {
                     log.add(session, currentDateTime + " [Adjust Current Stock "
                             + "command entered] : Command declined");
+                }
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+        }
+        
+        /* Processing Expenses Plan (PCS) update operation. */
+        /* Defining ID of row which was selected for update and passing it 
+        as request attribute. */
+        for (Integer id : expensesIdList) {
+            if (request.getParameter("update_PLANNED_PCS_" + String.valueOf(id)) != null) {
+                request.setAttribute("rowSelectedForExpensesPlanPcsUpdate", id);
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+        }
+        /* Defining ID of row which was submitted for update and passing it 
+        to Bean for update operation. */
+        for (Integer id : expensesIdList) {
+            if (request.getParameter("submitUpdate_PLANNED_PCS_" + String.valueOf(id)) != null) {
+                String idToUpdate = String.valueOf(id);               
+                
+                ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
+                HashMap<String, String> updateExpensesPlanPcsList = new HashMap<>();
+                for (String date : dates) {
+                    updateExpensesPlanPcsList.put(date, request.getParameter("updateExpensesPlanPcs_" + date));
+                }
+                
+                boolean updated = plannedParams.executeUpdate(DBConnection, 
+                        idToUpdate, "PLANNED_PCS", updateExpensesPlanPcsList);
+                if (updated) {
+                    log.add(session, currentDateTime + " [Update Expenses Plan "
+                            + "PCS command entered] : Expenses Plan PCS "
+                            + "updated");
+                } else {
+                    log.add(session, currentDateTime + " [Update Expenses Plan "
+                            + "PCS command entered] : Command declined");
+                }
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+        }        
+        
+        /* Processing Consumption (PCS) update operation. */
+        /* Defining ID of row which was selected for update and passing it 
+        as request attribute. */
+        for (Integer id : expensesIdList) {
+            if (request.getParameter("update_CONSUMPTION_PCS_" + String.valueOf(id)) != null) {
+                request.setAttribute("rowSelectedForConsumptionPcsUpdate", id);
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+        }
+        /* Defining ID of row which was submitted for update and passing it 
+        to Bean for update operation. */
+        for (Integer id : expensesIdList) {
+            if (request.getParameter("submitUpdate_CONSUMPTION_PCS_" + String.valueOf(id)) != null) {
+                String idToUpdate = String.valueOf(id);               
+                
+                ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
+                HashMap<String, String> updateConsumptionPcsList = new HashMap<>();
+                for (String date : dates) {
+                    updateConsumptionPcsList.put(date, request.getParameter("updateConsumptionPcs_" + date));
+                }
+                
+                boolean updated = plannedParams.executeUpdate(DBConnection, 
+                        idToUpdate, "CONSUMPTION_PCS", updateConsumptionPcsList);
+                if (updated) {
+                    log.add(session, currentDateTime + " [Update Consumption "
+                            + "PCS command entered] : Expenses Plan PCS "
+                            + "updated");
+                } else {
+                    log.add(session, currentDateTime + " [Update Consumption "
+                            + "PCS command entered] : Command declined");
+                }
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+        }        
+        
+        /* Processing Expenses Plan (CUR) update operation. */
+        /* Defining ID of row which was selected for update and passing it 
+        as request attribute. */
+        for (Integer id : expensesIdList) {
+            if (request.getParameter("update_PLANNED_CUR_" + String.valueOf(id)) != null) {
+                request.setAttribute("rowSelectedForExpensesPlanCurUpdate", id);
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+        }
+        /* Defining ID of row which was submitted for update and passing it 
+        to Bean for update operation. */
+        for (Integer id : expensesIdList) {
+            if (request.getParameter("submitUpdate_PLANNED_CUR_" + String.valueOf(id)) != null) {
+                String idToUpdate = String.valueOf(id);               
+                
+                ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
+                HashMap<String, String> updateExpensesPlanCurList = new HashMap<>();
+                for (String date : dates) {
+                    updateExpensesPlanCurList.put(date, request.getParameter("updateExpensesPlanCur_" + date));
+                }
+                
+                boolean updated = plannedParams.executeUpdate(DBConnection, 
+                        idToUpdate, "PLANNED_CUR", updateExpensesPlanCurList);
+                if (updated) {
+                    log.add(session, currentDateTime + " [Update Expenses Plan "
+                            + "CUR command entered] : Expenses Plan PCS "
+                            + "updated");
+                } else {
+                    log.add(session, currentDateTime + " [Update Expenses Plan "
+                            + "CUR command entered] : Command declined");
                 }
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }

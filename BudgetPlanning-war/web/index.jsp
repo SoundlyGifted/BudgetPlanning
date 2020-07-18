@@ -333,14 +333,29 @@
                                         <td>CUR</td>
                                         <td></td>
                                         <td><c:out value = "${row.PRICE}"/></td>
+                                        
                                         <td>Consumption</td>
                                         <td>PCS</td>
-                                        <td><input type="submit" class="smallButton" value="Update" name="update_${row.ID}_CONSUMPTION_PCS"/></td>
-                                            <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
-                                                <c:if test="${row.NAME == row2.EXPENSE_NAME}">
-                                                <td><c:out value="${row2.CONSUMPTION_PCS}"/></td>
-                                            </c:if>
-                                        </c:forEach>                                
+                                        <!-- CONSUMPTION_PCS (Consumption PCS) variable parameter that can be changed by user. -->
+                                        <c:choose>
+                                            <c:when test="${row.ID == requestScope.rowSelectedForConsumptionPcsUpdate}">
+                                                <td><input type="submit" class="smallButton" value="Submit" name="submitUpdate_CONSUMPTION_PCS_${row.ID}"/></td>
+                                                <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
+                                                    <c:if test="${row.NAME == row2.EXPENSE_NAME}">
+                                                        <td><input type="text" class="inputTextBox" style="font-size: 10px; padding: 2px 1px" value="${row2.CONSUMPTION_PCS}" size="5" name="updateConsumptionPcs_${row2.DATE}" placeholder="..."/></td>
+                                                    </c:if>
+                                                </c:forEach>                                         
+                                            </c:when>
+                                            <c:otherwise>
+                                                <td><input type="submit" class="smallButton" value="Update" name="update_CONSUMPTION_PCS_${row.ID}"/></td>
+                                                <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
+                                                    <c:if test="${row.NAME == row2.EXPENSE_NAME}">
+                                                        <td><c:out value="${row2.CONSUMPTION_PCS}"/></td>
+                                                    </c:if>
+                                                </c:forEach>                                        
+                                            </c:otherwise>
+                                        </c:choose>
+                                                        
                                     </tr>                                
                                 </c:otherwise>
                             </c:choose>
@@ -428,26 +443,43 @@
                             <tr data-depth="${dataDepth}" class="collapse">
                                 <td></td>
                                 <td></td>
+                                
                                 <td>Stock Current</td>
                                 <td>PCS</td>
+                                <!-- CURRENT_STOCK_PCS (Current Stock PCS) fixed parameter that can be changed by user. -->
                                 <c:choose>
                                     <c:when test="${row.ID == requestScope.rowSelectedForCurrentStockUpdate}">
                                         <td><input type="submit" class="smallButton" value="Submit" name="submitUpdate_CURRENT_STOCK_PCS_${row.ID}"/></td>
-                                        <td><input type="text" class="inputTextBox" style="font-size: 10px; padding: 2px 5px" value="${row.CURRENT_STOCK_PCS}" size="5" name="updateCurrentStock" placeholder="..."/></td>                                          
+                                        <td><input type="text" class="inputTextBox" style="font-size: 10px; padding: 2px 1px" value="${row.CURRENT_STOCK_PCS}" size="5" name="updateCurrentStock" placeholder="..."/></td>                                          
                                     </c:when>
                                     <c:otherwise>
                                         <td><input type="submit" class="smallButton" value="Adjust" name="update_CURRENT_STOCK_PCS_${row.ID}"/></td>
                                         <td><c:out value = "${row.CURRENT_STOCK_PCS}"/></td>                                        
                                     </c:otherwise>
                                 </c:choose>
+                                        
                                 <td>Expenses Plan</td>
                                 <td>PCS</td>
-                                <td><input type="submit" class="smallButton" value="Update" name="update_${row.ID}_PLANNED_PCS"/></td>
-                                    <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
-                                        <c:if test="${row.NAME == row2.EXPENSE_NAME}">
-                                        <td><c:out value="${row2.PLANNED_PCS}"/></td>
-                                    </c:if>
-                                </c:forEach>                                  
+                                <!-- PLANNED_PCS (Expenses Plan PCS) variable parameter that can be changed by user. -->
+                                <c:choose>
+                                    <c:when test="${row.ID == requestScope.rowSelectedForExpensesPlanPcsUpdate}">
+                                        <td><input type="submit" class="smallButton" value="Submit" name="submitUpdate_PLANNED_PCS_${row.ID}"/></td>
+                                        <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
+                                            <c:if test="${row.NAME == row2.EXPENSE_NAME}">
+                                                <td><input type="text" class="inputTextBox" style="font-size: 10px; padding: 2px 1px" value="${row2.PLANNED_PCS}" size="5" name="updateExpensesPlanPcs_${row2.DATE}" placeholder="..."/></td>
+                                            </c:if>
+                                        </c:forEach>                                         
+                                    </c:when>
+                                    <c:otherwise>
+                                        <td><input type="submit" class="smallButton" value="Update" name="update_PLANNED_PCS_${row.ID}"/></td>
+                                        <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
+                                            <c:if test="${row.NAME == row2.EXPENSE_NAME}">
+                                                <td><c:out value="${row2.PLANNED_PCS}"/></td>
+                                            </c:if>
+                                        </c:forEach>                                        
+                                    </c:otherwise>
+                                </c:choose>
+    
                             </tr> 
                             <tr data-depth="${dataDepth}" class="collapse">
                                 <td></td>
@@ -542,14 +574,30 @@
                                         <td>Text</td>
                                         <td></td>
                                         <td><c:out value = "${row.ACCOUNT_LINKED}"/></td>
+                                        
+                                        
                                         <td>Expenses Plan</td>
                                         <td>CUR</td>
-                                        <td><input type="submit" class="smallButton" value="Update" name="update_${row.ID}_PLANNED_CUR"/></td>
-                                            <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
-                                                <c:if test="${row.NAME == row2.EXPENSE_NAME}">
-                                                <td><c:out value="${row2.PLANNED_CUR}"/></td>
-                                            </c:if>
-                                        </c:forEach>
+                                        <!-- PLANNED_CUR (Expenses Plan CUR) variable parameter that can be changed by user. -->
+                                        <c:choose>
+                                            <c:when test="${row.ID == requestScope.rowSelectedForExpensesPlanCurUpdate}">
+                                                <td><input type="submit" class="smallButton" value="Submit" name="submitUpdate_PLANNED_CUR_${row.ID}"/></td>
+                                                <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
+                                                    <c:if test="${row.NAME == row2.EXPENSE_NAME}">
+                                                        <td><input type="text" class="inputTextBox" style="font-size: 10px; padding: 2px 1px" value="${row2.PLANNED_CUR}" size="5" name="updateExpensesPlanCur_${row2.DATE}" placeholder="..."/></td>
+                                                    </c:if>
+                                                </c:forEach>                                         
+                                            </c:when>
+                                            <c:otherwise>
+                                                <td><input type="submit" class="smallButton" value="Update" name="update_PLANNED_CUR_${row.ID}"/></td>
+                                                <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
+                                                    <c:if test="${row.NAME == row2.EXPENSE_NAME}">
+                                                        <td><c:out value="${row2.PLANNED_CUR}"/></td>
+                                                    </c:if>
+                                                </c:forEach>                                        
+                                            </c:otherwise>
+                                        </c:choose>
+                                                
                                     </tr>                                
                                 </c:when>
                                 <c:otherwise>
@@ -561,14 +609,29 @@
                                         <td>Text</td>
                                         <td></td>
                                         <td><c:out value = "${row.ACCOUNT_LINKED}"/></td>
+                                        
                                         <td>Expenses Plan</td>
                                         <td>CUR</td>
-                                        <td><input type="submit" class="smallButton" value="Update" name="update_${row.ID}_PLANNED_CUR"/></td>
-                                            <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
-                                                <c:if test="${row.NAME == row2.EXPENSE_NAME}">
-                                                <td><c:out value="${row2.PLANNED_CUR}"/></td>
-                                            </c:if>
-                                        </c:forEach>
+                                        <!-- PLANNED_CUR (Expenses Plan CUR) variable parameter that can be changed by user. -->
+                                        <c:choose>
+                                            <c:when test="${row.ID == requestScope.rowSelectedForExpensesPlanCurUpdate}">
+                                                <td><input type="submit" class="smallButton" value="Submit" name="submitUpdate_PLANNED_CUR_${row.ID}"/></td>
+                                                <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
+                                                    <c:if test="${row.NAME == row2.EXPENSE_NAME}">
+                                                        <td><input type="text" class="inputTextBox" style="font-size: 10px; padding: 2px 1px" value="${row2.PLANNED_CUR}" size="5" name="updateExpensesPlanCur_${row2.DATE}" placeholder="..."/></td>
+                                                    </c:if>
+                                                </c:forEach>                                         
+                                            </c:when>
+                                            <c:otherwise>
+                                                <td><input type="submit" class="smallButton" value="Update" name="update_PLANNED_CUR_${row.ID}"/></td>
+                                                <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
+                                                    <c:if test="${row.NAME == row2.EXPENSE_NAME}">
+                                                        <td><c:out value="${row2.PLANNED_CUR}"/></td>
+                                                    </c:if>
+                                                </c:forEach>                                        
+                                            </c:otherwise>
+                                        </c:choose>                                        
+     
                                     </tr>                                
                                 </c:otherwise>
                             </c:choose>                            

@@ -49,10 +49,47 @@ public class WebServletCommonMethods {
             try {
                 statement.close();
             } catch (SQLException ex) {
-                System.out.println("*** WebServletCommonMethods : error while "
-                        + "closing statement: " + ex.getMessage());
+                System.out.println("*** WebServletCommonMethods : getIdList() "
+                        + "error while closing statement: " + ex.getMessage());
             }
         }
     }
+    
+    /* returns Collection of Dates from PLANNED_VARIABLE_PARAMS database 
+    table. */
+    public ArrayList<String> getDatesList(Connection connection) {
+
+        Statement statement = null;
+        String query = "select distinct DATE from PLANNED_VARIABLE_PARAMS";
+
+        try {
+            statement = connection.createStatement();
+        } catch (SQLException ex) {
+            System.out.println("*** WebServletCommonMethods : getDatesList() "
+                    + "error while creating statement: " + ex.getMessage());
+            return null;
+        }
+
+        try (ResultSet resultSet = statement.executeQuery(query)) {
+            Collection<String> DatesList = new LinkedList<>();
+            while (resultSet.next()) {
+                DatesList.add(resultSet.getString("DATE"));
+            }
+            return new ArrayList<>(DatesList);
+        } catch (SQLException ex) {
+            System.out.println("*** WebServletCommonMethods : getDatesList() "
+                    + "error while executing '" + query + "' query: "
+                    + ex.getMessage());
+            return null;
+        } finally {
+            try {
+                statement.close();
+            } catch (SQLException ex) {
+                System.out.println("*** WebServletCommonMethods : "
+                        + "getDatesList() error while closing statement: " 
+                        + ex.getMessage());
+            }
+        }
+    }    
 
 }
