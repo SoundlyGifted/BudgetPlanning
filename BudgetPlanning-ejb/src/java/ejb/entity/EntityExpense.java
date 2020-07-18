@@ -1,6 +1,8 @@
 
 package ejb.entity;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -14,29 +16,78 @@ public class EntityExpense {
     private final String type; /* fixed */
     
     /* Common Fixed parameter variables for all Expense types. */    
-    private String name;            /* changeable */
-    private int accountId;          /* changeable */
-    private String accountLinked;   /* changeable */
-    private int linkedToComplexId;  /* changeable */
+    private String name;            /* CHANGEABLE */
+    private int accountId;          /* CHANGEABLE */
+    private String accountLinked;   /* CHANGEABLE */
+    private int linkedToComplexId;  /* CHANGEABLE */
     
     /* Fixed parameter variables for 'GOODS' Expense type only. */
-    private double price;               /* changeable */
-    private double currentStockPcs;     /* changeable and calculated */
-    private double currentStockCur;     /* calculated */
-    private double currentStockWscPcs;  /* calculated */
-    private double currentStockWscCur;  /* calculated */
-    private double safetyStockPcs;      /* changeable */
-    private double safetyStockCur;      /* calculated */
-    private double orderQtyPcs;         /* changeable */
-    private double orderQtyCur;         /* calculated */
+    private double price = 0;               /* CHANGEABLE */
+    private double currentStockPcs = 0;     /* CHANGEABLE and calculated */
+    private double currentStockCur = 0;     /* calculated */
+    private double currentStockWscPcs = 0;  /* calculated */
+    private double currentStockWscCur = 0;  /* calculated */
+    private double safetyStockPcs = 0;      /* CHANGEABLE */
+    private double safetyStockCur = 0;      /* calculated */
+    private double orderQtyPcs = 0;         /* CHANGEABLE */
+    private double orderQtyCur = 0;         /* calculated */
+    
+    /* Variable parameter variables (values depend on time period dates). */
+    /* Collection of time period dates in ISO 8601 YYYY-MM-DD format
+     * (common for any type of Expenses). 
+     */
+    private ArrayList<String> timePeriodDates;
+    /* Below apply to all Expense types. */
+    private Map<String, Double> plannedCur;     /* CHANGEABLE 
+                                                 * (calculated for Expense type 
+                                                 * = 'GOODS') 
+                                                 */
+    private Map<String, Double> actualCur;      /* calculated */
+    private Map<String, Double> differenceCur;  /* calculated */
+    /* Below apply to Expense type = 'GOODS' only. */
+    private Map<String, Double> consumptionPcs; /* CHANGEABLE */
+    private Map<String, Double> consumptionCur; /* calculated */
+    private Map<String, Double> stockPcs;       /* calculated */
+    private Map<String, Double> stockCur;       /* calculated */
+    private Map<String, Double> requirementPcs; /* calculated */
+    private Map<String, Double> requirementCur; /* calculated */
+    private Map<String, Double> plannedPcs;     /* CHANGEABLE */
+    private Map<String, Double> actualPcs;      /* calculated */
+    private Map<String, Double> differencePcs;  /* calculated */
 
-    /* Constructor for Selection from Database case. */
+    // Constructors for the case of selection of Expense from database tables.
+    /**
+     * EntityExpense Constructor for the case of selection from database tables, 
+     * initializes Constant parameters and Fixed parameters only.
+     * Needed when Variable parameters are not necessary.
+     * 
+     * Constant parameters for each Expense Category:
+     * @param id
+     * @param type
+     * 
+     * Common Fixed parameter variables for all Expense types:
+     * @param name
+     * @param accountId
+     * @param accountLinked
+     * @param linkedToComplexId
+     * 
+     * Fixed parameter variables for 'GOODS' Expense type only:
+     * @param price
+     * @param currentStockPcs
+     * @param currentStockCur
+     * @param currentStockWscPcs
+     * @param currentStockWscCur
+     * @param safetyStockPcs
+     * @param safetyStockCur
+     * @param orderQtyPcs
+     * @param orderQtyCur 
+     */
     public EntityExpense(int id, String type, String name, int accountId, 
-            String accountLinked, int linkedToComplexId, double price,
-            double currentStockPcs, double currentStockCur,
-            double currentStockWscPcs, double currentStockWscCur,
-            double safetyStockPcs, double safetyStockCur, double orderQtyPcs, 
-            double orderQtyCur) {
+            String accountLinked, int linkedToComplexId, Double price,
+            Double currentStockPcs, Double currentStockCur,
+            Double currentStockWscPcs, Double currentStockWscCur,
+            Double safetyStockPcs, Double safetyStockCur, Double orderQtyPcs, 
+            Double orderQtyCur) {
         
         this.id = id;
         this.type = type;
@@ -55,6 +106,82 @@ public class EntityExpense {
         this.orderQtyPcs = orderQtyPcs;
         this.orderQtyCur = orderQtyCur;
     }
+    
+    /**
+     * EntityExpense Constructor for the case of selection from database tables, 
+     * initializes Constant parameters, Fixed parameters and 
+     * changeable Variable parameters.
+     * Needed when changeable Variable parameters obtained from database for
+     * further calculated Variable parameters calculation.
+     * 
+     * Constant parameters for each Expense Category:
+     * @param id
+     * @param type
+     * 
+     * Common Fixed parameter variables for all Expense types:
+     * @param name
+     * @param accountId
+     * @param accountLinked
+     * @param linkedToComplexId
+     * 
+     * Fixed parameter variables for 'GOODS' Expense type only:
+     * @param price
+     * @param currentStockPcs
+     * @param currentStockCur
+     * @param currentStockWscPcs
+     * @param currentStockWscCur
+     * @param safetyStockPcs
+     * @param safetyStockCur
+     * @param orderQtyPcs
+     * @param orderQtyCur
+     * 
+     * Collection of time period dates (common for any type of Expenses):
+     * @param timePeriodDates - time period dates (in ISO 8601 YYYY-MM-DD 
+     *                          format) from database.
+     * 
+     * Changeable Variable parameters:
+     * @param plannedCur - Map<String, Double> of planned expenses (in currency)
+     *                     mapped to time period dates (in ISO 8601 YYYY-MM-DD 
+     *                     format).
+     * @param consumptionPcs - Map<String, Double> of consumption (pcs) mapped
+     *                         to time period dates (in ISO 8601 YYYY-MM-DD 
+     *                         format).
+     * @param plannedPcs - Map<String, Double> of planned expenses (in pcs)
+     *                     mapped to time period dates (in ISO 8601 YYYY-MM-DD 
+     *                     format).              
+     */
+    public EntityExpense(int id, String type, String name, int accountId, 
+            String accountLinked, int linkedToComplexId, Double price,
+            Double currentStockPcs, Double currentStockCur,
+            Double currentStockWscPcs, Double currentStockWscCur,
+            Double safetyStockPcs, Double safetyStockCur, Double orderQtyPcs, 
+            Double orderQtyCur,
+            ArrayList<String> timePeriodDates,
+            Map<String, Double> plannedCur, 
+            Map<String, Double> consumptionPcs,
+            Map<String, Double> plannedPcs) {
+        
+        this.id = id;
+        this.type = type;
+        this.name = name;
+        this.accountId = accountId;
+        this.accountLinked = accountLinked;
+        this.linkedToComplexId = linkedToComplexId;
+        
+        this.price = price;
+        this.currentStockPcs = currentStockPcs;
+        this.currentStockCur = currentStockCur;
+        this.currentStockWscPcs = currentStockWscPcs;
+        this.currentStockWscCur = currentStockWscCur;
+        this.safetyStockPcs = safetyStockPcs;
+        this.safetyStockCur = safetyStockCur;
+        this.orderQtyPcs = orderQtyPcs;
+        this.orderQtyCur = orderQtyCur;
+        
+        this.plannedCur = plannedCur;
+        this.consumptionPcs = consumptionPcs;
+        this.plannedPcs = plannedPcs;        
+    }    
 
     @Override
     public String toString() {
