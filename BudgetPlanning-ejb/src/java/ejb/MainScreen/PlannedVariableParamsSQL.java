@@ -15,7 +15,8 @@ import javax.ejb.Stateless;
  * @author SoundlyGifted
  */
 @Stateless
-public class PlannedVariableParamsSQL extends SQLAbstract implements PlannedVariableParamsSQLLocal {
+public class PlannedVariableParamsSQL extends SQLAbstract 
+        implements PlannedVariableParamsSQLLocal {
 
     @Override
     public boolean executeUpdate(Connection connection, String expenseId, 
@@ -69,7 +70,8 @@ public class PlannedVariableParamsSQL extends SQLAbstract implements PlannedVari
         
         try {
             //Setting Query Parameters and executing Query;
-            for (Map.Entry<String, Double> entry : updatedValuesDouble.entrySet()) {
+            for (Map.Entry<String, Double> entry : 
+                    updatedValuesDouble.entrySet()) {
                 String date = entry.getKey();
                 Double valueDouble = entry.getValue();
                 preparedStatement.setDouble(1, valueDouble);

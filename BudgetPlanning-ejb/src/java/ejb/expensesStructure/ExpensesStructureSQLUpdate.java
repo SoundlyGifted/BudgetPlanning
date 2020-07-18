@@ -1,6 +1,7 @@
 
 package ejb.expensesStructure;
 
+import ejb.entityLists.ExpensesHandlerLocal;
 import ejb.accountsStructure.AccountsStructureSQLLocal;
 import ejb.common.SQLAbstract;
 import ejb.entity.EntityAccount;
@@ -21,7 +22,7 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         implements ExpensesStructureSQLUpdateLocal {
 
     @EJB
-    private ExpensesStructureHandlerLocal handler;
+    private ExpensesHandlerLocal handler;
 
     @EJB
     private ExpensesStructureSQLSelectLocal select;
