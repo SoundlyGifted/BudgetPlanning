@@ -60,7 +60,6 @@ public class EntityExpense extends EjbCommonMethods {
     /**
      * EntityExpense Constructor for the case of selection from database tables, 
      * initializes Constant parameters and Fixed parameters only.
-     * Needed when Variable parameters are not necessary.
      * 
      * Constant parameters for each Expense Category:
      * @param id
@@ -91,8 +90,9 @@ public class EntityExpense extends EjbCommonMethods {
             Double orderQtyCur) {
         
         if (!inputCheckType(type)) {
-            throw new IllegalArgumentException("EntityExpense() : wrong "
-                    + "Expense type entered.");
+            throw new IllegalArgumentException("EntityExpense() : Unable to "
+                    + "create EntityExpense object, wrong Expense type '" 
+                    + type + "' entered");
         }        
         
         this.id = id;
@@ -116,6 +116,57 @@ public class EntityExpense extends EjbCommonMethods {
         }
     }
     
+    /**
+     * EntityExpense Constructor, initializes Constant parameters and Fixed 
+     * parameters only (receives user-changeable Fixed parameters and 
+     * calculates application-calculated Fixed parameters).
+     * 
+     * Constant parameters for each Expense Category:
+     * @param id
+     * @param type
+     * 
+     * Common Fixed parameter variables for all Expense types:
+     * @param name
+     * @param accountId
+     * @param accountLinked
+     * @param linkedToComplexId
+     * 
+     * User-changeable Fixed parameter variables for 'GOODS' Expense type only:
+     * @param price
+     * @param currentStockPcs
+     * @param safetyStockPcs
+     * @param orderQtyPcs
+     */
+    public EntityExpense(int id, String type, String name, int accountId, 
+            String accountLinked, int linkedToComplexId, 
+            Double price,
+            Double currentStockPcs,
+            Double safetyStockPcs, 
+            Double orderQtyPcs) {
+        
+        if (!inputCheckType(type)) {
+            throw new IllegalArgumentException("EntityExpense() : Unable to "
+                    + "create EntityExpense object, wrong Expense type '" 
+                    + type + "' entered");
+        }    
+        
+        this.id = id;
+        this.type = type;
+        
+        this.name = name;
+        this.accountId = accountId;
+        this.accountLinked = accountLinked;
+        this.linkedToComplexId = linkedToComplexId;
+        
+        if (type.equals("GOODS")) {
+            this.price = price;
+            this.currentStockPcs = currentStockPcs;
+            this.safetyStockPcs = safetyStockPcs;
+            this.orderQtyPcs = orderQtyPcs;
+            calculateFixedParameters();
+        }
+    }    
+
     /**
      * EntityExpense Constructor for the case of selection from database tables, 
      * initializes Constant parameters, Fixed parameters and 
@@ -171,9 +222,11 @@ public class EntityExpense extends EjbCommonMethods {
             Map<String, Double> plannedPcs) {
  
         if (!inputCheckType(type)) {
-            throw new IllegalArgumentException("EntityExpense() : wrong "
-                    + "Expense type entered.");
+            throw new IllegalArgumentException("EntityExpense() : Unable to "
+                    + "create EntityExpense object, wrong Expense type '" 
+                    + type + "' entered");
         }
+        
         this.id = id;
         this.type = type;
 
@@ -198,8 +251,38 @@ public class EntityExpense extends EjbCommonMethods {
         } else if (type.equals("SIMPLE_EXPENSES")) {
             this.plannedCur = plannedCur;
         }
-    }    
+    }
 
+    /**
+     * Method calculates all application-calculated Fixed parameters within
+     * the calculational EntityExpense object based on the user-changeable 
+     * Fixed parameters, only for Expenses with type = "GOODS".
+     * 
+     * User-changeable Fixed parameter list:
+     * price - planning-purpose value of price (price as planning basis).
+     * currentStockPcs - current stock in pcs.
+     * safetyStockPcs - safety stock in pcs.
+     * orderQtyPcs - normal order quantity in pcs.
+     * 
+     * Application-calculated Fixed parameter list:
+     * currentStockCur - current stock in currency.
+     * currentStockWscPcs - current stock with safety stock consideration 
+     *                      in pcs.
+     * currentStockWscCur - current stock with safety stock consideration
+     *                      in currency.
+     * safetyStockCur - safety stock in currency.
+     * orderQtyCur - normal order quantity in currency.
+     */
+    public final void calculateFixedParameters() {
+        if (type.equals("GOODS")) {
+            currentStockCur = round(price * currentStockPcs, 2);
+            currentStockWscPcs = currentStockPcs - safetyStockPcs;
+            currentStockWscCur = round(price * currentStockWscPcs, 2);
+            safetyStockCur = round(price * safetyStockPcs, 2);
+            orderQtyCur = round(price * orderQtyPcs, 2);
+        }
+    }
+    
     @Override
     public String toString() {
         return "EntityExpense{" + "id=" + id + ", type=" + type + ", name=" 

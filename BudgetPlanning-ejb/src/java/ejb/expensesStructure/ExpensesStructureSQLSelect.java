@@ -36,21 +36,25 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
             Collection<EntityExpense> list = new LinkedList<>();
             while (resultSet.next()) {
-                list.add(new EntityExpense(resultSet.getInt("ID"),
-                        resultSet.getString("TYPE"),
-                        resultSet.getString("NAME"),
-                        resultSet.getInt("ACCOUNT_ID"),
-                        resultSet.getString("ACCOUNT_LINKED"),
-                        resultSet.getInt("LINKED_TO_COMPLEX_ID"),
-                        resultSet.getDouble("PRICE"),
-                        resultSet.getDouble("CURRENT_STOCK_PCS"),                        
-                        resultSet.getDouble("CURRENT_STOCK_CUR"),                        
-                        resultSet.getDouble("CURRENT_STOCK_WSC_PCS"),                        
-                        resultSet.getDouble("CURRENT_STOCK_WSC_CUR"),                        
-                        resultSet.getDouble("SAFETY_STOCK_PCS"),
-                        resultSet.getDouble("SAFETY_STOCK_CUR"),
-                        resultSet.getDouble("ORDER_QTY_PCS"),
-                        resultSet.getDouble("ORDER_QTY_CUR")));
+                EntityExpense expense = 
+                        new EntityExpense(
+                            resultSet.getInt("ID"),
+                            resultSet.getString("TYPE"),
+                            resultSet.getString("NAME"),
+                            resultSet.getInt("ACCOUNT_ID"),
+                            resultSet.getString("ACCOUNT_LINKED"),
+                            resultSet.getInt("LINKED_TO_COMPLEX_ID"),
+                            resultSet.getDouble("PRICE"),
+                            resultSet.getDouble("CURRENT_STOCK_PCS"),                        
+                            resultSet.getDouble("CURRENT_STOCK_CUR"),                        
+                            resultSet.getDouble("CURRENT_STOCK_WSC_PCS"),                        
+                            resultSet.getDouble("CURRENT_STOCK_WSC_CUR"),                        
+                            resultSet.getDouble("SAFETY_STOCK_PCS"),
+                            resultSet.getDouble("SAFETY_STOCK_CUR"),
+                            resultSet.getDouble("ORDER_QTY_PCS"),
+                            resultSet.getDouble("ORDER_QTY_CUR"));
+                expense.calculateFixedParameters();       
+                list.add(expense);
             }
             return new ArrayList<>(list);
         } catch (SQLException ex) {
@@ -84,21 +88,25 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
         }
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
             if (resultSet.next()) {
-                return new EntityExpense(resultSet.getInt("ID"),
-                        resultSet.getString("TYPE"),
-                        resultSet.getString("NAME"),
-                        resultSet.getInt("ACCOUNT_ID"),
-                        resultSet.getString("ACCOUNT_LINKED"),
-                        resultSet.getInt("LINKED_TO_COMPLEX_ID"),
-                        resultSet.getDouble("PRICE"),
-                        resultSet.getDouble("CURRENT_STOCK_PCS"),                        
-                        resultSet.getDouble("CURRENT_STOCK_CUR"),                        
-                        resultSet.getDouble("CURRENT_STOCK_WSC_PCS"),                        
-                        resultSet.getDouble("CURRENT_STOCK_WSC_CUR"),                        
-                        resultSet.getDouble("SAFETY_STOCK_PCS"),
-                        resultSet.getDouble("SAFETY_STOCK_CUR"),
-                        resultSet.getDouble("ORDER_QTY_PCS"),
-                        resultSet.getDouble("ORDER_QTY_CUR"));
+                EntityExpense expense = 
+                        new EntityExpense(
+                            resultSet.getInt("ID"),
+                            resultSet.getString("TYPE"),
+                            resultSet.getString("NAME"),
+                            resultSet.getInt("ACCOUNT_ID"),
+                            resultSet.getString("ACCOUNT_LINKED"),
+                            resultSet.getInt("LINKED_TO_COMPLEX_ID"),
+                            resultSet.getDouble("PRICE"),
+                            resultSet.getDouble("CURRENT_STOCK_PCS"),                        
+                            resultSet.getDouble("CURRENT_STOCK_CUR"),                        
+                            resultSet.getDouble("CURRENT_STOCK_WSC_PCS"),                        
+                            resultSet.getDouble("CURRENT_STOCK_WSC_CUR"),                        
+                            resultSet.getDouble("SAFETY_STOCK_PCS"),
+                            resultSet.getDouble("SAFETY_STOCK_CUR"),
+                            resultSet.getDouble("ORDER_QTY_PCS"),
+                            resultSet.getDouble("ORDER_QTY_CUR"));
+                expense.calculateFixedParameters();                   
+                return expense;
             } else {
                 return null;
             }
@@ -132,21 +140,25 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
         }
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
             if (resultSet.next()) {
-            return new EntityExpense(resultSet.getInt("ID"),
-                    resultSet.getString("TYPE"),
-                    resultSet.getString("NAME"),
-                    resultSet.getInt("ACCOUNT_ID"),
-                    resultSet.getString("ACCOUNT_LINKED"),
-                    resultSet.getInt("LINKED_TO_COMPLEX_ID"),
-                    resultSet.getDouble("PRICE"),
-                    resultSet.getDouble("CURRENT_STOCK_PCS"),                        
-                    resultSet.getDouble("CURRENT_STOCK_CUR"),                        
-                    resultSet.getDouble("CURRENT_STOCK_WSC_PCS"),                        
-                    resultSet.getDouble("CURRENT_STOCK_WSC_CUR"),                       
-                    resultSet.getDouble("SAFETY_STOCK_PCS"),
-                    resultSet.getDouble("SAFETY_STOCK_CUR"),
-                    resultSet.getDouble("ORDER_QTY_PCS"),
-                    resultSet.getDouble("ORDER_QTY_CUR"));                
+                EntityExpense expense = 
+                        new EntityExpense(
+                            resultSet.getInt("ID"),
+                            resultSet.getString("TYPE"),
+                            resultSet.getString("NAME"),
+                            resultSet.getInt("ACCOUNT_ID"),
+                            resultSet.getString("ACCOUNT_LINKED"),
+                            resultSet.getInt("LINKED_TO_COMPLEX_ID"),
+                            resultSet.getDouble("PRICE"),
+                            resultSet.getDouble("CURRENT_STOCK_PCS"),                        
+                            resultSet.getDouble("CURRENT_STOCK_CUR"),                        
+                            resultSet.getDouble("CURRENT_STOCK_WSC_PCS"),                        
+                            resultSet.getDouble("CURRENT_STOCK_WSC_CUR"),                        
+                            resultSet.getDouble("SAFETY_STOCK_PCS"),
+                            resultSet.getDouble("SAFETY_STOCK_CUR"),
+                            resultSet.getDouble("ORDER_QTY_PCS"),
+                            resultSet.getDouble("ORDER_QTY_CUR"));
+                expense.calculateFixedParameters();                   
+                return expense;              
             } else {
                 return null;
             }
