@@ -125,8 +125,8 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                     "expensesStructure/select.byid");
             preparedStatement.setInt(1, id);
         } catch (SQLException | IOException ex) {
-            System.out.println("*** ExpensesStructureSQLSelect: executeSelectById()"
-                    + "SQL PreparedStatement failure: "
+            System.out.println("*** ExpensesStructureSQLSelect: "
+                    + "executeSelectById() SQL PreparedStatement failure: "
                     + ex.getMessage() + " ***");
             return null;
         }
@@ -151,8 +151,8 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
                 return null;
             }
         } catch (SQLException ex) {
-            System.out.println("***ExpensesStructureSQLSelect: executeSelectById() Error while "
-                    + "executing Select Query: "
+            System.out.println("***ExpensesStructureSQLSelect: "
+                    + "executeSelectById() Error while executing Select Query: "
                     + ex.getMessage() + "***");
             return null;
         } finally {

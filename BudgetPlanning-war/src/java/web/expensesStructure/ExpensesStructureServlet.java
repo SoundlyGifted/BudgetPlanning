@@ -148,16 +148,7 @@ public class ExpensesStructureServlet extends HttpServlet {
             request.getRequestDispatcher("ExpensesStructurePage.jsp").forward(request, response);
         }
     }
-
-    private String EntityExpenseListString() {
-        ArrayList<EntityExpense> list = handler.getEntityExpenseList();
-        StringBuilder sb = new StringBuilder();
-        for (EntityExpense e : list) {
-            sb.append("<li>").append(e.toString()).append("</li>");
-        }
-        return sb.toString();
-    }
-    
+  
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

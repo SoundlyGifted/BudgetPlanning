@@ -1,7 +1,6 @@
 
 package ejb.expensesStructure;
 
-import ejb.entityLists.ExpensesHandlerLocal;
 import ejb.accountsStructure.AccountsStructureSQLLocal;
 import ejb.common.SQLAbstract;
 import ejb.entity.EntityAccount;
@@ -20,9 +19,6 @@ import javax.ejb.Stateless;
 @Stateless
 public class ExpensesStructureSQLUpdate extends SQLAbstract
         implements ExpensesStructureSQLUpdateLocal {
-
-    @EJB
-    private ExpensesHandlerLocal handler;
 
     @EJB
     private ExpensesStructureSQLSelectLocal select;
@@ -45,7 +41,8 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         if (accountIdInt == null) {
             accountIdInt = 0;
         }
-        EntityAccount accountSelected = accountsSQL.executeSelectById(connection, accountIdInt);
+        EntityAccount accountSelected = accountsSQL
+                .executeSelectById(connection, accountIdInt);
         String accountName = accountSelected.getName();
 
         /* entityExpense selected from database for the update operation. */
@@ -72,7 +69,8 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                         .equals(ExpensesTypes.ExpenseType.SIMPLE_EXPENSES
                                 .getType())) {
             if ((price != null && !price.trim().isEmpty()) 
-                    || (safetyStockPcs != null && !safetyStockPcs.trim().isEmpty()) 
+                    || (safetyStockPcs != null && !safetyStockPcs.trim()
+                            .isEmpty()) 
                     || (orderQtyPcs != null && !orderQtyPcs.trim().isEmpty())) {
                 return false;
             }
@@ -112,7 +110,8 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         boolean allInputParamsNullOrBlank = true;
         
         String[] enteredParams = new String[] {newName, accountId, accountName,
-            linkedToComplexId, price, currentStockPcs, safetyStockPcs, orderQtyPcs};
+            linkedToComplexId, price, currentStockPcs, safetyStockPcs, 
+            orderQtyPcs};
         
         String[] entityExpenseParams = new String[]{
             entityExpenseFromDB.getName(),
@@ -161,30 +160,10 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         orderQtyCurDouble = round(priceDouble * orderQtyPcsDouble, 2);
         
         currentStockWscPcsDouble = currentStockPcsDouble - safetyStockPcsDouble;
-        currentStockWscCurDouble = round(priceDouble * currentStockWscPcsDouble, 2);
+        currentStockWscCurDouble = round(priceDouble * 
+                currentStockWscPcsDouble, 2);
         
         try {
-            /* Updating Entity in the Entity Object List.
-            entityExpense selected from Entity Object List for the update 
-            operation. */
-//            EntityExpense entityExpense
-//                    = handler
-//                            .selectFromEntityExpenseListById(entityExpenseFromDB
-//                                    .getId());
-//            if (entityExpense != null) {
-//                entityExpense.setName(newName);
-//                entityExpense.setAccountId(accountIdInt);
-//                entityExpense.setAccountLinked(accountName);
-//                entityExpense.setLinkedToComplexId(linkedToComplexIdInt);
-//                entityExpense.setPrice(priceDouble);
-//                entityExpense.setSafetyStockPcs(safetyStockPcsDouble);
-//                entityExpense.setSafetyStockCur(safetyStockCurDouble);
-//                entityExpense.setOrderQtyPcs(orderQtyPcsDouble);
-//                entityExpense.setOrderQtyCur(orderQtyCurDouble);
-//            } else {
-//                return false;
-//            }
-
             preparedStatement.setString(1, newName);
             preparedStatement.setInt(2, accountIdInt);
             preparedStatement.setString(3, accountName);
@@ -238,13 +217,6 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         }
 
         try {
-//            EntityExpense entity = 
-//                    handler.selectFromEntityExpenseListByName(name);
-//            if (entity != null) {
-//                entity.setLinkedToComplexId(0);
-//            } else {
-//                return false;
-//            }
             preparedStatement.setString(1, name);
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {

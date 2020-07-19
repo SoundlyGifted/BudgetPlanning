@@ -83,7 +83,7 @@ public abstract class EjbCommonMethods {
      * @return true in case if the type is one of the pre-specified types,
      *         false otherwise.
      */
-    public boolean inputCheckType(String type) {
+    public final boolean inputCheckType(String type) {
         if (type == null || type.trim().isEmpty() || type.length() > 255) {
             return false;
         } else {

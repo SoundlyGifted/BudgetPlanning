@@ -1,7 +1,6 @@
 
 package ejb.expensesStructure;
 
-import ejb.entityLists.ExpensesHandlerLocal;
 import ejb.accountsStructure.AccountsStructureSQLLocal;
 import ejb.common.SQLAbstract;
 import ejb.entity.EntityAccount;
@@ -20,13 +19,7 @@ import javax.ejb.EJB;
 @Stateless
 public class ExpensesStructureSQLInsert extends SQLAbstract
         implements ExpensesStructureSQLInsertLocal {
-    
-    @EJB
-    private ExpensesHandlerLocal handler;
-    
-    @EJB
-    private ExpensesStructureSQLSelectLocal select;
-    
+       
     @EJB
     private AccountsStructureSQLLocal accountsSQL;    
 
@@ -56,7 +49,8 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
         if (accountIdInt == null) {
             accountIdInt = 0;
         }
-        EntityAccount accountSelected = accountsSQL.executeSelectById(connection, accountIdInt);
+        EntityAccount accountSelected = 
+                accountsSQL.executeSelectById(connection, accountIdInt);
         String accountName = accountSelected.getName();
         
         PreparedStatement preparedStatement;
@@ -103,16 +97,20 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             preparedStatement.setString(2, name);
             preparedStatement.setInt(3, accountIdInt);
             preparedStatement.setString(4, accountName);
-            preparedStatement.setInt(5, 0); /* LINKED_TO_COMPLEX_ID is 0 for new records.*/
+            preparedStatement.setInt(5, 0); /* LINKED_TO_COMPLEX_ID is 0 for 
+                                               new records. */
             preparedStatement.setDouble(6, priceDouble);
             preparedStatement.setDouble(7, safetyStockPcsDouble);
             preparedStatement.setDouble(8, safetyStockCurDouble);
             preparedStatement.setDouble(9, orderQtyPcsDouble);
             preparedStatement.setDouble(10, orderQtyCurDouble);
+            /* Current Stock parameters are zero by default for new 
+            Expense Categories. */
+            preparedStatement.setDouble(11, 0); 
+            preparedStatement.setDouble(12, 0);
+            preparedStatement.setDouble(13, 0);
+            preparedStatement.setDouble(14, 0);
             preparedStatement.executeUpdate();
-            // Adding Entity to the Entity Object List;
-//            handler.addToEntityExpenseList(select.
-//                    executeSelectByName(connection, name));
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLInsert: Error while "
                     + "setting query parameters or executing Insert Query: "

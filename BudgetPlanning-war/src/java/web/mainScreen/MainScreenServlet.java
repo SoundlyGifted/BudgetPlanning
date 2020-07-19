@@ -6,6 +6,7 @@ import ejb.MainScreen.PlannedVariableParamsSQLLocal;
 import ejb.common.OperationResultLogLocal;
 import web.common.WebServletCommonMethods;
 import ejb.entity.EntityExpense;
+import ejb.entityLists.ExpensesHandlerLocal;
 import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import ejb.expensesStructure.ExpensesStructureSQLUpdateLocal;
 import java.io.IOException;
@@ -36,6 +37,9 @@ public class MainScreenServlet extends HttpServlet {
     @EJB
     private OperationResultLogLocal log;
 
+    @EJB
+    private ExpensesHandlerLocal handler;
+    
     @EJB
     private ExpensesStructureSQLSelectLocal select;    
 
@@ -76,6 +80,9 @@ public class MainScreenServlet extends HttpServlet {
         as request attribute. */
         for (Integer id : expensesIdList) {
             if (request.getParameter("update_CURRENT_STOCK_PCS_" + String.valueOf(id)) != null) {
+
+                request.setAttribute("currentEntityList", EntityExpenseListString());
+                
                 request.setAttribute("rowSelectedForCurrentStockUpdate", id);
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
@@ -106,6 +113,10 @@ public class MainScreenServlet extends HttpServlet {
                     log.add(session, currentDateTime + " [Adjust Current Stock "
                             + "command entered] : Command declined");
                 }
+                
+                handler.selectFromEntityExpenseListById(DBConnection, id);
+                request.setAttribute("currentEntityList", EntityExpenseListString());
+                
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
         }
@@ -115,6 +126,9 @@ public class MainScreenServlet extends HttpServlet {
         as request attribute. */
         for (Integer id : expensesIdList) {
             if (request.getParameter("update_PLANNED_PCS_" + String.valueOf(id)) != null) {
+                
+                request.setAttribute("currentEntityList", EntityExpenseListString());
+                
                 request.setAttribute("rowSelectedForExpensesPlanPcsUpdate", id);
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
@@ -141,6 +155,10 @@ public class MainScreenServlet extends HttpServlet {
                     log.add(session, currentDateTime + " [Update Expenses Plan "
                             + "PCS command entered] : Command declined");
                 }
+                
+                handler.selectFromEntityExpenseListById(DBConnection, id);
+                request.setAttribute("currentEntityList", EntityExpenseListString());
+                
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
         }        
@@ -150,6 +168,9 @@ public class MainScreenServlet extends HttpServlet {
         as request attribute. */
         for (Integer id : expensesIdList) {
             if (request.getParameter("update_CONSUMPTION_PCS_" + String.valueOf(id)) != null) {
+
+                request.setAttribute("currentEntityList", EntityExpenseListString());
+                
                 request.setAttribute("rowSelectedForConsumptionPcsUpdate", id);
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
@@ -176,6 +197,10 @@ public class MainScreenServlet extends HttpServlet {
                     log.add(session, currentDateTime + " [Update Consumption "
                             + "PCS command entered] : Command declined");
                 }
+                
+                handler.selectFromEntityExpenseListById(DBConnection, id);
+                request.setAttribute("currentEntityList", EntityExpenseListString());
+                
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
         }        
@@ -185,6 +210,9 @@ public class MainScreenServlet extends HttpServlet {
         as request attribute. */
         for (Integer id : expensesIdList) {
             if (request.getParameter("update_PLANNED_CUR_" + String.valueOf(id)) != null) {
+
+                request.setAttribute("currentEntityList", EntityExpenseListString());
+                
                 request.setAttribute("rowSelectedForExpensesPlanCurUpdate", id);
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
@@ -211,12 +239,25 @@ public class MainScreenServlet extends HttpServlet {
                     log.add(session, currentDateTime + " [Update Expenses Plan "
                             + "CUR command entered] : Command declined");
                 }
+                
+                handler.selectFromEntityExpenseListById(DBConnection, id);
+                request.setAttribute("currentEntityList", EntityExpenseListString());
+                
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
         }
         
     }
 
+    private String EntityExpenseListString() {
+        ArrayList<EntityExpense> list = handler.getEntityExpenseList();
+        StringBuilder sb = new StringBuilder();
+        for (EntityExpense e : list) {
+            sb.append("<li>").append(e.toString()).append("</li>");
+        }
+        return sb.toString();
+    }    
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

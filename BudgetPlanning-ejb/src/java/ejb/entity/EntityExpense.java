@@ -1,6 +1,7 @@
 
 package ejb.entity;
 
+import ejb.common.EjbCommonMethods;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
@@ -9,7 +10,7 @@ import java.util.Objects;
  *
  * @author SoundlyGifted
  */
-public class EntityExpense {
+public class EntityExpense extends EjbCommonMethods {
     
     /* Constant parameters for each Expense Category. */
     private final int id;      /* fixed */
@@ -89,22 +90,30 @@ public class EntityExpense {
             Double safetyStockPcs, Double safetyStockCur, Double orderQtyPcs, 
             Double orderQtyCur) {
         
+        if (!inputCheckType(type)) {
+            throw new IllegalArgumentException("EntityExpense() : wrong "
+                    + "Expense type entered.");
+        }        
+        
         this.id = id;
         this.type = type;
+        
         this.name = name;
         this.accountId = accountId;
         this.accountLinked = accountLinked;
         this.linkedToComplexId = linkedToComplexId;
         
-        this.price = price;
-        this.currentStockPcs = currentStockPcs;
-        this.currentStockCur = currentStockCur;
-        this.currentStockWscPcs = currentStockWscPcs;
-        this.currentStockWscCur = currentStockWscCur;
-        this.safetyStockPcs = safetyStockPcs;
-        this.safetyStockCur = safetyStockCur;
-        this.orderQtyPcs = orderQtyPcs;
-        this.orderQtyCur = orderQtyCur;
+        if (type.equals("GOODS")) {
+            this.price = price;
+            this.currentStockPcs = currentStockPcs;
+            this.currentStockCur = currentStockCur;
+            this.currentStockWscPcs = currentStockWscPcs;
+            this.currentStockWscCur = currentStockWscCur;
+            this.safetyStockPcs = safetyStockPcs;
+            this.safetyStockCur = safetyStockCur;
+            this.orderQtyPcs = orderQtyPcs;
+            this.orderQtyCur = orderQtyCur;            
+        }
     }
     
     /**
@@ -160,27 +169,35 @@ public class EntityExpense {
             Map<String, Double> plannedCur, 
             Map<String, Double> consumptionPcs,
             Map<String, Double> plannedPcs) {
-        
+ 
+        if (!inputCheckType(type)) {
+            throw new IllegalArgumentException("EntityExpense() : wrong "
+                    + "Expense type entered.");
+        }
         this.id = id;
         this.type = type;
+
         this.name = name;
         this.accountId = accountId;
         this.accountLinked = accountLinked;
         this.linkedToComplexId = linkedToComplexId;
         
-        this.price = price;
-        this.currentStockPcs = currentStockPcs;
-        this.currentStockCur = currentStockCur;
-        this.currentStockWscPcs = currentStockWscPcs;
-        this.currentStockWscCur = currentStockWscCur;
-        this.safetyStockPcs = safetyStockPcs;
-        this.safetyStockCur = safetyStockCur;
-        this.orderQtyPcs = orderQtyPcs;
-        this.orderQtyCur = orderQtyCur;
-        
-        this.plannedCur = plannedCur;
-        this.consumptionPcs = consumptionPcs;
-        this.plannedPcs = plannedPcs;        
+        if (type.equals("GOODS")) {
+            this.price = price;
+            this.currentStockPcs = currentStockPcs;
+            this.currentStockCur = currentStockCur;
+            this.currentStockWscPcs = currentStockWscPcs;
+            this.currentStockWscCur = currentStockWscCur;
+            this.safetyStockPcs = safetyStockPcs;
+            this.safetyStockCur = safetyStockCur;
+            this.orderQtyPcs = orderQtyPcs;
+            this.orderQtyCur = orderQtyCur;
+            
+            this.consumptionPcs = consumptionPcs;
+            this.plannedPcs = plannedPcs;              
+        } else if (type.equals("SIMPLE_EXPENSES")) {
+            this.plannedCur = plannedCur;
+        }
     }    
 
     @Override

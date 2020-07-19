@@ -22,30 +22,23 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
 
     @EJB
     private ExpensesStructureSQLSelectLocal select;
-    
+
     @EJB
     private ExpensesHandlerLocal handler;
-    
+
     @EJB
     private ExpensesStructureSQLUpdateLocal update;
-      
+
     @Override
     public boolean executeDeleteById(Connection connection, String id) {
         Integer idInt = stringToInt(id);
         if (!inputCheckNullBlank(id) || idInt == null || idInt < 1) {
             return false;
         }
-        /* Check if both DB and Expense Object List has record / object with 
-        corresponding name given. */
-        EntityExpense expenseDB = select.executeSelectById(connection, idInt);
-        EntityExpense expense = handler.selectFromEntityExpenseListById(idInt);
-        if (expenseDB == null || expense == null) {
-            return false;
-        }
 
         PreparedStatement preparedStatement;
         try {
-            preparedStatement = createPreparedStatement(connection, 
+            preparedStatement = createPreparedStatement(connection,
                     "expensesStructure/delete.byid");
             preparedStatement.setInt(1, idInt);
         } catch (SQLException | IOException ex) {
@@ -56,23 +49,17 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
         }
         try {
             preparedStatement.executeUpdate();
-            /* If COMPLEX_EXPENSES expense is removed then setting to 0 all 
-            LINKED_TO_COMPLEX_ID fields that had that complex expense id. 
-            If other type of expense is removed then simply removing it from 
-            Object Expense List.*/
+            /* If COMPLEX_EXPENSES expense is being removed then setting to 0 
+            all LINKED_TO_COMPLEX_ID fields that had that complex expense id.
+            Removing the Expense from EntityExpenseList (regardless of type).*/
+            EntityExpense expense = select.executeSelectById(connection, idInt);
             if (expense.getType().equals("COMPLEX_EXPENSES")) {
-                ArrayList<EntityExpense> expenseListDB = 
-                        select.executeSelectAll(connection);
-                ArrayList<EntityExpense> expenseList = handler.getEntityExpenseList();
-                for (EntityExpense e : expenseListDB) {
-                    if (e.getLinkedToComplexId() == idInt) {
-                        update.clearAssignmentToComplexExpense(connection, 
-                                e.getName());
-                    }
-                }
+                ArrayList<EntityExpense> expenseList
+                        = select.executeSelectAll(connection);
                 for (EntityExpense e : expenseList) {
                     if (e.getLinkedToComplexId() == idInt) {
-                        e.setLinkedToComplexId(0);
+                        update.clearAssignmentToComplexExpense(connection,
+                                e.getName());
                     }
                 }
             }
@@ -86,5 +73,5 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
             clear(preparedStatement);
         }
         return true;
-    } 
+    }
 }

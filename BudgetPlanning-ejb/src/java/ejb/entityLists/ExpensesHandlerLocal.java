@@ -2,6 +2,7 @@
 package ejb.entityLists;
 
 import ejb.entity.EntityExpense;
+import java.sql.Connection;
 import java.util.ArrayList;
 import javax.ejb.Local;
 
@@ -11,16 +12,17 @@ import javax.ejb.Local;
  */
 @Local
 public interface ExpensesHandlerLocal {
-   
+      
     public ArrayList<EntityExpense> getEntityExpenseList();
-    
-    public void replaceEntityExpenseList(ArrayList<EntityExpense> list);
-    
-    public void addToEntityExpenseList(EntityExpense entity);
-    
+     
     public void removeFromEntityExpenseList(EntityExpense entity);
     
-    public EntityExpense selectFromEntityExpenseListByName(String name);
+    public EntityExpense selectFromEntityExpenseListByName(
+            Connection connection, String name);
     
-    public EntityExpense selectFromEntityExpenseListById(Integer id);
+    public EntityExpense selectFromEntityExpenseListById(Connection connection, 
+            Integer id);
+    
+    public ArrayList<EntityExpense> actualizeEntityExpenseList(Connection 
+            connection);
 }

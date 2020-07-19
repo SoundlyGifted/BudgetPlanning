@@ -725,6 +725,13 @@
 
             </table>
             </form>
+   
+            <%  String currentEntityList = (String) request.getAttribute("currentEntityList");
+                    if (currentEntityList != null && !currentEntityList.trim().isEmpty()) {
+                        out.println(currentEntityList);
+                    }
+            %>              
+            
         </div>
 
     </body>

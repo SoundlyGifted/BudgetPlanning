@@ -156,15 +156,7 @@
                         </c:choose>
                     </tr>
                 </c:forEach>
-            </table>  
-
-            <%--                
-                        <%  String currentEntityList = (String) request.getAttribute("currentEntityList");
-                            if (currentEntityList != null && !currentEntityList.trim().isEmpty()) {
-                                out.println(currentEntityList);
-                            }
-                        %>
-            --%>            
+            </table>          
         </div>
     </body>
 </html>
