@@ -5,9 +5,14 @@ import ejb.common.SQLAbstract;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.ejb.Stateless;
 
 /**
@@ -20,12 +25,12 @@ public class PlannedVariableParamsSQL extends SQLAbstract
 
     @Override
     public boolean executeUpdate(Connection connection, String expenseId, 
-            String paramName, HashMap<String, String> updatedValues) {
+            String paramName, Map<String, String> updatedValues) {
         /* Checking of input values. */
         if (stringToInt(expenseId) == null) {
             return false;
         }
-        HashMap<String, Double> updatedValuesDouble = new HashMap<>();
+        Map<String, Double> updatedValuesDouble = new TreeMap<>();
         for (Map.Entry<String, String> entry : updatedValues.entrySet()) {
             String date = entry.getKey();
             String value = entry.getValue();
@@ -92,5 +97,80 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         return true;
     }
     
+    @Override
+    public String getCurrentPeriodDate(Connection connection) {
+        
+        Statement statement = null;
+        String query = "select distinct DATE from PLANNED_VARIABLE_PARAMS "
+                + "where CURPFL = 'Y' group by DATE having DATE = min(DATE)";
+
+        try {
+            statement = connection.createStatement();
+        } catch (SQLException ex) {
+            System.out.println("*** PlannedVariableParamsSQL : "
+                    + "getCurrentPeriodDate() error while creating statement: " 
+                    + ex.getMessage());
+            return null;
+        }
+
+        try (ResultSet resultSet = statement.executeQuery(query)) {
+            String currentPeriodDate = null;
+            while (resultSet.next()) {
+                currentPeriodDate = resultSet.getString("DATE");
+            }
+            return currentPeriodDate;
+        } catch (SQLException ex) {
+            System.out.println("*** PlannedVariableParamsSQL : "
+                    + "getCurrentPeriodDate() error while executing '" + query 
+                    + "' query: " + ex.getMessage());
+            return null;
+        } finally {
+            try {
+                statement.close();
+            } catch (SQLException ex) {
+                System.out.println("*** PlannedVariableParamsSQL : "
+                        + "getCurrentPeriodDate() error while closing "
+                        + "statement: " + ex.getMessage());
+            }
+        }
+    }
+    
+    @Override
+    public boolean setCurrentPeriodDate(Connection connection, String date) {
+        
+        Statement statement = null;
+        String clearDateQuery = "update PLANNED_VARIABLE_PARAMS "
+                + "set CURPFL = ''";        
+        String setDateQuery = "update PLANNED_VARIABLE_PARAMS set CURPFL = 'Y' "
+                + "where DATE = '" + date + "'";
+
+        try {
+            statement = connection.createStatement();
+        } catch (SQLException ex) {
+            System.out.println("*** PlannedVariableParamsSQL : "
+                    + "setCurrentPeriodDate() error while creating statement: " 
+                    + ex.getMessage());
+            return false;
+        }
+
+        try {
+            statement.executeUpdate(clearDateQuery);
+            statement.executeUpdate(setDateQuery);
+            return true;
+        } catch (SQLException ex) {
+            System.out.println("*** PlannedVariableParamsSQL : "
+                    + "setCurrentPeriodDate() error while executing "
+                    + " query: " + ex.getMessage());
+            return false;
+        } finally {
+            try {
+                statement.close();
+            } catch (SQLException ex) {
+                System.out.println("*** PlannedVariableParamsSQL : "
+                        + "setCurrentPeriodDate() error while closing "
+                        + "statement: " + ex.getMessage());
+            }
+        }
+    }
     
 }

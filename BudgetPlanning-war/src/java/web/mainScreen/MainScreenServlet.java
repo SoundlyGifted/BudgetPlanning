@@ -15,6 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -140,7 +142,7 @@ public class MainScreenServlet extends HttpServlet {
                 String idToUpdate = String.valueOf(id);               
                 
                 ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
-                HashMap<String, String> updateExpensesPlanPcsList = new HashMap<>();
+                Map<String, String> updateExpensesPlanPcsList = new TreeMap<>();
                 for (String date : dates) {
                     updateExpensesPlanPcsList.put(date, request.getParameter("updateExpensesPlanPcs_" + date));
                 }
@@ -182,7 +184,7 @@ public class MainScreenServlet extends HttpServlet {
                 String idToUpdate = String.valueOf(id);               
                 
                 ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
-                HashMap<String, String> updateConsumptionPcsList = new HashMap<>();
+                Map<String, String> updateConsumptionPcsList = new TreeMap<>();
                 for (String date : dates) {
                     updateConsumptionPcsList.put(date, request.getParameter("updateConsumptionPcs_" + date));
                 }
@@ -224,7 +226,7 @@ public class MainScreenServlet extends HttpServlet {
                 String idToUpdate = String.valueOf(id);               
                 
                 ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
-                HashMap<String, String> updateExpensesPlanCurList = new HashMap<>();
+                Map<String, String> updateExpensesPlanCurList = new TreeMap<>();
                 for (String date : dates) {
                     updateExpensesPlanCurList.put(date, request.getParameter("updateExpensesPlanCur_" + date));
                 }
@@ -240,7 +242,14 @@ public class MainScreenServlet extends HttpServlet {
                             + "CUR command entered] : Command declined");
                 }
                 
-                handler.selectFromEntityExpenseListById(DBConnection, id);
+                EntityExpense expense = handler.selectFromEntityExpenseListById(DBConnection, id);
+                String type = expense.getType();
+                if (type.equals("SIMPLE_EXPENSES")) {
+                    
+                }
+                
+                
+                
                 request.setAttribute("currentEntityList", EntityExpenseListString());
                 
                 request.getRequestDispatcher("index.jsp").forward(request, response);

@@ -2,9 +2,10 @@
 package ejb.entity;
 
 import ejb.common.EjbCommonMethods;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  *
@@ -37,24 +38,24 @@ public class EntityExpense extends EjbCommonMethods {
     /* Collection of time period dates in ISO 8601 YYYY-MM-DD format
      * (common for any type of Expenses). 
      */
-    private ArrayList<String> timePeriodDates;
+    private TreeSet<String> timePeriodDates;
     /* Below apply to all Expense types. */
-    private Map<String, Double> plannedCur;     /* CHANGEABLE 
+    private TreeMap<String, Double> plannedCur;     /* CHANGEABLE 
                                                  * (calculated for Expense type 
                                                  * = 'GOODS') 
                                                  */
-    private Map<String, Double> actualCur;      /* calculated */
-    private Map<String, Double> differenceCur;  /* calculated */
+    private TreeMap<String, Double> actualCur;      /* calculated */
+    private TreeMap<String, Double> differenceCur;  /* calculated */
     /* Below apply to Expense type = 'GOODS' only. */
-    private Map<String, Double> consumptionPcs; /* CHANGEABLE */
-    private Map<String, Double> consumptionCur; /* calculated */
-    private Map<String, Double> stockPcs;       /* calculated */
-    private Map<String, Double> stockCur;       /* calculated */
-    private Map<String, Double> requirementPcs; /* calculated */
-    private Map<String, Double> requirementCur; /* calculated */
-    private Map<String, Double> plannedPcs;     /* CHANGEABLE */
-    private Map<String, Double> actualPcs;      /* calculated */
-    private Map<String, Double> differencePcs;  /* calculated */
+    private TreeMap<String, Double> consumptionPcs; /* CHANGEABLE */
+    private TreeMap<String, Double> consumptionCur; /* calculated */
+    private TreeMap<String, Double> stockPcs;       /* calculated */
+    private TreeMap<String, Double> stockCur;       /* calculated */
+    private TreeMap<String, Double> requirementPcs; /* calculated */
+    private TreeMap<String, Double> requirementCur; /* calculated */
+    private TreeMap<String, Double> plannedPcs;     /* CHANGEABLE */
+    private TreeMap<String, Double> actualPcs;      /* calculated */
+    private TreeMap<String, Double> differencePcs;  /* calculated */
 
     // Constructors for the case of selection of Expense from database tables.
     /**
@@ -200,13 +201,13 @@ public class EntityExpense extends EjbCommonMethods {
      *                          format) from database.
      * 
      * Changeable Variable parameters:
-     * @param plannedCur - Map<String, Double> of planned expenses (in currency)
+     * @param plannedCur - TreeMap<String, Double> of planned expenses (in currency)
      *                     mapped to time period dates (in ISO 8601 YYYY-MM-DD 
      *                     format).
-     * @param consumptionPcs - Map<String, Double> of consumption (pcs) mapped
+     * @param consumptionPcs - TreeMap<String, Double> of consumption (pcs) mapped
      *                         to time period dates (in ISO 8601 YYYY-MM-DD 
      *                         format).
-     * @param plannedPcs - Map<String, Double> of planned expenses (in pcs)
+     * @param plannedPcs - TreeMap<String, Double> of planned expenses (in pcs)
      *                     mapped to time period dates (in ISO 8601 YYYY-MM-DD 
      *                     format).              
      */
@@ -216,10 +217,10 @@ public class EntityExpense extends EjbCommonMethods {
             Double currentStockWscPcs, Double currentStockWscCur,
             Double safetyStockPcs, Double safetyStockCur, Double orderQtyPcs, 
             Double orderQtyCur,
-            ArrayList<String> timePeriodDates,
-            Map<String, Double> plannedCur, 
-            Map<String, Double> consumptionPcs,
-            Map<String, Double> plannedPcs) {
+            TreeSet<String> timePeriodDates,
+            TreeMap<String, Double> plannedCur, 
+            TreeMap<String, Double> consumptionPcs,
+            TreeMap<String, Double> plannedPcs) {
  
         if (!inputCheckType(type)) {
             throw new IllegalArgumentException("EntityExpense() : Unable to "
@@ -282,6 +283,15 @@ public class EntityExpense extends EjbCommonMethods {
             orderQtyCur = round(price * orderQtyPcs, 2);
         }
     }
+    
+    
+//    public void calculateVariableParameters() {
+//        if (type.equals("GOODS")) {
+//            for (Map.Entry e : )
+//        }
+//    }
+    
+    
     
     @Override
     public String toString() {
@@ -512,5 +522,109 @@ public class EntityExpense extends EjbCommonMethods {
 
     public void setOrderQtyCur(double orderQtyCur) {
         this.orderQtyCur = orderQtyCur;
+    }
+
+    public TreeSet<String> getTimePeriodDates() {
+        return timePeriodDates;
+    }
+
+    public void setTimePeriodDates(TreeSet<String> timePeriodDates) {
+        this.timePeriodDates = timePeriodDates;
+    }
+
+    public TreeMap<String, Double> getPlannedCur() {
+        return plannedCur;
+    }
+
+    public void setPlannedCur(TreeMap<String, Double> plannedCur) {
+        this.plannedCur = plannedCur;
+    }
+
+    public TreeMap<String, Double> getActualCur() {
+        return actualCur;
+    }
+
+    public void setActualCur(TreeMap<String, Double> actualCur) {
+        this.actualCur = actualCur;
+    }
+
+    public TreeMap<String, Double> getDifferenceCur() {
+        return differenceCur;
+    }
+
+    public void setDifferenceCur(TreeMap<String, Double> differenceCur) {
+        this.differenceCur = differenceCur;
+    }
+
+    public TreeMap<String, Double> getConsumptionPcs() {
+        return consumptionPcs;
+    }
+
+    public void setConsumptionPcs(TreeMap<String, Double> consumptionPcs) {
+        this.consumptionPcs = consumptionPcs;
+    }
+
+    public TreeMap<String, Double> getConsumptionCur() {
+        return consumptionCur;
+    }
+
+    public void setConsumptionCur(TreeMap<String, Double> consumptionCur) {
+        this.consumptionCur = consumptionCur;
+    }
+
+    public TreeMap<String, Double> getStockPcs() {
+        return stockPcs;
+    }
+
+    public void setStockPcs(TreeMap<String, Double> stockPcs) {
+        this.stockPcs = stockPcs;
+    }
+
+    public TreeMap<String, Double> getStockCur() {
+        return stockCur;
+    }
+
+    public void setStockCur(TreeMap<String, Double> stockCur) {
+        this.stockCur = stockCur;
+    }
+
+    public TreeMap<String, Double> getRequirementPcs() {
+        return requirementPcs;
+    }
+
+    public void setRequirementPcs(TreeMap<String, Double> requirementPcs) {
+        this.requirementPcs = requirementPcs;
+    }
+
+    public TreeMap<String, Double> getRequirementCur() {
+        return requirementCur;
+    }
+
+    public void setRequirementCur(TreeMap<String, Double> requirementCur) {
+        this.requirementCur = requirementCur;
+    }
+
+    public TreeMap<String, Double> getPlannedPcs() {
+        return plannedPcs;
+    }
+
+    public void setPlannedPcs(TreeMap<String, Double> plannedPcs) {
+        this.plannedPcs = plannedPcs;
+    }
+
+    public TreeMap<String, Double> getActualPcs() {
+        return actualPcs;
+    }
+
+    public void setActualPcs(TreeMap<String, Double> actualPcs) {
+        this.actualPcs = actualPcs;
+    }
+
+    public TreeMap<String, Double> getDifferencePcs() {
+        return differencePcs;
+    }
+
+    public void setDifferencePcs(TreeMap<String, Double> differencePcs) {
+        this.differencePcs = differencePcs;
     }
 }

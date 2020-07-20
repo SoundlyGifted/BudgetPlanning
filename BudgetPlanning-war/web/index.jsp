@@ -31,14 +31,20 @@
 
     <!-- JSTL sql query to select all records from PLANNED_VARIABLE_PARAMS table -->    
     <sql:query dataSource = "${outputDBConnection}" var = "plannedParamsResultSet">
-        SELECT * FROM PLANNED_VARIABLE_PARAMS
+        select * from PLANNED_VARIABLE_PARAMS cross join
+            (select distinct "DATE" as CURRENT_PERIOD_DATE 
+                from PLANNED_VARIABLE_PARAMS where CURPFL = 'Y') as T
+        where "DATE" >= CURRENT_PERIOD_DATE
         order by DATE
     </sql:query>
 
     <!-- JSTL sql query to select all distinct timing parameter values from PLANNED_VARIABLE_PARAMS table -->    
     <sql:query dataSource = "${outputDBConnection}" var = "timelineResultSet">
-        SELECT DISTINCT DATE, WEEK, DAY_N, DAY_C, MONTH_C, "YEAR", CURPFL 
-        FROM PLANNED_VARIABLE_PARAMS
+        select distinct DATE, WEEK, DAY_N, DAY_C, MONTH_C, "YEAR", CURPFL 
+        from PLANNED_VARIABLE_PARAMS cross join
+            (select distinct "DATE" as CURRENT_PERIOD_DATE 
+                from PLANNED_VARIABLE_PARAMS where CURPFL = 'Y') as T
+        where "DATE" >= CURRENT_PERIOD_DATE
         order by DATE
     </sql:query>
 
