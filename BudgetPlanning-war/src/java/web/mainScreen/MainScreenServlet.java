@@ -14,7 +14,6 @@ import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.ejb.EJB;
@@ -73,6 +72,9 @@ public class MainScreenServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Connection DBConnection = connector.connection(session, "mainScreenDBConnection");
         
+        String currentPeriodDate = plannedParams.getCurrentPeriodDate(DBConnection);
+        Integer horizon = plannedParams.getPlanningPeriodsHorizon(DBConnection, "W");
+        
         ArrayList<Integer> expensesIdList = commonMethods.getIdList(DBConnection, "EXPENSES_STRUCTURE");
         
         EntityExpense selectedExpense = null;
@@ -116,7 +118,8 @@ public class MainScreenServlet extends HttpServlet {
                             + "command entered] : Command declined");
                 }
                 
-                handler.selectFromEntityExpenseListById(DBConnection, id);
+                EntityExpense entityExpense = handler.selectFromEntityExpenseListById(DBConnection, id);
+    
                 request.setAttribute("currentEntityList", EntityExpenseListString());
                 
                 request.getRequestDispatcher("index.jsp").forward(request, response);

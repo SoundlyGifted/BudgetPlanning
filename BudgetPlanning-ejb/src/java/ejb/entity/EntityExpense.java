@@ -2,8 +2,11 @@
 package ejb.entity;
 
 import ejb.common.EjbCommonMethods;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -258,23 +261,22 @@ public class EntityExpense extends EjbCommonMethods {
      * Method calculates all application-calculated Fixed parameters within
      * the calculational EntityExpense object based on the user-changeable 
      * Fixed parameters, only for Expenses with type = "GOODS".
-     * 
      * User-changeable Fixed parameter list:
      * price - planning-purpose value of price (price as planning basis).
+     * 
      * currentStockPcs - current stock in pcs.
      * safetyStockPcs - safety stock in pcs.
      * orderQtyPcs - normal order quantity in pcs.
      * 
      * Application-calculated Fixed parameter list:
      * currentStockCur - current stock in currency.
-     * currentStockWscPcs - current stock with safety stock consideration 
-     *                      in pcs.
-     * currentStockWscCur - current stock with safety stock consideration
-     *                      in currency.
+     * currentStockWscPcs - current stock with safety stock consideration in pcs.
+     * currentStockWscCur - current stock with safety stock consideration in currency.
      * safetyStockCur - safety stock in currency.
      * orderQtyCur - normal order quantity in currency.
+     * @return 
      */
-    public final void calculateFixedParameters() {
+    public final boolean calculateFixedParameters() {
         if (type.equals("GOODS")) {
             currentStockCur = round(price * currentStockPcs, 2);
             currentStockWscPcs = currentStockPcs - safetyStockPcs;
@@ -282,6 +284,7 @@ public class EntityExpense extends EjbCommonMethods {
             safetyStockCur = round(price * safetyStockPcs, 2);
             orderQtyCur = round(price * orderQtyPcs, 2);
         }
+        return true;
     }
     
     
@@ -291,7 +294,40 @@ public class EntityExpense extends EjbCommonMethods {
 //        }
 //    }
     
-    
+    public boolean calculateTimePeriodDates (String currentPeriodDate,
+            String planningPeriodsFrequency, Integer planningPeriodsHorizon) {
+        
+        TreeSet<String> result = new TreeSet<>();
+        result.add(currentPeriodDate);
+        String tempDate = currentPeriodDate;
+        
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();        
+        
+        for (int i = 1; i < planningPeriodsHorizon; i++) {
+            try {
+                c.setTime(fmt.parse(tempDate));
+            } catch (ParseException ex) {
+                System.out.println("EntityExpense: calculateTimePeriodDates() "
+                        + "- error while parsing next date " + tempDate + " : " 
+                        + ex.getMessage());
+            }
+            switch(planningPeriodsFrequency) {
+                case "W" : c.add(Calendar.DAY_OF_MONTH, 7);
+                            break;
+                case "M" : c.add(Calendar.MONTH, 1);
+                            break;
+                case "D" : c.add(Calendar.DAY_OF_MONTH, 1);
+                            break;
+                default : return false;
+            }            
+            String newDate = fmt.format(c.getTime());
+            result.add(newDate);
+            tempDate = newDate;
+        }
+        timePeriodDates = result;
+        return true;
+    }
     
     @Override
     public String toString() {

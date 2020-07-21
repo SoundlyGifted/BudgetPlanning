@@ -18,4 +18,11 @@ public interface PlannedVariableParamsSQLLocal {
     public String getCurrentPeriodDate(Connection connection);
     
     public boolean setCurrentPeriodDate(Connection connection, String date);
+    
+    public Integer getPlanningPeriodsHorizon(Connection 
+            connection, String planningPeriodsFrequency);
+    
+     public boolean setPlanningPeriodsHorizon(Connection 
+            connection, String planningPeriodsFrequency, 
+            String planningPeriodsHorizon);
 }
