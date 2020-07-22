@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -74,6 +75,11 @@ public class MainScreenServlet extends HttpServlet {
         
         String currentPeriodDate = plannedParams.getCurrentPeriodDate(DBConnection);
         Integer horizon = plannedParams.getPlanningPeriodsHorizon(DBConnection, "W");
+        TreeSet<String> timePeriodDates = plannedParams.calculateTimePeriodDates(currentPeriodDate, "W", horizon);
+//        System.out.println("===== Actual Expense: " 
+//                + plannedParams.calculateActualExpense(DBConnection, 
+//                        timePeriodDates, "W", 89).toString());
+        
         
         ArrayList<Integer> expensesIdList = commonMethods.getIdList(DBConnection, "EXPENSES_STRUCTURE");
         

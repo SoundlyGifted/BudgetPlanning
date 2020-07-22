@@ -3,6 +3,7 @@ package ejb.MainScreen;
 
 import java.sql.Connection;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import javax.ejb.Local;
 
@@ -27,4 +28,8 @@ public interface PlannedVariableParamsSQLLocal {
 
     public TreeSet<String> calculateTimePeriodDates(String currentPeriodDate,
             String planningPeriodsFrequency, Integer planningPeriodsHorizon);
+    
+    public TreeMap<String, Double> calculateActualExpense(Connection connection,
+            TreeSet<String> timePeriodDates, String planningPeriodsFrequency, 
+            Integer expenseId);
 }

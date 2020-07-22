@@ -4,6 +4,7 @@ package ejb.common;
 import ejb.expensesStructure.ExpensesTypes;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
 
 /**
  * Abstract class to contain common Methods that are used in the EJB module.
@@ -124,5 +125,51 @@ public abstract class EjbCommonMethods {
             return !(param.length() > 255);
         }
         return true;
+    }
+    
+    public String getMonth(int monthN) {
+        if (monthN < 1 || monthN > 12) {
+            return null;
+        }
+        HashMap<Integer, String> map = new HashMap<>();
+        map.put(1, "JAN");
+        map.put(2, "FEB");
+        map.put(3, "MAR");
+        map.put(4, "APR");
+        map.put(5, "MAY");
+        map.put(6, "JUN");
+        map.put(7, "JUL");
+        map.put(8, "AUG");
+        map.put(9, "SEP");
+        map.put(10, "OCT");
+        map.put(11, "NOV");
+        map.put(12, "DEC");
+        return map.get(monthN);
+    }
+
+    public String getDay(int dayNumber) {
+        if (dayNumber < 1 || dayNumber > 7) {
+            return null;
+        }
+        HashMap<Integer, String> map = new HashMap<>();
+        map.put(1, "SUN");
+        map.put(2, "MON");
+        map.put(3, "TUE");
+        map.put(4, "WED");
+        map.put(5, "THU");
+        map.put(6, "FRI");
+        map.put(7, "SAT");
+        return map.get(dayNumber);
+    }
+
+    public String getWeek(int week) {
+        if (week < 1 || week > 52) {
+            return null;
+        }
+        if (week < 10) {
+            return "WK" + "0" + String.valueOf(week);
+        } else {
+            return "WK" + String.valueOf(week);
+        }
     }
 }
