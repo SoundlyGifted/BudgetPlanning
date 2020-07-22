@@ -2,11 +2,7 @@
 package ejb.entity;
 
 import ejb.common.EjbCommonMethods;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -38,10 +34,6 @@ public class EntityExpense extends EjbCommonMethods {
     private double orderQtyCur = 0;         /* calculated */
     
     /* Variable parameter variables (values depend on time period dates). */
-    /* Collection of time period dates in ISO 8601 YYYY-MM-DD format
-     * (common for any type of Expenses). 
-     */
-    private TreeSet<String> timePeriodDates;
     /* Below apply to all Expense types. */
     private TreeMap<String, Double> plannedCur;     /* CHANGEABLE 
                                                  * (calculated for Expense type 
@@ -293,42 +285,7 @@ public class EntityExpense extends EjbCommonMethods {
 //            for (Map.Entry e : )
 //        }
 //    }
-    
-    public boolean calculateTimePeriodDates (String currentPeriodDate,
-            String planningPeriodsFrequency, Integer planningPeriodsHorizon) {
-        
-        TreeSet<String> result = new TreeSet<>();
-        result.add(currentPeriodDate);
-        String tempDate = currentPeriodDate;
-        
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar c = Calendar.getInstance();        
-        
-        for (int i = 1; i < planningPeriodsHorizon; i++) {
-            try {
-                c.setTime(fmt.parse(tempDate));
-            } catch (ParseException ex) {
-                System.out.println("EntityExpense: calculateTimePeriodDates() "
-                        + "- error while parsing next date " + tempDate + " : " 
-                        + ex.getMessage());
-            }
-            switch(planningPeriodsFrequency) {
-                case "W" : c.add(Calendar.DAY_OF_MONTH, 7);
-                            break;
-                case "M" : c.add(Calendar.MONTH, 1);
-                            break;
-                case "D" : c.add(Calendar.DAY_OF_MONTH, 1);
-                            break;
-                default : return false;
-            }            
-            String newDate = fmt.format(c.getTime());
-            result.add(newDate);
-            tempDate = newDate;
-        }
-        timePeriodDates = result;
-        return true;
-    }
-    
+       
     @Override
     public String toString() {
         return "EntityExpense{" + "id=" + id + ", type=" + type + ", name=" 
@@ -558,14 +515,6 @@ public class EntityExpense extends EjbCommonMethods {
 
     public void setOrderQtyCur(double orderQtyCur) {
         this.orderQtyCur = orderQtyCur;
-    }
-
-    public TreeSet<String> getTimePeriodDates() {
-        return timePeriodDates;
-    }
-
-    public void setTimePeriodDates(TreeSet<String> timePeriodDates) {
-        this.timePeriodDates = timePeriodDates;
     }
 
     public TreeMap<String, Double> getPlannedCur() {

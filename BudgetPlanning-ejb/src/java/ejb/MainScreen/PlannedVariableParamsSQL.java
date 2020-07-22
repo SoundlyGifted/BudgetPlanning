@@ -8,8 +8,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.ejb.Stateless;
 
 /**
@@ -247,5 +251,44 @@ public class PlannedVariableParamsSQL extends SQLAbstract
             clear(preparedStatement);
         }
         return true;
+    }
+    
+    @Override
+    public TreeSet<String> calculateTimePeriodDates(String currentPeriodDate,
+            String planningPeriodsFrequency, Integer planningPeriodsHorizon) {
+
+        TreeSet<String> result = new TreeSet<>();
+        result.add(currentPeriodDate);
+        String tempDate = currentPeriodDate;
+
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+
+        for (int i = 1; i < planningPeriodsHorizon; i++) {
+            try {
+                c.setTime(fmt.parse(tempDate));
+            } catch (ParseException ex) {
+                System.out.println("EntityExpense: calculateTimePeriodDates() "
+                        + "- error while parsing next date " + tempDate + " : "
+                        + ex.getMessage());
+            }
+            switch (planningPeriodsFrequency) {
+                case "W":
+                    c.add(Calendar.DAY_OF_MONTH, 7);
+                    break;
+                case "M":
+                    c.add(Calendar.MONTH, 1);
+                    break;
+                case "D":
+                    c.add(Calendar.DAY_OF_MONTH, 1);
+                    break;
+                default:
+                    return null;
+            }
+            String newDate = fmt.format(c.getTime());
+            result.add(newDate);
+            tempDate = newDate;
+        }
+        return result;
     }
 }
