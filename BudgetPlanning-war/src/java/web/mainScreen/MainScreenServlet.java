@@ -9,6 +9,7 @@ import ejb.entity.EntityExpense;
 import ejb.entityLists.ExpensesHandlerLocal;
 import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import ejb.expensesStructure.ExpensesStructureSQLUpdateLocal;
+import ejb.planningPeriodsConfig.PlanningPeriodsConfigSQLLocal;
 import java.io.IOException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
@@ -52,6 +53,9 @@ public class MainScreenServlet extends HttpServlet {
     private PlannedVariableParamsSQLLocal plannedParams;
     
     @EJB
+    private PlanningPeriodsConfigSQLLocal planningPeriods;
+    
+    @EJB
     private WebServletCommonMethods commonMethods;    
     
     /**
@@ -73,8 +77,10 @@ public class MainScreenServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Connection DBConnection = connector.connection(session, "mainScreenDBConnection");
         
+
+        
         String currentPeriodDate = plannedParams.getCurrentPeriodDate(DBConnection);
-        Integer horizon = plannedParams.getPlanningPeriodsHorizon(DBConnection, "W");
+        Integer horizon = planningPeriods.getPlanningPeriodsHorizon(DBConnection, "W");
         TreeSet<String> timePeriodDates = plannedParams.calculateTimePeriodDates(currentPeriodDate, "W", horizon);
 //        System.out.println("===== Actual Expense: " 
 //                + plannedParams.calculateActualExpense(DBConnection, 
