@@ -82,9 +82,6 @@ public class MainScreenServlet extends HttpServlet {
         String currentPeriodDate = plannedParams.getCurrentPeriodDate(DBConnection);
         Integer horizon = planningPeriods.getPlanningPeriodsHorizon(DBConnection, "W");
         TreeSet<String> timePeriodDates = plannedParams.calculateTimePeriodDates(currentPeriodDate, "W", horizon);
-//        System.out.println("===== Actual Expense: " 
-//                + plannedParams.calculateActualExpense(DBConnection, 
-//                        timePeriodDates, "W", 89).toString());
         
         
         ArrayList<Integer> expensesIdList = commonMethods.getIdList(DBConnection, "EXPENSES_STRUCTURE");

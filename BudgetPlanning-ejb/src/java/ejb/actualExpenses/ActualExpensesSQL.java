@@ -7,8 +7,11 @@ import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -261,4 +264,125 @@ public class ActualExpensesSQL extends SQLAbstract
         return true;
     }
     
+    @Override
+    public TreeMap<String, Double> calculateActualExpenses(Connection connection,
+            TreeSet<String> timePeriodDates, String planningPeriodsFrequency, 
+            Integer expenseId) {
+        
+        TreeMap<String, Double> result = new TreeMap<>();
+        
+        Calendar c = Calendar.getInstance();
+        
+        String currentPeriodDate = timePeriodDates.first();
+        
+        String[] partOfDate;
+        int dayN;
+        int monthN;
+        int year;
+        int weekN;
+        
+        partOfDate = currentPeriodDate.split("\\-");
+        dayN = Integer.parseInt(partOfDate[2]);
+        monthN = Integer.parseInt(partOfDate[1]);
+        year = Integer.parseInt(partOfDate[0]);
+        c.set(year, monthN-1, dayN);
+        weekN = c.get(Calendar.WEEK_OF_YEAR);
+        
+        PreparedStatement preparedStatement;
+        try {
+            switch (planningPeriodsFrequency) {
+                case "W":
+                    preparedStatement = createPreparedStatement(connection, 
+                            "actualExpenses/select.calculateActualExpenses"
+                                    + ".byExpenseId.weekly");
+                    preparedStatement.setInt(1, expenseId);
+                    preparedStatement.setInt(2, weekN);
+                    break;
+                case "M":
+                    preparedStatement = createPreparedStatement(connection, 
+                            "actualExpenses/select.calculateActualExpenses"
+                                    + ".byExpenseId.monthly");
+                    preparedStatement.setInt(1, expenseId);
+                    preparedStatement.setInt(2, monthN);
+                    break;
+                case "D":
+                    preparedStatement = createPreparedStatement(connection, 
+                            "actualExpenses/select.calculateActualExpenses"
+                                    + ".byExpenseId.daily");
+                    preparedStatement.setInt(1, expenseId);
+                    preparedStatement.setString(2, currentPeriodDate);
+                    break;
+                default:
+                    return null;
+            }
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** PlannedVariableParamsSQL: "
+                    + "calculateActualExpense() "
+                    + "SQL PreparedStatement failure: "
+                    + ex.getMessage() + " ***");
+            return null;
+        }
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                
+                /* Defining which value (in PCS or CUR) extract from the 
+                resultSet based on the Expense type. */
+                Double value = (double) 0;
+                String type = resultSet.getString("TYPE");
+                if (type.equals("SIMPLE_EXPENSES")) {
+                    value = resultSet.getDouble("ACTUAL_CUR");
+                } else if (type.equals("GOODS")) {
+                    value = resultSet.getDouble("ACTUAL_PCS");
+                }
+
+                /* Loop over time period dates.
+                 * Put into result the resultSet actual expense values that
+                 * match the corresponding time period based on the input
+                 * frequency.
+                 */
+                for (String date : timePeriodDates) {
+                    partOfDate = date.split("\\-");
+                    dayN = Integer.parseInt(partOfDate[2]);
+                    monthN = Integer.parseInt(partOfDate[1]);
+                    year = Integer.parseInt(partOfDate[0]);
+                    c.set(year, monthN-1, dayN);
+                    weekN = c.get(Calendar.WEEK_OF_YEAR);                 
+                    switch (planningPeriodsFrequency) {
+                        case "W":
+                            if (weekN == resultSet.getInt("WEEK")) {
+                                result.put(date, value);
+                            } else {
+                                result.put(date, (double) 0);
+                            }
+                            break;
+                        case "M":
+                            if (monthN == resultSet.getInt("MONTH_N")) {
+                                result.put(date, value);
+                            } else {
+                                result.put(date, (double) 0);
+                            }
+                            break;
+                        case "D":
+                            if (date.equals(resultSet.getString("DATE"))) {
+                                result.put(date, value);
+                            } else {
+                                result.put(date, (double) 0);
+                            }
+                            break;
+                        default:
+                            return null;
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("*** PlannedVariableParamsSQL: "
+                    + "calculateActualExpense() Error while "
+                    + "executing Select Query: "
+                    + ex.getMessage() + "***");
+            return null;
+        } finally {
+            clear(preparedStatement);
+        }
+        return result;
+    }
 }

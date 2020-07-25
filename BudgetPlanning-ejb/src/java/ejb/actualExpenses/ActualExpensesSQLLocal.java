@@ -2,6 +2,8 @@
 package ejb.actualExpenses;
 
 import java.sql.Connection;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.ejb.Local;
 
 /**
@@ -10,13 +12,18 @@ import javax.ejb.Local;
  */
 @Local
 public interface ActualExpensesSQLLocal {
-    public boolean executeInsert(Connection connection, String date, 
-            String expenseName, String expenseTitle, String shopName, 
+
+    public boolean executeInsert(Connection connection, String date,
+            String expenseName, String expenseTitle, String shopName,
             String price, String qty, String comment);
-    
-    public boolean executeUpdate(Connection connection, String idForUpdate, 
-            String date, String expenseName, String expenseTitle, 
+
+    public boolean executeUpdate(Connection connection, String idForUpdate,
+            String date, String expenseName, String expenseTitle,
             String shopName, String price, String qty, String comment);
 
-    public boolean executeDelete(Connection connection, String id);        
+    public boolean executeDelete(Connection connection, String id);
+
+    public TreeMap<String, Double> calculateActualExpenses(Connection connection,
+            TreeSet<String> timePeriodDates, String planningPeriodsFrequency,
+            Integer expenseId);
 }

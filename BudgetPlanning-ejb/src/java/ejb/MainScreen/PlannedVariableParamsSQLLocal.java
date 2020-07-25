@@ -23,8 +23,4 @@ public interface PlannedVariableParamsSQLLocal {
 
     public TreeSet<String> calculateTimePeriodDates(String currentPeriodDate,
             String planningPeriodsFrequency, Integer planningPeriodsHorizon);
-    
-    public TreeMap<String, Double> calculateActualExpense(Connection connection,
-            TreeSet<String> timePeriodDates, String planningPeriodsFrequency, 
-            Integer expenseId);
 }
