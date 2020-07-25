@@ -3,10 +3,12 @@ package web.mainScreen;
 
 import ejb.DBConnection.DBConnectionLocal;
 import ejb.MainScreen.PlannedVariableParamsSQLLocal;
+import ejb.calculation.TimePeriods;
 import ejb.common.OperationResultLogLocal;
 import web.common.WebServletCommonMethods;
-import ejb.entity.EntityExpense;
-import ejb.entityLists.ExpensesHandlerLocal;
+import ejb.calculation.EntityExpense;
+import ejb.calculation.TimePeriodsHandlerLocal;
+import ejb.calculation.entityLists.ExpensesHandlerLocal;
 import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import ejb.expensesStructure.ExpensesStructureSQLUpdateLocal;
 import ejb.planningPeriodsConfig.PlanningPeriodsConfigSQLLocal;
@@ -52,8 +54,11 @@ public class MainScreenServlet extends HttpServlet {
     @EJB
     private PlannedVariableParamsSQLLocal plannedParams;
     
+//    @EJB
+//    private PlanningPeriodsConfigSQLLocal planningPeriods;
+    
     @EJB
-    private PlanningPeriodsConfigSQLLocal planningPeriods;
+    private TimePeriodsHandlerLocal timePeriods;
     
     @EJB
     private WebServletCommonMethods commonMethods;    
@@ -77,12 +82,8 @@ public class MainScreenServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Connection DBConnection = connector.connection(session, "mainScreenDBConnection");
         
-
-        
-        String currentPeriodDate = plannedParams.getCurrentPeriodDate(DBConnection);
-        Integer horizon = planningPeriods.getPlanningPeriodsHorizon(DBConnection, "W");
-        TreeSet<String> timePeriodDates = plannedParams.calculateTimePeriodDates(currentPeriodDate, "W", horizon);
-        
+        TreeSet<String> timePeriodDates = timePeriods.calculateTimePeriodDates(DBConnection, "W");
+//        System.out.println("=== timePeriodDates : " +  timePeriodDates.toString());
         
         ArrayList<Integer> expensesIdList = commonMethods.getIdList(DBConnection, "EXPENSES_STRUCTURE");
         

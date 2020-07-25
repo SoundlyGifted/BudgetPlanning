@@ -2,7 +2,7 @@
 package ejb.actualExpenses;
 
 import ejb.common.SQLAbstract;
-import ejb.entity.EntityExpense;
+import ejb.calculation.EntityExpense;
 import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import java.io.IOException;
 import java.sql.Connection;

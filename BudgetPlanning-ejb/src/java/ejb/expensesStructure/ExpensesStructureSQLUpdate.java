@@ -3,8 +3,8 @@ package ejb.expensesStructure;
 
 import ejb.accountsStructure.AccountsStructureSQLLocal;
 import ejb.common.SQLAbstract;
-import ejb.entity.EntityAccount;
-import ejb.entity.EntityExpense;
+import ejb.calculation.EntityAccount;
+import ejb.calculation.EntityExpense;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

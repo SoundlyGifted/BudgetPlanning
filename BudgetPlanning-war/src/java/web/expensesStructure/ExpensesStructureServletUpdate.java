@@ -3,7 +3,7 @@ package web.expensesStructure;
 
 import ejb.DBConnection.DBConnectionLocal;
 import ejb.common.OperationResultLogLocal;
-import ejb.entity.EntityExpense;
+import ejb.calculation.EntityExpense;
 import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import ejb.expensesStructure.ExpensesStructureSQLUpdateLocal;
 import java.io.IOException;

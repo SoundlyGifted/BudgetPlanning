@@ -1,6 +1,7 @@
 
 package ejb.common;
 
+import ejb.calculation.PlanningPeriodsFrequencies;
 import ejb.expensesStructure.ExpensesTypes;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -90,13 +91,43 @@ public abstract class EjbCommonMethods {
         } else {
             /* Check if input type is one of the types in the allowed list. */
             boolean typeMatch = false;
-            ExpensesTypes.ExpenseType[] expensesTypes = ExpensesTypes.ExpenseType.values();
+            ExpensesTypes.ExpenseType[] expensesTypes = ExpensesTypes
+                    .ExpenseType.values();
             for (ExpensesTypes.ExpenseType t : expensesTypes) {
                 if (t.getType().equals(type)) {
                     typeMatch = true;
                 }
             }
             if (!typeMatch) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether the given String supposed to represent a planning Periods
+     * Freqency is valid and the value is one of the frequencies pre-specified 
+     * in the application.
+     * 
+     * @param frequency value to be checked
+     * @return true in case if the type is one of the pre-specified frequencies,
+     *         false otherwise.
+     */
+    public final boolean inputCheckFrequency(String frequency) {
+        if (frequency == null || frequency.trim().isEmpty() 
+                || frequency.length() > 1) {
+            return false;
+        } else {
+            boolean frequencyMatch = false;
+            PlanningPeriodsFrequencies.Frequency[] frequencies = 
+                    PlanningPeriodsFrequencies.Frequency.values();
+            for (PlanningPeriodsFrequencies.Frequency f : frequencies) {
+                if (f.getFrequency().equals(frequency)) {
+                    frequencyMatch = true;
+                }
+            }
+            if (!frequencyMatch) {
                 return false;
             }
         }

@@ -1,7 +1,7 @@
 
-package ejb.entityLists;
+package ejb.calculation.entityLists;
 
-import ejb.entity.EntityExpense;
+import ejb.calculation.EntityExpense;
 import java.util.ArrayList;
 
 /**
@@ -10,7 +10,7 @@ import java.util.ArrayList;
  */
 public class EntityExpenseList {
     
-    private EntityExpenseList(){};
+    private EntityExpenseList(){}
     
     static ArrayList<EntityExpense> expenseList;
 

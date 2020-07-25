@@ -1,5 +1,5 @@
 
-package ejb.entity;
+package ejb.calculation;
 
 import ejb.common.EjbCommonMethods;
 import java.util.Objects;
@@ -11,7 +11,7 @@ import java.util.TreeSet;
  * @author SoundlyGifted
  */
 public class EntityExpense extends EjbCommonMethods {
-    
+
     /* Constant parameters for each Expense Category. */
     private final int id;      /* fixed */
     private final String type; /* fixed */

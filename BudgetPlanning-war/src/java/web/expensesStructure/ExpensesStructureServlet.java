@@ -3,7 +3,7 @@ package web.expensesStructure;
 
 import ejb.DBConnection.DBConnectionLocal;
 import ejb.common.OperationResultLogLocal;
-import ejb.entity.EntityExpense;
+import ejb.calculation.EntityExpense;
 import ejb.expensesStructure.ExpensesStructureSQLInsertLocal;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.servlet.http.HttpSession;
-import ejb.entityLists.ExpensesHandlerLocal;
+import ejb.calculation.entityLists.ExpensesHandlerLocal;
 
 /**
  *

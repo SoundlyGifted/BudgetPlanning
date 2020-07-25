@@ -1,9 +1,9 @@
 
 package ejb.expensesStructure;
 
-import ejb.entityLists.ExpensesHandlerLocal;
+import ejb.calculation.entityLists.ExpensesHandlerLocal;
 import ejb.common.SQLAbstract;
-import ejb.entity.EntityExpense;
+import ejb.calculation.EntityExpense;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

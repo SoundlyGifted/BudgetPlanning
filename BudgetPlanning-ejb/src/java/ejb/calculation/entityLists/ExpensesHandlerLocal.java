@@ -1,7 +1,7 @@
 
-package ejb.entityLists;
+package ejb.calculation.entityLists;
 
-import ejb.entity.EntityExpense;
+import ejb.calculation.EntityExpense;
 import java.sql.Connection;
 import java.util.ArrayList;
 import javax.ejb.Local;

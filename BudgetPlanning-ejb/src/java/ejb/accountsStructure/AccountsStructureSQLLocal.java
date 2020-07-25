@@ -1,7 +1,7 @@
 
 package ejb.accountsStructure;
 
-import ejb.entity.EntityAccount;
+import ejb.calculation.EntityAccount;
 import java.sql.Connection;
 import java.util.ArrayList;
 import javax.ejb.Local;

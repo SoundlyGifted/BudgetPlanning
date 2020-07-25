@@ -2,7 +2,7 @@
 package ejb.accountsStructure;
 
 import ejb.common.SQLAbstract;
-import ejb.entity.EntityAccount;
+import ejb.calculation.EntityAccount;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
