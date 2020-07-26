@@ -19,7 +19,7 @@ import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.servlet.http.HttpSession;
-import ejb.calculation.entityLists.ExpensesHandlerLocal;
+import ejb.calculation.ExpensesHandlerLocal;
 
 /**
  *

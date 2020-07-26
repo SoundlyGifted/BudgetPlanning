@@ -265,9 +265,13 @@ public class ActualExpensesSQL extends SQLAbstract
     }
     
     @Override
-    public TreeMap<String, Double> calculateActualExpenses(Connection connection,
-            TreeSet<String> timePeriodDates, String planningPeriodsFrequency, 
-            Integer expenseId) {
+    public TreeMap<String, Double> calculateActualExpenses(Connection 
+            connection, TreeSet<String> timePeriodDates, 
+            String planningPeriodsFrequency, Integer expenseId) {
+        
+        if (!inputCheckFrequency(planningPeriodsFrequency)) {
+            return null;
+        }
         
         TreeMap<String, Double> result = new TreeMap<>();
         

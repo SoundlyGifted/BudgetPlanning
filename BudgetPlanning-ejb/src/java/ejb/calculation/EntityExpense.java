@@ -2,6 +2,7 @@
 package ejb.calculation;
 
 import ejb.common.EjbCommonMethods;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -39,7 +40,7 @@ public class EntityExpense extends EjbCommonMethods {
                                                  * (calculated for Expense type 
                                                  * = 'GOODS') 
                                                  */
-    private TreeMap<String, Double> actualCur;      /* calculated */
+    private TreeMap<String, Double> actualCur;      /* CHANGEABLE */
     private TreeMap<String, Double> differenceCur;  /* calculated */
     /* Below apply to Expense type = 'GOODS' only. */
     private TreeMap<String, Double> consumptionPcs; /* CHANGEABLE */
@@ -49,7 +50,7 @@ public class EntityExpense extends EjbCommonMethods {
     private TreeMap<String, Double> requirementPcs; /* calculated */
     private TreeMap<String, Double> requirementCur; /* calculated */
     private TreeMap<String, Double> plannedPcs;     /* CHANGEABLE */
-    private TreeMap<String, Double> actualPcs;      /* calculated */
+    private TreeMap<String, Double> actualPcs;      /* CHANGEABLE */
     private TreeMap<String, Double> differencePcs;  /* calculated */
 
     // Constructors for the case of selection of Expense from database tables.
@@ -164,92 +165,6 @@ public class EntityExpense extends EjbCommonMethods {
     }    
 
     /**
-     * EntityExpense Constructor for the case of selection from database tables, 
-     * initializes Constant parameters, Fixed parameters and 
-     * changeable Variable parameters.
-     * Needed when changeable Variable parameters obtained from database for
-     * further calculated Variable parameters calculation.
-     * 
-     * Constant parameters for each Expense Category:
-     * @param id
-     * @param type
-     * 
-     * Common Fixed parameter variables for all Expense types:
-     * @param name
-     * @param accountId
-     * @param accountLinked
-     * @param linkedToComplexId
-     * 
-     * Fixed parameter variables for 'GOODS' Expense type only:
-     * @param price
-     * @param currentStockPcs
-     * @param currentStockCur
-     * @param currentStockWscPcs
-     * @param currentStockWscCur
-     * @param safetyStockPcs
-     * @param safetyStockCur
-     * @param orderQtyPcs
-     * @param orderQtyCur
-     * 
-     * Collection of time period dates (common for any type of Expenses):
-     * @param timePeriodDates - time period dates (in ISO 8601 YYYY-MM-DD 
-     *                          format) from database.
-     * 
-     * Changeable Variable parameters:
-     * @param plannedCur - TreeMap<String, Double> of planned expenses (in currency)
-     *                     mapped to time period dates (in ISO 8601 YYYY-MM-DD 
-     *                     format).
-     * @param consumptionPcs - TreeMap<String, Double> of consumption (pcs) mapped
-     *                         to time period dates (in ISO 8601 YYYY-MM-DD 
-     *                         format).
-     * @param plannedPcs - TreeMap<String, Double> of planned expenses (in pcs)
-     *                     mapped to time period dates (in ISO 8601 YYYY-MM-DD 
-     *                     format).              
-     */
-    public EntityExpense(int id, String type, String name, int accountId, 
-            String accountLinked, int linkedToComplexId, Double price,
-            Double currentStockPcs, Double currentStockCur,
-            Double currentStockWscPcs, Double currentStockWscCur,
-            Double safetyStockPcs, Double safetyStockCur, Double orderQtyPcs, 
-            Double orderQtyCur,
-            TreeSet<String> timePeriodDates,
-            TreeMap<String, Double> plannedCur, 
-            TreeMap<String, Double> consumptionPcs,
-            TreeMap<String, Double> plannedPcs) {
- 
-        if (!inputCheckType(type)) {
-            throw new IllegalArgumentException("EntityExpense() : Unable to "
-                    + "create EntityExpense object, wrong Expense type '" 
-                    + type + "' entered");
-        }
-        
-        this.id = id;
-        this.type = type;
-
-        this.name = name;
-        this.accountId = accountId;
-        this.accountLinked = accountLinked;
-        this.linkedToComplexId = linkedToComplexId;
-        
-        if (type.equals("GOODS")) {
-            this.price = price;
-            this.currentStockPcs = currentStockPcs;
-            this.currentStockCur = currentStockCur;
-            this.currentStockWscPcs = currentStockWscPcs;
-            this.currentStockWscCur = currentStockWscCur;
-            this.safetyStockPcs = safetyStockPcs;
-            this.safetyStockCur = safetyStockCur;
-            this.orderQtyPcs = orderQtyPcs;
-            this.orderQtyCur = orderQtyCur;
-            
-            this.consumptionPcs = consumptionPcs;
-            this.plannedPcs = plannedPcs;              
-        } else if (type.equals("SIMPLE_EXPENSES")) {
-            this.plannedCur = plannedCur;
-        }
-    }
-
-    /**
      * Method calculates all application-calculated Fixed parameters within
      * the calculational EntityExpense object based on the user-changeable 
      * Fixed parameters, only for Expenses with type = "GOODS".
@@ -279,27 +194,190 @@ public class EntityExpense extends EjbCommonMethods {
         return true;
     }
     
-    
-//    public void calculateVariableParameters() {
-//        if (type.equals("GOODS")) {
-//            for (Map.Entry e : )
-//        }
-//    }
+    public void calculateVariableParameters(TreeSet<String> 
+            timePeriodDates) {
+        switch(type) {
+            case "SIMPLE_EXPENSES" : 
+                calculateVariableParametersForSimpleExpenses(timePeriodDates);
+                break;
+            case "COMPLEX_EXPENSES" : 
+                calculateVariableParametersForComplexExpenses(timePeriodDates);
+                break;
+            case "GOODS" : 
+                calculateVariableParametersForGoods(timePeriodDates);
+                break;
+            default : 
+                break;
+        }
+    }
+ 
+    private TreeMap<String, Double>
+            initializeVariableParam(TreeMap<String, Double> param) {
+        if (param == null) {
+            return new TreeMap<>();
+        }
+        param.clear();
+        return param;
+    }
+
+    private void 
+        calculateVariableParametersForGoods(TreeSet<String> timePeriodDates) {
+        plannedCur = initializeVariableParam(plannedCur);
+        actualCur = initializeVariableParam(actualCur);
+        differenceCur = initializeVariableParam(differenceCur);
+        consumptionCur = initializeVariableParam(consumptionCur);
+        stockPcs = initializeVariableParam(stockPcs);
+        stockCur = initializeVariableParam(stockCur);
+        requirementPcs = initializeVariableParam(requirementPcs);
+        requirementCur = initializeVariableParam(requirementCur);
+        differencePcs = initializeVariableParam(differencePcs);
+
+        Double prevStockPcs = currentStockWscPcs;
+        Double consumptionPcsSum = (double) 0;
+        Double plannedPcsSum = (double) 0;
+        Double requirementPcsSum = (double) 0;
+        
+        for (String date : timePeriodDates) {
+            
+            Double consumptionPcsVal = consumptionPcs.get(date);
+            if (consumptionPcsVal == null) {
+                consumptionPcsVal = (double) 0;
+            }
+            consumptionCur.put(date, round(price * consumptionPcsVal,2));
+            
+            Double plannedPcsVal = plannedPcs.get(date);
+            if (plannedPcsVal == null) {
+                plannedPcsVal = (double) 0;
+            }
+            plannedCur.put(date, round(price * plannedPcsVal,2));            
+            
+            Double actualPcsVal = actualPcs.get(date);
+            if (actualPcsVal == null) {
+                actualPcsVal = (double) 0;
+            }
+            actualCur.put(date, round(price * actualPcsVal,2));              
+            
+            Double differencePcsVal = actualPcsVal - plannedPcsVal;
+            differencePcs.put(date, differencePcsVal);
+            differenceCur.put(date, round(price * differencePcsVal, 2));
+            
+            Double stockPcsVal;
+            stockPcsVal = prevStockPcs - consumptionPcsVal + plannedPcsVal;
+            stockPcs.put(date, stockPcsVal);
+            stockCur.put(date, round(price * stockPcsVal, 2));
+            prevStockPcs = stockPcsVal;
+            
+            consumptionPcsSum = consumptionPcsSum + consumptionPcsVal;
+            plannedPcsSum = plannedPcsSum + plannedPcsVal;
+            Double requirementPcsVal;
+            requirementPcsVal = currentStockWscPcs + plannedPcsSum 
+                    + requirementPcsSum - consumptionPcsSum;
+            if (requirementPcsVal < 0) {
+                requirementPcsVal = Math.ceil(Math
+                        .abs(requirementPcsVal)/orderQtyPcs)*orderQtyPcs;
+            } else {
+                requirementPcsVal = (double) 0;
+            }
+            requirementPcs.put(date, requirementPcsVal);
+            requirementPcsSum = requirementPcsSum + requirementPcsVal;
+            
+            requirementCur.put(date, round(price * requirementPcsVal, 2));
+        }
+    }
        
+    private void calculateVariableParametersForSimpleExpenses(TreeSet<String> 
+            timePeriodDates) {
+        
+        differenceCur = initializeVariableParam(differenceCur);
+        
+        Double actualCurVal;
+        Double plannedCurVal;
+        Double differenceCurVal;
+        for (String date : timePeriodDates) {
+            actualCurVal = actualCur.get(date);
+            plannedCurVal = plannedCur.get(date);
+            if (actualCurVal == null) {
+                actualCurVal = (double) 0;
+            }
+            if (plannedCurVal == null) {
+                plannedCurVal = (double) 0;
+            }
+            differenceCurVal = round(actualCurVal - plannedCurVal, 2);
+            differenceCur.put(date, differenceCurVal);
+        }
+    }
+
+    private void calculateVariableParametersForComplexExpenses(TreeSet<String> 
+            timePeriodDates) {
+        plannedCur = initializeVariableParam(plannedCur);
+        actualCur = initializeVariableParam(actualCur);
+        differenceCur = initializeVariableParam(differenceCur);
+
+        ArrayList<EntityExpense> list = EntityExpenseList
+                .getEntityExpenseList();
+        for (String date : timePeriodDates) {
+            Double plannedCurVal = (double) 0;
+            Double actualCurVal = (double) 0;
+            Double differenceCurVal;
+            for (EntityExpense expense : list) {
+                if (expense.getLinkedToComplexId() == id) {
+                    plannedCurVal = plannedCurVal 
+                            + expense.getPlannedCur().get(date);
+                    actualCurVal = actualCurVal 
+                            + expense.getActualCur().get(date);
+                }
+            }
+            differenceCurVal = actualCurVal - plannedCurVal;
+            plannedCur.put(date, plannedCurVal);
+            actualCur.put(date, actualCurVal);
+            differenceCur.put(date, differenceCurVal);
+        }
+    }    
+    
     @Override
     public String toString() {
-        return "EntityExpense{" + "id=" + id + ", type=" + type + ", name=" 
-                + name + ", accountId=" + accountId + ", accountLinked=" 
-                + accountLinked + ", linkedToComplexId=" + linkedToComplexId 
-                + ", price=" + price + ", currentStockPcs=" + currentStockPcs 
+        if (type.equals("GOODS")) {
+        return "EntityExpense{<br>Constant Parameters :<br>" 
+                + "id=" + id + ", type=" + type 
+                + "<br>Common Fixed Parameters :<br>"
+                + " name=" + name + ", accountId=" + accountId 
+                + ", accountLinked=" + accountLinked + ", linkedToComplexId=" 
+                + linkedToComplexId 
+                + "<br>Fixed Parameters for GOODS type only :<br>"
+                + " price=" + price + ", currentStockPcs=" + currentStockPcs 
                 + ", currentStockCur=" + currentStockCur 
                 + ", currentStockWscPcs=" + currentStockWscPcs 
                 + ", currentStockWscCur=" + currentStockWscCur 
                 + ", safetyStockPcs=" + safetyStockPcs + ", safetyStockCur=" 
                 + safetyStockCur + ", orderQtyPcs=" + orderQtyPcs 
-                + ", orderQtyCur=" + orderQtyCur + '}';
+                + ", orderQtyCur=" + orderQtyCur 
+                + "<br>Variable Parameters : "
+                + "<br>plannedCur=" + plannedCur 
+                + "<br>actualCur=" + actualCur 
+                + "<br>differenceCur=" + differenceCur 
+                + "<br>consumptionPcs=" + consumptionPcs 
+                + "<br>consumptionCur=" + consumptionCur 
+                + "<br>stockPcs=" + stockPcs 
+                + "<br>stockCur=" + stockCur 
+                + "<br>requirementPcs=" + requirementPcs 
+                + "<br>requirementCur=" + requirementCur 
+                + "<br>plannedPcs=" + plannedPcs 
+                + "<br>actualPcs=" + actualPcs 
+                + "<br>differencePcs=" + differencePcs + '}';            
+        } else {
+                    return "EntityExpense{<br>Constant Parameters :<br>" 
+                + "id=" + id + ", type=" + type 
+                + "<br>Common Fixed Parameters :<br>"
+                + " name=" + name + ", accountId=" + accountId 
+                + ", accountLinked=" + accountLinked + ", linkedToComplexId=" 
+                + linkedToComplexId 
+                + "<br>Variable Parameters : "
+                + "<br>plannedCur=" + plannedCur 
+                + "<br>actualCur=" + actualCur 
+                + "<br>differenceCur=" + differenceCur + '}';
+        }
     }
-
+    
     @Override
     public int hashCode() {
         int hash = 5;

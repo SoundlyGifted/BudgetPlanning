@@ -3,6 +3,7 @@ package ejb.MainScreen;
 
 import java.sql.Connection;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.ejb.Local;
 
 /**
@@ -18,4 +19,10 @@ public interface PlannedVariableParamsSQLLocal {
     public String getCurrentPeriodDate(Connection connection);
 
     public boolean setCurrentPeriodDate(Connection connection, String date);
+    
+    public TreeMap<String, Double> selectPlannedExpensesById(Connection 
+            connection, Integer id);
+    
+    public TreeMap<String, Double> selectConsumptionPcsById(Connection 
+            connection, Integer id);
 }

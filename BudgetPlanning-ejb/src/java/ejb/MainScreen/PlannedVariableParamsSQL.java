@@ -169,4 +169,86 @@ public class PlannedVariableParamsSQL extends SQLAbstract
             }
         }
     }
+    
+    @Override
+    public TreeMap<String, Double> selectPlannedExpensesById(Connection 
+            connection, Integer id) {
+        if (id == null || id < 1) {
+            return null;
+        }
+
+        TreeMap<String, Double> plannedExpense = new TreeMap<>();
+        
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection,
+                    "mainScreen/select.plannedExpenses.byExpenseId");
+            preparedStatement.setInt(1, id);
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** PlannedVariableParamsSQL: "
+                    + "selectPlannedExpensesById() SQL PreparedStatement "
+                    + "failure: " + ex.getMessage() + " ***");
+            return null;
+        }
+        
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                String type = resultSet.getString("TYPE");
+                String key = resultSet.getString("DATE");
+                Double value = (double) 0;
+                if (type.equals("SIMPLE_EXPENSES")) {
+                    value = resultSet.getDouble("PLANNED_CUR");
+                } else if (type.equals("GOODS")) {
+                    value = resultSet.getDouble("PLANNED_PCS");
+                }
+                plannedExpense.put(key, value);
+            }
+        } catch (SQLException ex) {
+            System.out.println("***PlannedVariableParamsSQL: "
+                    + "selectPlannedExpensesById() Error while executing Select "
+                    + "Query: " + ex.getMessage() + "***");
+            return null;
+        } finally {
+            clear(preparedStatement);
+        }
+        return plannedExpense;
+    }
+    
+    @Override
+    public TreeMap<String, Double> selectConsumptionPcsById(Connection 
+            connection, Integer id) {
+        if (id == null || id < 1) {
+            return null;
+        }
+
+        TreeMap<String, Double> consumptionPcs = new TreeMap<>();
+        
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection,
+                    "mainScreen/select.consumptionPcs.byExpenseId");
+            preparedStatement.setInt(1, id);
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** PlannedVariableParamsSQL: "
+                    + "selectConsumptionPcsById() SQL PreparedStatement "
+                    + "failure: " + ex.getMessage() + " ***");
+            return null;
+        }
+        
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                String key = resultSet.getString("DATE");
+                Double value = resultSet.getDouble("CONSUMPTION_PCS");
+                consumptionPcs.put(key, value);
+            }
+        } catch (SQLException ex) {
+            System.out.println("***PlannedVariableParamsSQL: "
+                    + "selectConsumptionPcsById() Error while executing Select "
+                    + "Query: " + ex.getMessage() + "***");
+            return null;
+        } finally {
+            clear(preparedStatement);
+        }
+        return consumptionPcs;
+    }
 }

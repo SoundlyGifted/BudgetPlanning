@@ -78,12 +78,14 @@ public class TimePeriodsHandler extends EjbCommonMethods
         } else {
             if (TimePeriods.planningPeriodsFrequency == null || 
                     TimePeriods.planningPeriodsFrequency.trim().isEmpty()) {
-                TimePeriods.planningPeriodsFrequency = inputPlanningPeriodsFrequency;
+                TimePeriods.planningPeriodsFrequency 
+                        = inputPlanningPeriodsFrequency;
                 freqencyUpdated = true;
             } else {
                 if (!TimePeriods.planningPeriodsFrequency
                         .equals(inputPlanningPeriodsFrequency)) {
-                    TimePeriods.planningPeriodsFrequency = inputPlanningPeriodsFrequency;
+                    TimePeriods.planningPeriodsFrequency 
+                            = inputPlanningPeriodsFrequency;
                     freqencyUpdated = true;                
                 } else {
                     freqencyUpdated = false;

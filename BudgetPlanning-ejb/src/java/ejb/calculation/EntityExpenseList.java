@@ -1,7 +1,6 @@
 
-package ejb.calculation.entityLists;
+package ejb.calculation;
 
-import ejb.calculation.EntityExpense;
 import java.util.ArrayList;
 
 /**

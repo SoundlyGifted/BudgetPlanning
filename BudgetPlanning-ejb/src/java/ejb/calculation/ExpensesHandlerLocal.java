@@ -1,5 +1,5 @@
 
-package ejb.calculation.entityLists;
+package ejb.calculation;
 
 import ejb.calculation.EntityExpense;
 import java.sql.Connection;
@@ -17,11 +17,8 @@ public interface ExpensesHandlerLocal {
      
     public void removeFromEntityExpenseList(EntityExpense entity);
     
-    public EntityExpense selectFromEntityExpenseListByName(
-            Connection connection, String name);
-    
-    public EntityExpense selectFromEntityExpenseListById(Connection connection, 
-            Integer id);
+    public EntityExpense prepareEntityExpenseById(Connection connection, 
+            String inputPlanningPeriodsFrequency, Integer id);
     
     public ArrayList<EntityExpense> actualizeEntityExpenseList(Connection 
             connection);

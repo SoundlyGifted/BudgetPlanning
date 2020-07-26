@@ -1,0 +1,9 @@
+select T1.*, T2."TYPE"
+from
+(select EXPENSE_ID, "DATE", CONSUMPTION_PCS
+from PLANNED_VARIABLE_PARAMS
+where EXPENSE_ID = ?) T1
+left join
+EXPENSES_STRUCTURE T2
+on T1.EXPENSE_ID = T2.ID
+order by T1."DATE"

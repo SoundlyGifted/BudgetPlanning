@@ -8,7 +8,7 @@ import ejb.common.OperationResultLogLocal;
 import web.common.WebServletCommonMethods;
 import ejb.calculation.EntityExpense;
 import ejb.calculation.TimePeriodsHandlerLocal;
-import ejb.calculation.entityLists.ExpensesHandlerLocal;
+import ejb.calculation.ExpensesHandlerLocal;
 import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import ejb.expensesStructure.ExpensesStructureSQLUpdateLocal;
 import ejb.planningPeriodsConfig.PlanningPeriodsConfigSQLLocal;
@@ -82,7 +82,7 @@ public class MainScreenServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Connection DBConnection = connector.connection(session, "mainScreenDBConnection");
         
-        TreeSet<String> timePeriodDates = timePeriods.calculateTimePeriodDates(DBConnection, "W");
+//        TreeSet<String> timePeriodDates = timePeriods.calculateTimePeriodDates(DBConnection, "W");
 //        System.out.println("=== timePeriodDates : " +  timePeriodDates.toString());
         
         ArrayList<Integer> expensesIdList = commonMethods.getIdList(DBConnection, "EXPENSES_STRUCTURE");
@@ -128,8 +128,8 @@ public class MainScreenServlet extends HttpServlet {
                             + "command entered] : Command declined");
                 }
                 
-                EntityExpense entityExpense = handler.selectFromEntityExpenseListById(DBConnection, id);
-    
+                EntityExpense entityExpense = handler
+                        .prepareEntityExpenseById(DBConnection, "W", id);
                 request.setAttribute("currentEntityList", EntityExpenseListString());
                 
                 request.getRequestDispatcher("index.jsp").forward(request, response);
@@ -164,14 +164,15 @@ public class MainScreenServlet extends HttpServlet {
                         idToUpdate, "PLANNED_PCS", updateExpensesPlanPcsList);
                 if (updated) {
                     log.add(session, currentDateTime + " [Update Expenses Plan "
-                            + "PCS command entered] : Expenses Plan PCS "
+                            + "PCS command entered] : Expenses Plan "
                             + "updated");
                 } else {
                     log.add(session, currentDateTime + " [Update Expenses Plan "
                             + "PCS command entered] : Command declined");
                 }
                 
-                handler.selectFromEntityExpenseListById(DBConnection, id);
+                EntityExpense entityExpense = handler
+                        .prepareEntityExpenseById(DBConnection, "W", id);
                 request.setAttribute("currentEntityList", EntityExpenseListString());
                 
                 request.getRequestDispatcher("index.jsp").forward(request, response);
@@ -206,14 +207,15 @@ public class MainScreenServlet extends HttpServlet {
                         idToUpdate, "CONSUMPTION_PCS", updateConsumptionPcsList);
                 if (updated) {
                     log.add(session, currentDateTime + " [Update Consumption "
-                            + "PCS command entered] : Expenses Plan PCS "
+                            + "PCS command entered] : Expenses Plan "
                             + "updated");
                 } else {
                     log.add(session, currentDateTime + " [Update Consumption "
                             + "PCS command entered] : Command declined");
                 }
                 
-                handler.selectFromEntityExpenseListById(DBConnection, id);
+                EntityExpense entityExpense = handler
+                        .prepareEntityExpenseById(DBConnection, "W", id);
                 request.setAttribute("currentEntityList", EntityExpenseListString());
                 
                 request.getRequestDispatcher("index.jsp").forward(request, response);
@@ -248,21 +250,15 @@ public class MainScreenServlet extends HttpServlet {
                         idToUpdate, "PLANNED_CUR", updateExpensesPlanCurList);
                 if (updated) {
                     log.add(session, currentDateTime + " [Update Expenses Plan "
-                            + "CUR command entered] : Expenses Plan PCS "
+                            + "CUR command entered] : Expenses Plan "
                             + "updated");
                 } else {
                     log.add(session, currentDateTime + " [Update Expenses Plan "
                             + "CUR command entered] : Command declined");
                 }
                 
-                EntityExpense expense = handler.selectFromEntityExpenseListById(DBConnection, id);
-                String type = expense.getType();
-                if (type.equals("SIMPLE_EXPENSES")) {
-                    
-                }
-                
-                
-                
+                EntityExpense entityExpense = handler
+                        .prepareEntityExpenseById(DBConnection, "W", id);
                 request.setAttribute("currentEntityList", EntityExpenseListString());
                 
                 request.getRequestDispatcher("index.jsp").forward(request, response);
