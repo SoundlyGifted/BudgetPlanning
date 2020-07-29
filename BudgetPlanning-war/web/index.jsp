@@ -38,6 +38,22 @@
         order by DATE
     </sql:query>
 
+    <!-- JSTL sql query to select all records from ACCOUNTS_STRUCTURE table -->
+    <sql:query dataSource = "${outputDBConnection}" var = "accountsStructureResultSet">
+        select * from ACCOUNTS_STRUCTURE
+        where ID > 0
+        order by ID
+    </sql:query>        
+        
+    <!-- JSTL sql query to select all records from PLANNED_ACCOUNTS_VALUES table -->    
+    <sql:query dataSource = "${outputDBConnection}" var = "plannedAccountsValuesResultSet">
+        select * from PLANNED_ACCOUNTS_VALUES cross join
+            (select distinct "DATE" as CURRENT_PERIOD_DATE 
+                from PLANNED_ACCOUNTS_VALUES where CURPFL = 'Y') as T
+        where "DATE" >= CURRENT_PERIOD_DATE
+        order by DATE
+    </sql:query>
+        
     <!-- JSTL sql query to select all distinct timing parameter values from PLANNED_VARIABLE_PARAMS table -->    
     <sql:query dataSource = "${outputDBConnection}" var = "timelineResultSet">
         select distinct DATE, WEEK, DAY_N, DAY_C, MONTH_C, "YEAR", CURPFL 
@@ -282,8 +298,10 @@
                     <th class="sticky-header1" style="top: 180px">Status</th>
                         <c:forEach var = "row" items = "${timelineResultSet.rows}">
                             <c:choose>
-                                <c:when test="${row.CURPFL == 'Y'}"><th class="sticky-header1" style="top: 180px">Current</th></c:when>
-                            <c:otherwise><th class="sticky-header1" style="top: 180px">Planned</th></c:otherwise>
+                                <c:when test="${row.CURPFL == 'Y'}">
+                                    <th class="sticky-header1" style="top: 180px; background-color: #005a87; color: white;">Current</th>
+                                </c:when>
+                            <c:otherwise><th class="sticky-header1" style="top: 180px; color: #005a87;">Planned</th></c:otherwise>
                             </c:choose>
                         </c:forEach>
                 </tr>
@@ -727,6 +745,69 @@
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>
+                            
+            <!-- ACCOUNTS PART -->
+            <!-- Blank row to separate two parts of the table -->
+            <tr style="border-top: 3px solid #00aaff">
+                <td></td>                            
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>                                
+                <td></td>
+                <td></td>
+                <td></td>
+                <c:forEach var="row" items="${timelineResultSet.rows}">
+                    <td></td>
+                </c:forEach>
+            </tr>
+            <!-- Blank row to separate two parts of the table -->
+            <tr style="background-color: #ddcfff">
+                <th colspan="2" style="text-align: left;">Account Name</th>                            
+                <th style="text-align: left;">Parameter Name</th>
+                <th style="text-align: left;">UM</th>
+                <th style="text-align: left;">Value</th>
+                <th></th>                               
+                <th>Data</th>
+                <th>UM</th>
+                <th></th>
+                <c:forEach var="row" items="${timelineResultSet.rows}">
+                    <th></th>
+                </c:forEach>
+            </tr>
+            <c:forEach var="row" items="${accountsStructureResultSet.rows}">
+                <tr style="border-top: 3px solid #00aaff">
+                    <td colspan="2" style="text-align: left;"><c:out value="${row.NAME}"/></td>                            
+                    <td style="text-align: left;">Current Remainder</td>
+                    <td style="text-align: left;">CUR</td>
+                    <td style="text-align: left;"><c:out value="${row.CURRENT_REMAINDER_CUR}"/></td>
+                    <td></td>                                
+                    <td>Remainder Plan</td>
+                    <td>CUR</td>
+                    <td></td>
+                    <c:forEach var="row2" items="${plannedAccountsValuesResultSet.rows}">
+                        <c:if test="${row.ID == row2.ACCOUNT_ID}">
+                            <td><c:out value="${row2.PLANNED_REMAINDER_CUR}"/></td>
+                        </c:if>
+                    </c:forEach>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>                            
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>                                
+                    <td>Income Plan</td>
+                    <td>CUR</td>
+                    <td><input type="submit" class="smallButton" value="Update" name="update_INCOME_CUR_${row.ID}"/></td>
+                    <c:forEach var="row2" items="${plannedAccountsValuesResultSet.rows}">
+                        <c:if test="${row.ID == row2.ACCOUNT_ID}">
+                            <td><c:out value="${row2.PLANNED_INCOME_CUR}"/></td>
+                        </c:if>
+                    </c:forEach>
+                </tr>
+            </c:forEach>            
 
             </table>
             </form>
