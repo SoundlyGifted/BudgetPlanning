@@ -25,4 +25,7 @@ public interface PlannedVariableParamsSQLLocal {
     
     public TreeMap<String, Double> selectConsumptionPcsById(Connection 
             connection, Integer id);
+    
+    public boolean executeUpdateAll(Connection connection, 
+            String inputPlanningPeriodsFrequency);
 }

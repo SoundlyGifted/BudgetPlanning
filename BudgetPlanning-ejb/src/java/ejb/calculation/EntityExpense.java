@@ -31,7 +31,7 @@ public class EntityExpense extends EjbCommonMethods {
     private double currentStockWscCur = 0;  /* calculated */
     private double safetyStockPcs = 0;      /* CHANGEABLE */
     private double safetyStockCur = 0;      /* calculated */
-    private double orderQtyPcs = 0;         /* CHANGEABLE */
+    private double orderQtyPcs = 1;         /* CHANGEABLE */
     private double orderQtyCur = 0;         /* calculated */
     
     /* Variable parameter variables (values depend on time period dates). */
@@ -53,6 +53,10 @@ public class EntityExpense extends EjbCommonMethods {
     private TreeMap<String, Double> actualPcs;      /* CHANGEABLE */
     private TreeMap<String, Double> differencePcs;  /* calculated */
 
+    // Flag to indicate if Expense contains performed variable parameters 
+    // calculations.
+    private boolean calculated = false;
+    
     // Constructors for the case of selection of Expense from database tables.
     /**
      * EntityExpense Constructor for the case of selection from database tables, 
@@ -199,12 +203,15 @@ public class EntityExpense extends EjbCommonMethods {
         switch(type) {
             case "SIMPLE_EXPENSES" : 
                 calculateVariableParametersForSimpleExpenses(timePeriodDates);
+                calculated = true;
                 break;
             case "COMPLEX_EXPENSES" : 
                 calculateVariableParametersForComplexExpenses(timePeriodDates);
+                calculated = true;
                 break;
             case "GOODS" : 
                 calculateVariableParametersForGoods(timePeriodDates);
+                calculated = true;
                 break;
             default : 
                 break;
@@ -219,6 +226,46 @@ public class EntityExpense extends EjbCommonMethods {
         param.clear();
         return param;
     }
+                  
+    public void resetVariableParams() {
+        if (plannedCur != null && !plannedCur.isEmpty()) {
+            plannedCur.clear();
+        }
+        if (actualCur != null && !actualCur.isEmpty()) {
+            actualCur.clear();
+        }
+        if (differenceCur != null && !differenceCur.isEmpty()) {
+            differenceCur.clear();
+        }
+        if (consumptionPcs != null && !consumptionPcs.isEmpty()) {
+            consumptionPcs.clear();
+        }
+        if (consumptionCur != null && !consumptionCur.isEmpty()) {
+           consumptionCur.clear();
+        }
+        if (stockPcs != null && !stockPcs.isEmpty()) {
+            stockPcs.clear();
+        }
+        if (stockCur != null && !stockCur.isEmpty()) {
+            stockCur.clear();
+        }
+        if (requirementPcs != null && !requirementPcs.isEmpty()) {
+            requirementPcs.clear();
+        }
+        if (requirementCur != null && !requirementCur.isEmpty()) {
+            requirementCur.clear();
+        }
+        if (plannedPcs != null && !plannedPcs.isEmpty()) {
+            plannedPcs.clear();
+        }
+        if (actualPcs != null && !actualPcs.isEmpty()) {
+            actualPcs.clear();
+        }
+        if (differencePcs != null && !differencePcs.isEmpty()) {
+            differencePcs.clear();
+        }
+        calculated = false;
+    }    
 
     private void 
         calculateVariableParametersForGoods(TreeSet<String> timePeriodDates) {
@@ -235,6 +282,7 @@ public class EntityExpense extends EjbCommonMethods {
         Double prevStockPcs = currentStockWscPcs;
         Double consumptionPcsSum = (double) 0;
         Double plannedPcsSum = (double) 0;
+        Double requirementPcsCheck = (double) 0;
         Double requirementPcsSum = (double) 0;
         
         for (String date : timePeriodDates) {
@@ -270,17 +318,16 @@ public class EntityExpense extends EjbCommonMethods {
             consumptionPcsSum = consumptionPcsSum + consumptionPcsVal;
             plannedPcsSum = plannedPcsSum + plannedPcsVal;
             Double requirementPcsVal;
-            requirementPcsVal = currentStockWscPcs + plannedPcsSum 
+            requirementPcsCheck = currentStockWscPcs + plannedPcsSum 
                     + requirementPcsSum - consumptionPcsSum;
-            if (requirementPcsVal < 0) {
+            if (requirementPcsCheck < 0) {
                 requirementPcsVal = Math.ceil(Math
-                        .abs(requirementPcsVal)/orderQtyPcs)*orderQtyPcs;
+                        .abs(requirementPcsCheck)/orderQtyPcs)*orderQtyPcs;
             } else {
                 requirementPcsVal = (double) 0;
             }
             requirementPcs.put(date, requirementPcsVal);
             requirementPcsSum = requirementPcsSum + requirementPcsVal;
-            
             requirementCur.put(date, round(price * requirementPcsVal, 2));
         }
     }
@@ -321,10 +368,18 @@ public class EntityExpense extends EjbCommonMethods {
             Double differenceCurVal;
             for (EntityExpense expense : list) {
                 if (expense.getLinkedToComplexId() == id) {
-                    plannedCurVal = plannedCurVal 
-                            + expense.getPlannedCur().get(date);
-                    actualCurVal = actualCurVal 
-                            + expense.getActualCur().get(date);
+                    Double linkedPlannedCurVal = 
+                            expense.getPlannedCur().get(date);
+                    Double linkedActualCurVal = 
+                            expense.getActualCur().get(date);
+                    if (linkedPlannedCurVal == null) {
+                        linkedPlannedCurVal = (double) 0;
+                    }
+                    if (linkedActualCurVal == null) {
+                        linkedActualCurVal = (double) 0;
+                    }
+                    plannedCurVal = plannedCurVal + linkedPlannedCurVal;
+                    actualCurVal = actualCurVal + linkedActualCurVal;
                 }
             }
             differenceCurVal = actualCurVal - plannedCurVal;
@@ -689,5 +744,9 @@ public class EntityExpense extends EjbCommonMethods {
 
     public void setDifferencePcs(TreeMap<String, Double> differencePcs) {
         this.differencePcs = differencePcs;
+    }
+
+    public boolean isCalculated() {
+        return calculated;
     }
 }

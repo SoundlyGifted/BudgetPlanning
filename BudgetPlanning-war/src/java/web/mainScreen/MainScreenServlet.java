@@ -53,13 +53,7 @@ public class MainScreenServlet extends HttpServlet {
     
     @EJB
     private PlannedVariableParamsSQLLocal plannedParams;
-    
-//    @EJB
-//    private PlanningPeriodsConfigSQLLocal planningPeriods;
-    
-    @EJB
-    private TimePeriodsHandlerLocal timePeriods;
-    
+       
     @EJB
     private WebServletCommonMethods commonMethods;    
     
@@ -130,6 +124,7 @@ public class MainScreenServlet extends HttpServlet {
                 
                 EntityExpense entityExpense = handler
                         .prepareEntityExpenseById(DBConnection, "W", id);
+                plannedParams.executeUpdateAll(DBConnection, "W");
                 request.setAttribute("currentEntityList", EntityExpenseListString());
                 
                 request.getRequestDispatcher("index.jsp").forward(request, response);
@@ -173,6 +168,7 @@ public class MainScreenServlet extends HttpServlet {
                 
                 EntityExpense entityExpense = handler
                         .prepareEntityExpenseById(DBConnection, "W", id);
+                plannedParams.executeUpdateAll(DBConnection, "W");
                 request.setAttribute("currentEntityList", EntityExpenseListString());
                 
                 request.getRequestDispatcher("index.jsp").forward(request, response);
@@ -216,6 +212,7 @@ public class MainScreenServlet extends HttpServlet {
                 
                 EntityExpense entityExpense = handler
                         .prepareEntityExpenseById(DBConnection, "W", id);
+                plannedParams.executeUpdateAll(DBConnection, "W");
                 request.setAttribute("currentEntityList", EntityExpenseListString());
                 
                 request.getRequestDispatcher("index.jsp").forward(request, response);
@@ -259,6 +256,7 @@ public class MainScreenServlet extends HttpServlet {
                 
                 EntityExpense entityExpense = handler
                         .prepareEntityExpenseById(DBConnection, "W", id);
+                plannedParams.executeUpdateAll(DBConnection, "W");
                 request.setAttribute("currentEntityList", EntityExpenseListString());
                 
                 request.getRequestDispatcher("index.jsp").forward(request, response);

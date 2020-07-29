@@ -288,21 +288,21 @@
                         </c:forEach>
                 </tr>
                 <tr>
-                    <th rowspan="2" class="sticky-header2" style="top: 206px">Expense Name</th>
-                    <th rowspan="2" class="sticky-header2" style="top: 206px">Expense Type</th>
+                    <th rowspan="2" class="sticky-header2" style="top: 206px; min-width:80px">Expense Name</th>
+                    <th rowspan="2" class="sticky-header2" style="top: 206px; min-width:120px">Expense Type</th>
                     <th colspan="4" class="sticky-header2" style="top: 206px; text-align: center;">Parameter</th>
-                    <th rowspan="2" class="sticky-header2" style="top: 206px">Data</th>
-                    <th rowspan="2" class="sticky-header2" style="top: 206px">UM</th>
-                    <th rowspan="2" class="sticky-header2" style="top: 206px"></th>
+                    <th rowspan="2" class="sticky-header2" style="top: 206px; min-width:135px">Data</th>
+                    <th rowspan="2" class="sticky-header2" style="top: 206px; min-width:20px">UM</th>
+                    <th rowspan="2" class="sticky-header2" style="top: 206px; min-width:50px"></th>
                         <c:forEach var = "row" items = "${timelineResultSet.rows}">
                         <th rowspan="2" class="sticky-header2" style="top: 206px"></th>
                         </c:forEach>                    
                 </tr>
                 <tr>
-                    <th class="sticky-header2" style="top: 232.5px">Name</th>
-                    <th class="sticky-header2" style="top: 232.5px">UM</th>
-                    <th class="sticky-header2" style="top: 232.5px">Adjust</th>
-                    <th class="sticky-header2" style="top: 232.5px">Value</th>
+                    <th class="sticky-header2" style="top: 232.5px; min-width:120px">Name</th>
+                    <th class="sticky-header2" style="top: 232.5px; min-width:20px">UM</th>
+                    <th class="sticky-header2" style="top: 232.5px; min-width:100px">Value</th>                    
+                    <th class="sticky-header2" style="top: 232.5px; min-width:50px">Adjust</th>
                 </tr>
 
                 <!-- Table Data -->
@@ -337,8 +337,8 @@
                                         <td><c:out value = "${row.TYPE}"/></td>
                                         <td>Price</td>
                                         <td>CUR</td>
-                                        <td></td>
                                         <td><c:out value = "${row.PRICE}"/></td>
+                                        <td></td>                                        
                                         
                                         <td>Consumption</td>
                                         <td>PCS</td>
@@ -373,12 +373,12 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td>Consumption</td>
-                                <td>CUR</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">Consumption</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">CUR</td>
                                 <td></td>
                                 <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
                                     <c:if test="${row.NAME == row2.EXPENSE_NAME}">
-                                        <td><c:out value="${row2.CONSUMPTION_CUR}"/></td>
+                                        <td style="border-bottom: 2px solid #e8e8e8;"><c:out value="${row2.CONSUMPTION_CUR}"/></td>
                                     </c:if>
                                 </c:forEach>                                   
                             </tr> 
@@ -387,8 +387,8 @@
                                 <td></td>
                                 <td>Safety Stock</td>
                                 <td>PCS</td>
-                                <td></td>
                                 <td><c:out value = "${row.SAFETY_STOCK_PCS}"/></td>
+                                <td></td>                                
                                 <td>Stock Plan</td>
                                 <td>PCS</td>
                                 <td></td>
@@ -401,16 +401,16 @@
                             <tr data-depth="${dataDepth}" class="collapse">
                                 <td></td>
                                 <td></td>
-                                <td>Safety Stock</td>
-                                <td>CUR</td>
-                                <td></td>
-                                <td><c:out value = "${row.SAFETY_STOCK_CUR}"/></td>
-                                <td>Stock Plan</td>
-                                <td>CUR</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">Safety Stock</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">CUR</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;"><c:out value = "${row.SAFETY_STOCK_CUR}"/></td>
+                                <td></td>                                
+                                <td style="border-bottom: 2px solid #e8e8e8;">Stock Plan</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">CUR</td>
                                 <td></td>
                                 <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
                                     <c:if test="${row.NAME == row2.EXPENSE_NAME}">
-                                        <td><c:out value="${row2.STOCK_CUR}"/></td>
+                                        <td style="border-bottom: 2px solid #e8e8e8;"><c:out value="${row2.STOCK_CUR}"/></td>
                                     </c:if>
                                 </c:forEach>                                 
                             </tr>
@@ -419,8 +419,8 @@
                                 <td></td>
                                 <td>Order Qty</td>
                                 <td>PCS</td>
-                                <td></td>
                                 <td><c:out value = "${row.ORDER_QTY_PCS}"/></td>
+                                <td></td>                                
                                 <td>Requirement</td>
                                 <td>PCS</td>
                                 <td></td>
@@ -433,16 +433,16 @@
                             <tr data-depth="${dataDepth}" class="collapse">
                                 <td></td>
                                 <td></td>
-                                <td>Order Qty</td>
-                                <td>CUR</td>
-                                <td></td>
-                                <td><c:out value = "${row.ORDER_QTY_CUR}"/></td>
-                                <td>Requirement</td>
-                                <td>CUR</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">Order Qty</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">CUR</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;"><c:out value = "${row.ORDER_QTY_CUR}"/></td>
+                                <td></td>                                
+                                <td style="border-bottom: 2px solid #e8e8e8;">Requirement</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">CUR</td>
                                 <td></td>
                                 <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
                                     <c:if test="${row.NAME == row2.EXPENSE_NAME}">
-                                        <td><c:out value="${row2.REQUIREMENT_CUR}"/></td>
+                                        <td style="border-bottom: 2px solid #e8e8e8;"><c:out value="${row2.REQUIREMENT_CUR}"/></td>
                                     </c:if>
                                 </c:forEach>                                 
                             </tr> 
@@ -455,12 +455,12 @@
                                 <!-- CURRENT_STOCK_PCS (Current Stock PCS) fixed parameter that can be changed by user. -->
                                 <c:choose>
                                     <c:when test="${row.ID == requestScope.rowSelectedForCurrentStockUpdate}">
-                                        <td><input type="submit" class="smallButton" value="Submit" name="submitUpdate_CURRENT_STOCK_PCS_${row.ID}"/></td>
-                                        <td><input type="text" class="inputTextBox" style="font-size: 10px; padding: 2px 1px" value="${row.CURRENT_STOCK_PCS}" size="5" name="updateCurrentStock" placeholder="..."/></td>                                          
+                                        <td><input type="text" class="inputTextBox" style="font-size: 10px; padding: 2px 1px" value="${row.CURRENT_STOCK_PCS}" size="5" name="updateCurrentStock" placeholder="..."/></td>
+                                        <td><input type="submit" class="smallButton" value="Submit" name="submitUpdate_CURRENT_STOCK_PCS_${row.ID}"/></td>                                        
                                     </c:when>
                                     <c:otherwise>
-                                        <td><input type="submit" class="smallButton" value="Adjust" name="update_CURRENT_STOCK_PCS_${row.ID}"/></td>
-                                        <td><c:out value = "${row.CURRENT_STOCK_PCS}"/></td>                                        
+                                        <td><c:out value = "${row.CURRENT_STOCK_PCS}"/></td>
+                                        <td><input type="submit" class="smallButton" value="Adjust" name="update_CURRENT_STOCK_PCS_${row.ID}"/></td>                                        
                                     </c:otherwise>
                                 </c:choose>
                                         
@@ -490,16 +490,16 @@
                             <tr data-depth="${dataDepth}" class="collapse">
                                 <td></td>
                                 <td></td>
-                                <td>Stock Current</td>
-                                <td>CUR</td>
-                                <td></td>
-                                <td><c:out value = "${row.CURRENT_STOCK_CUR}"/></td>
-                                <td>Expenses Plan</td>
-                                <td>CUR</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">Stock Current</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">CUR</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;"><c:out value = "${row.CURRENT_STOCK_CUR}"/></td>
+                                <td></td>                                
+                                <td style="border-bottom: 2px solid #e8e8e8;">Expenses Plan</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">CUR</td>
                                 <td></td>
                                 <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
                                     <c:if test="${row.NAME == row2.EXPENSE_NAME}">
-                                        <td><c:out value="${row2.PLANNED_CUR}"/></td>
+                                        <td style="border-bottom: 2px solid #e8e8e8;"><c:out value="${row2.PLANNED_CUR}"/></td>
                                     </c:if>
                                 </c:forEach>                                 
                             </tr> 
@@ -508,8 +508,8 @@
                                 <td></td>
                                 <td>Stock Current WSC</td>
                                 <td>PCS</td>
-                                <td></td>
                                 <td><c:out value = "${row.CURRENT_STOCK_WSC_PCS}"/></td>
+                                <td></td>                                
                                 <td>Expenses Actual</td>
                                 <td>PCS</td>
                                 <td></td>
@@ -522,16 +522,16 @@
                             <tr data-depth="${dataDepth}" class="collapse">
                                 <td></td>
                                 <td></td>
-                                <td>Stock Current WSC</td>
-                                <td>CUR</td>
-                                <td></td>
-                                <td><c:out value = "${row.CURRENT_STOCK_WSC_CUR}"/></td>
-                                <td>Expenses Actual</td>
-                                <td>CUR</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">Stock Current WSC</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">CUR</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;"><c:out value = "${row.CURRENT_STOCK_WSC_CUR}"/></td>
+                                <td></td>                                
+                                <td style="border-bottom: 2px solid #e8e8e8;">Expenses Actual</td>
+                                <td style="border-bottom: 2px solid #e8e8e8;">CUR</td>
                                 <td></td>
                                 <c:forEach var="row2" items="${plannedParamsResultSet.rows}">
                                     <c:if test="${row.NAME == row2.EXPENSE_NAME}">
-                                        <td><c:out value="${row2.ACTUAL_CUR}"/></td>
+                                        <td style="border-bottom: 2px solid #e8e8e8;"><c:out value="${row2.ACTUAL_CUR}"/></td>
                                     </c:if>
                                 </c:forEach>                                 
                             </tr>
@@ -540,8 +540,8 @@
                                 <td></td>
                                 <td>Linked Account</td>
                                 <td>Text</td>
-                                <td></td>
                                 <td><c:out value = "${row.ACCOUNT_LINKED}"/></td>
+                                <td></td>                                
                                 <td>Expenses Diff (Act - Pl)</td>
                                 <td>PCS</td>
                                 <td></td>
@@ -578,9 +578,8 @@
                                         <td><c:out value = "${row.TYPE}"/></td>
                                         <td>Linked Account</td>
                                         <td>Text</td>
-                                        <td></td>
                                         <td><c:out value = "${row.ACCOUNT_LINKED}"/></td>
-                                        
+                                        <td></td>                                        
                                         
                                         <td>Expenses Plan</td>
                                         <td>CUR</td>
@@ -613,8 +612,8 @@
                                         <td><c:out value = "${row.TYPE}"/></td>
                                         <td>Linked Account</td>
                                         <td>Text</td>
-                                        <td></td>
                                         <td><c:out value = "${row.ACCOUNT_LINKED}"/></td>
+                                        <td></td>                                        
                                         
                                         <td>Expenses Plan</td>
                                         <td>CUR</td>
@@ -682,8 +681,8 @@
                                 <td><c:out value = "${row.TYPE}"/></td>
                                 <td>Linked Account</td>
                                 <td>Text</td>
-                                <td></td>
                                 <td><c:out value = "${row.ACCOUNT_LINKED}"/></td>
+                                <td></td>                                
                                 <td>Expenses Plan</td>
                                 <td>CUR</td>
                                 <td></td>
