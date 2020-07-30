@@ -2,16 +2,14 @@
 package web.mainScreen;
 
 import ejb.DBConnection.DBConnectionLocal;
+import ejb.MainScreen.PlannedAccountsValuesSQLLocal;
 import ejb.MainScreen.PlannedVariableParamsSQLLocal;
-import ejb.calculation.TimePeriods;
 import ejb.common.OperationResultLogLocal;
 import web.common.WebServletCommonMethods;
 import ejb.calculation.EntityExpense;
-import ejb.calculation.TimePeriodsHandlerLocal;
 import ejb.calculation.ExpensesHandlerLocal;
 import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import ejb.expensesStructure.ExpensesStructureSQLUpdateLocal;
-import ejb.planningPeriodsConfig.PlanningPeriodsConfigSQLLocal;
 import java.io.IOException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
@@ -19,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -53,6 +50,9 @@ public class MainScreenServlet extends HttpServlet {
     
     @EJB
     private PlannedVariableParamsSQLLocal plannedParams;
+    
+    @EJB
+    private PlannedAccountsValuesSQLLocal plannedAccountsValues;
        
     @EJB
     private WebServletCommonMethods commonMethods;    
@@ -80,6 +80,7 @@ public class MainScreenServlet extends HttpServlet {
 //        System.out.println("=== timePeriodDates : " +  timePeriodDates.toString());
         
         ArrayList<Integer> expensesIdList = commonMethods.getIdList(DBConnection, "EXPENSES_STRUCTURE");
+        ArrayList<Integer> accountsIdList = commonMethods.getIdList(DBConnection, "ACCOUNTS_STRUCTURE");        
         
         EntityExpense selectedExpense = null;
         
@@ -263,6 +264,50 @@ public class MainScreenServlet extends HttpServlet {
             }
         }
         
+        /* Processing Income (CUR) update operation. */
+        /* Defining ID of row which was selected for update and passing it 
+        as request attribute. */
+        for (Integer id : accountsIdList) {
+            if (request.getParameter("update_PLANNED_INCOME_CUR_" + String.valueOf(id)) != null) {
+
+                request.setAttribute("currentEntityList", EntityExpenseListString());
+                
+                request.setAttribute("rowSelectedForIncomeCurUpdate", id);
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+        }
+        /* Defining ID of row which was submitted for update and passing it 
+        to Bean for update operation. */
+        for (Integer id : accountsIdList) {
+            if (request.getParameter("submitUpdate_PLANNED_INCOME_CUR_" + String.valueOf(id)) != null) {
+                String idToUpdate = String.valueOf(id);               
+                
+                ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
+                Map<String, String> updateIncomeCurList = new TreeMap<>();
+                for (String date : dates) {
+                    updateIncomeCurList.put(date, request.getParameter("updateIncomeCur_" + date));
+                }
+                
+                boolean updated = plannedAccountsValues.executeUpdate(DBConnection, 
+                        idToUpdate, "PLANNED_INCOME_CUR", updateIncomeCurList);
+                if (updated) {
+                    log.add(session, currentDateTime + " [Update Income Plan "
+                            + "CUR command entered] : Income Plan "
+                            + "updated");
+                } else {
+                    log.add(session, currentDateTime + " [Update Income Plan "
+                            + "CUR command entered] : Command declined");
+                }
+                
+//                EntityExpense entityExpense = handler
+//                        .prepareEntityExpenseById(DBConnection, "W", id);
+//                plannedParams.executeUpdateAll(DBConnection, "W");
+                request.setAttribute("currentEntityList", EntityExpenseListString());
+                
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+        }        
+
     }
 
     private String EntityExpenseListString() {

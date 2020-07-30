@@ -748,7 +748,7 @@
                             
             <!-- ACCOUNTS PART -->
             <!-- Blank row to separate two parts of the table -->
-            <tr style="border-top: 3px solid #00aaff">
+            <tr data-depth="0" style="border-top: 3px solid #00aaff">
                 <td></td>                            
                 <td></td>
                 <td></td>
@@ -800,12 +800,24 @@
                     <td></td>                                
                     <td>Income Plan</td>
                     <td>CUR</td>
-                    <td><input type="submit" class="smallButton" value="Update" name="update_INCOME_CUR_${row.ID}"/></td>
-                    <c:forEach var="row2" items="${plannedAccountsValuesResultSet.rows}">
-                        <c:if test="${row.ID == row2.ACCOUNT_ID}">
-                            <td><c:out value="${row2.PLANNED_INCOME_CUR}"/></td>
-                        </c:if>
-                    </c:forEach>
+                    <c:choose>
+                        <c:when test="${row.ID == requestScope.rowSelectedForIncomeCurUpdate}">
+                            <td><input type="submit" class="smallButton" value="Submit" name="submitUpdate_PLANNED_INCOME_CUR_${row.ID}"/></td>
+                            <c:forEach var="row2" items="${plannedAccountsValuesResultSet.rows}">
+                                <c:if test="${row.ID == row2.ACCOUNT_ID}">
+                                    <td><input type="text" class="inputTextBox" style="font-size: 10px; padding: 2px 1px" value="${row2.PLANNED_INCOME_CUR}" size="5" name="updateIncomeCur_${row2.DATE}" placeholder="..."/></td>
+                                </c:if>
+                            </c:forEach>                                         
+                        </c:when>
+                        <c:otherwise>
+                            <td><input type="submit" class="smallButton" value="Update" name="update_PLANNED_INCOME_CUR_${row.ID}"/></td>
+                            <c:forEach var="row2" items="${plannedAccountsValuesResultSet.rows}">
+                                <c:if test="${row.ID == row2.ACCOUNT_ID}">
+                                    <td><c:out value="${row2.PLANNED_INCOME_CUR}"/></td>
+                                </c:if>
+                            </c:forEach>                                        
+                        </c:otherwise>
+                    </c:choose>   
                 </tr>
             </c:forEach>            
 

@@ -49,7 +49,7 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                 valueDouble = (double) 0;
             } else {
                 valueDouble = stringToDouble(value);
-                if (valueDouble == null) {
+                if (valueDouble == null || valueDouble < 0) {
                     valueDouble = (double) 0;
                 }
             }
