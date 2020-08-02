@@ -209,7 +209,8 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                 String type = resultSet.getString("TYPE");
                 String key = resultSet.getString("DATE");
                 Double value = (double) 0;
-                if (type.equals("SIMPLE_EXPENSES")) {
+                if (type.equals("SIMPLE_EXPENSES") 
+                        || type.equals("COMPLEX_EXPENSES")) {
                     value = resultSet.getDouble("PLANNED_CUR");
                 } else if (type.equals("GOODS")) {
                     value = resultSet.getDouble("PLANNED_PCS");

@@ -1,7 +1,6 @@
 
 package ejb.calculation;
 
-import ejb.calculation.EntityExpense;
 import java.sql.Connection;
 import java.util.ArrayList;
 import javax.ejb.Local;

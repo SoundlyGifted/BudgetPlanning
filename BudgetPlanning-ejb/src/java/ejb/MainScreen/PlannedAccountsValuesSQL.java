@@ -5,6 +5,7 @@ import ejb.common.SQLAbstract;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.TreeMap;
@@ -84,6 +85,47 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
         return true;
     }
     
-    
-    
+    @Override
+    public TreeMap<String, Double> selectPlannedAccountsValuesById(Connection 
+            connection, Integer id, String paramName) {
+        if (id == null || id < 1) {
+            return null;
+        }
+
+        TreeMap<String, Double> accountParamValues = new TreeMap<>();
+        
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection,
+                    "mainScreen/select.accountPlannedVarParams.byid");
+            preparedStatement.setInt(1, id);
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** PlannedAccountsValuesSQL: "
+                    + "selectPlannedVariableParamsById() SQL PreparedStatement "
+                    + "failure: " + ex.getMessage() + " ***");
+            return null;
+        }
+        
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                String key = resultSet.getString("DATE");
+                Double value;
+                if (paramName.equals("PLANNED_REMAINDER_CUR") 
+                        || paramName.equals("PLANNED_INCOME_CUR")) {
+                    value = resultSet.getDouble(paramName);
+                } else {
+                    return null;
+                }
+                accountParamValues.put(key, value);
+            }
+        } catch (SQLException ex) {
+            System.out.println("***PlannedAccountsValuesSQL: "
+                    + "selectPlannedVariableParamsById() Error while executing "
+                    + "Select Query: " + ex.getMessage() + "***");
+            return null;
+        } finally {
+            clear(preparedStatement);
+        }
+        return accountParamValues;
+    }
 }

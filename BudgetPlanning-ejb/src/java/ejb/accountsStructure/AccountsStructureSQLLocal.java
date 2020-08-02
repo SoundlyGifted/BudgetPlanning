@@ -4,6 +4,7 @@ package ejb.accountsStructure;
 import ejb.calculation.EntityAccount;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import javax.ejb.Local;
 
 /**
@@ -27,4 +28,7 @@ public interface AccountsStructureSQLLocal {
             String name);
     
     public EntityAccount executeSelectById(Connection connection, Integer id);
+    
+    public HashMap<Integer, HashMap<String, Double>> 
+        executeSelectAllValues(Connection connection);
 }

@@ -8,8 +8,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import javax.ejb.Stateless;
 
@@ -248,6 +250,51 @@ public class AccountsStructureSQL extends SQLAbstract
             return null;
         } finally {
             clear(preparedStatement);
+        }
+    }
+    
+    @Override
+    public HashMap<Integer, HashMap<String, Double>> 
+        executeSelectAllValues(Connection connection) {
+
+        HashMap<Integer, HashMap<String, Double>> finalResult = new HashMap<>();
+        int id;
+        
+        Statement statement = null;
+        String query = "select ID, CURRENT_REMAINDER_CUR "
+                + "from ACCOUNTS_STRUCTURE";
+
+        try {
+            statement = connection.createStatement();
+        } catch (SQLException ex) {
+            System.out.println("*** AccountsStructureSQL : "
+                    + "executeSelectAllValues() error while creating "
+                    + "statement: " + ex.getMessage());
+            return null;
+        }
+
+        try (ResultSet resultSet = statement.executeQuery(query)) {
+            while (resultSet.next()) {
+                id = resultSet.getInt("ID");
+                HashMap<String, Double> paramValues = new HashMap<>();                
+                paramValues.put("CURRENT_REMAINDER_CUR", 
+                        resultSet.getDouble("CURRENT_REMAINDER_CUR"));
+                finalResult.put(id, paramValues);
+            }
+            return finalResult;
+        } catch (SQLException ex) {
+            System.out.println("*** AccountsStructureSQL : "
+                    + "executeSelectAllValues() error while executing '" + query
+                    + "' query: " + ex.getMessage());
+            return null;
+        } finally {
+            try {
+                statement.close();
+            } catch (SQLException ex) {
+                System.out.println("*** ExpensesStructureSQLSelect : "
+                        + "executeSelectAllValues() error while closing "
+                        + "statement: " + ex.getMessage());
+            }
         }
     }
 }

@@ -824,11 +824,20 @@
             </table>
             </form>
    
-            <%  String currentEntityList = (String) request.getAttribute("currentEntityList");
-                    if (currentEntityList != null && !currentEntityList.trim().isEmpty()) {
-                        out.println(currentEntityList);
+            <%--
+            <%  String currentEntityExpenseList = (String) request.getAttribute("currentEntityExpenseList");
+                    if (currentEntityExpenseList != null && !currentEntityExpenseList.trim().isEmpty()) {
+                        out.println(currentEntityExpenseList);
                     }
-            %>              
+            %>
+            --%>
+            
+            <%  String currentEntityAccountList = (String) request.getAttribute("currentEntityAccountList");
+                    if (currentEntityAccountList != null && !currentEntityAccountList.trim().isEmpty()) {
+                        out.println(currentEntityAccountList);
+                    }
+            %>            
+            
             
         </div>
 

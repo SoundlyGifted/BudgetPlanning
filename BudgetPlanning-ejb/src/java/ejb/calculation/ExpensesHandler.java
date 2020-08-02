@@ -3,13 +3,10 @@ package ejb.calculation;
 
 import ejb.MainScreen.PlannedVariableParamsSQLLocal;
 import ejb.actualExpenses.ActualExpensesSQLLocal;
-import ejb.calculation.EntityExpense;
-import ejb.calculation.TimePeriodsHandlerLocal;
 import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -178,17 +175,17 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         if (id == null || id < 1) {
             return;
         }
-        //Set with complete list of Expense IDs and mapped Types from DB.
+        //Map with complete list of Expense IDs and Types from DB.
         HashMap<Integer, String> typesMap = 
                 select.executeSelectAllTypes(connection);
         if (typesMap.containsKey(id) == false) {
             return;
         }
-        //Set with complete list of Expense IDs and mapped Maps of fixed
+        //Map with complete list of Expense IDs and Maps of fixed
         //planning parameters and their values from DB.
         HashMap<Integer, HashMap<String, Double>> valuesMap =
                 select.executeSelectAllValues(connection);
-        //Set with complete list of Expense IDs and mapped Maps of linkage
+        //Map with complete list of Expense IDs and Maps of linkage
         //parameter names and their values from DB.
         HashMap<Integer, HashMap<String, Integer>> linksMap =
                 select.executeSelectAllLinks(connection);        
@@ -264,10 +261,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         TreeMap<String, Double> consumptionPcs;
         
         if (type.equals("SIMPLE_EXPENSES") || type.equals("GOODS")) {
-            
-            timePeriodDates = timePeriods.calculateTimePeriodDates(connection, 
-                            inputPlanningPeriodsFrequency);
-            
+                    
             actualExpensesPcsOrCur = actualExpenses
                     .calculateActualExpenses(connection, 
                             timePeriodDates, inputPlanningPeriodsFrequency, id);
