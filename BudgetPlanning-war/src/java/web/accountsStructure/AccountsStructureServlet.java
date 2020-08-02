@@ -2,13 +2,16 @@
 package web.accountsStructure;
 
 import ejb.DBConnection.DBConnectionLocal;
+import ejb.MainScreen.PlannedAccountsValuesSQLLocal;
 import ejb.accountsStructure.AccountsStructureSQLLocal;
+import ejb.calculation.AccountsHandlerLocal;
 import ejb.common.OperationResultLogLocal;
 import java.io.IOException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -33,6 +36,12 @@ public class AccountsStructureServlet extends HttpServlet {
     
     @EJB
     private AccountsStructureSQLLocal sql;    
+    
+    @EJB
+    private AccountsHandlerLocal aHandler;
+    
+    @EJB
+    private PlannedAccountsValuesSQLLocal plannedAccountsValues;    
     
     @EJB
     private WebServletCommonMethods commonMethods;
@@ -89,11 +98,27 @@ public class AccountsStructureServlet extends HttpServlet {
         for (Integer id : accountsIdList) {
             if (request.getParameter("submitUpdate_" + String.valueOf(id)) != null) {
                 String idToUpdate = String.valueOf(id);
+                
+                // Current value of currentRemainderCur. 
+                HashMap<Integer, HashMap<String, Double>> values 
+                        = sql.executeSelectAllValues(DBConnection);
+                String currentRemainderCur = String.valueOf(values.get(id)
+                        .get("CURRENT_REMAINDER_CUR"));
+
+                // Updated values. 
                 String updateName = request.getParameter("updateName");
                 String updateCurrentRemainder = request.getParameter("updateCurrentRemainder");
                 boolean updated = sql.executeUpdate(DBConnection, idToUpdate, 
                         updateName, updateCurrentRemainder);
                 if (updated) {
+                    if (!currentRemainderCur.equals(updateCurrentRemainder)) {
+                        // Calculating Account.
+                        aHandler.prepareEntityAccountById(DBConnection, 
+                                "W", id);
+                        // Updating Accounts Plan.
+                        plannedAccountsValues
+                                .executeUpdateAll(DBConnection, "W");                         
+                    }
                     log.add(session, currentDateTime + " [Update Account "
                             + "command entered] : Account updated");
                 } else {

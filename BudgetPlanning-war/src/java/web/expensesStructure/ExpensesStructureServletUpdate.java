@@ -5,7 +5,6 @@ import ejb.DBConnection.DBConnectionLocal;
 import ejb.MainScreen.PlannedAccountsValuesSQLLocal;
 import ejb.MainScreen.PlannedVariableParamsSQLLocal;
 import ejb.calculation.AccountsHandlerLocal;
-import ejb.calculation.EntityAccount;
 import ejb.common.OperationResultLogLocal;
 import ejb.calculation.EntityExpense;
 import ejb.calculation.ExpensesHandlerLocal;
@@ -219,10 +218,10 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                         plannedAccountsValues
                                 .executeUpdateAll(DBConnection, "W");                     
                     } else if (onlyAccountUpdated) {
-                        // Updating newly assigned Account.
+                        // Calculating newly assigned Account.
                         aHandler.prepareEntityAccountByExpenseId(DBConnection, 
                                         "W", expenseSelectedId);
-                        // Updating previously assigned Account as well.
+                        // Calculating previously assigned Account as well.
                         aHandler.prepareEntityAccountById(DBConnection, 
                                 "W", accountIdInt);
                         // Updating Accounts Plan.
