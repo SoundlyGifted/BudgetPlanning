@@ -290,9 +290,9 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         PreparedStatement preparedStatementInsert;
         try {
             preparedStatementDelete = createPreparedStatement(connection,
-                    "mainScreen/delete.all.byid");
+                    "mainScreen/delete.allExpensesPlannedParams.byid");
             preparedStatementInsert = createPreparedStatement(connection,
-                    "mainScreen/insert.all.byid");
+                    "mainScreen/insert.allExpensesPlannedParams.byid");
         } catch (SQLException | IOException ex) {
             System.out.println("*** PlannedVariableParamsSQL - "
                     + "executeUpdateAll(): SQL PreparedStatement failure: "

@@ -134,7 +134,8 @@ public class MainScreenServlet extends HttpServlet {
                 plannedParams.executeUpdateAll(DBConnection, "W");
                 
                 EntityAccount account = aHandler
-                        .prepareEntityAccountByExpenseId(DBConnection, "W", id);                
+                        .prepareEntityAccountByExpenseId(DBConnection, "W", id);
+                plannedAccountsValues.executeUpdateAll(DBConnection, "w");
                 
                 request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
                 request.setAttribute("currentEntityAccountList", EntityAccountListString());                
@@ -185,6 +186,7 @@ public class MainScreenServlet extends HttpServlet {
                 
                 EntityAccount account = aHandler
                         .prepareEntityAccountByExpenseId(DBConnection, "W", id);                
+                plannedAccountsValues.executeUpdateAll(DBConnection, "w");
                 
                 request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
                 request.setAttribute("currentEntityAccountList", EntityAccountListString());                
@@ -235,6 +237,7 @@ public class MainScreenServlet extends HttpServlet {
                 
                 EntityAccount account = aHandler
                         .prepareEntityAccountByExpenseId(DBConnection, "W", id);
+                plannedAccountsValues.executeUpdateAll(DBConnection, "w");                
                 
                 request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
                 request.setAttribute("currentEntityAccountList", EntityAccountListString());                
@@ -285,6 +288,7 @@ public class MainScreenServlet extends HttpServlet {
                 
                 EntityAccount account = aHandler
                         .prepareEntityAccountByExpenseId(DBConnection, "W", id);
+                plannedAccountsValues.executeUpdateAll(DBConnection, "w");                
                 
                 request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
                 request.setAttribute("currentEntityAccountList", EntityAccountListString());                
@@ -331,6 +335,7 @@ public class MainScreenServlet extends HttpServlet {
                 
                 EntityAccount account = aHandler
                         .prepareEntityAccountById(DBConnection, "W", id);
+                plannedAccountsValues.executeUpdateAll(DBConnection, "w");                
 
                 request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
                 request.setAttribute("currentEntityAccountList", EntityAccountListString());

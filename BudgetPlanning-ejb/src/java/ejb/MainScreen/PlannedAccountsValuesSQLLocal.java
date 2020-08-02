@@ -18,4 +18,7 @@ public interface PlannedAccountsValuesSQLLocal {
 
     public TreeMap<String, Double> selectPlannedAccountsValuesById(Connection 
             connection, Integer id, String paramName);
+    
+    public boolean executeUpdateAll(Connection connection,
+            String inputPlanningPeriodsFrequency);    
 }

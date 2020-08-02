@@ -830,14 +830,14 @@
                         out.println(currentEntityExpenseList);
                     }
             %>
-            --%>
+
             
             <%  String currentEntityAccountList = (String) request.getAttribute("currentEntityAccountList");
                     if (currentEntityAccountList != null && !currentEntityAccountList.trim().isEmpty()) {
                         out.println(currentEntityAccountList);
                     }
             %>            
-            
+            --%>            
             
         </div>
 
