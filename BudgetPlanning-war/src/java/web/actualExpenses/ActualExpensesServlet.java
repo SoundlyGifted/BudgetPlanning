@@ -2,8 +2,12 @@
 package web.actualExpenses;
 
 import ejb.DBConnection.DBConnectionLocal;
+import ejb.MainScreen.PlannedVariableParamsSQLLocal;
 import ejb.actualExpenses.ActualExpensesSQLLocal;
+import ejb.calculation.EntityExpense;
+import ejb.calculation.ExpensesHandlerLocal;
 import ejb.common.OperationResultLogLocal;
+import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import java.io.IOException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
@@ -35,6 +39,15 @@ public class ActualExpensesServlet extends HttpServlet {
     private ActualExpensesSQLLocal sql;
     
     @EJB
+    private ExpensesStructureSQLSelectLocal selectExpense;
+    
+    @EJB
+    private ExpensesHandlerLocal eHandler;
+    
+    @EJB
+    private PlannedVariableParamsSQLLocal plannedParams;
+    
+    @EJB
     private WebServletCommonMethods commonMethods;
 
     /**
@@ -57,11 +70,17 @@ public class ActualExpensesServlet extends HttpServlet {
         Connection DBConnection = connector.connection(session, "actualExpensesDBConnection");
         
         ArrayList<Integer> actualExpensesIdList = commonMethods.getIdList(DBConnection, "ACTUAL_EXPENSES");        
-
+        ArrayList<Integer> expensesIdList = commonMethods.getIdList(DBConnection, "EXPENSES_STRUCTURE");   
+        
         /* Processing Add operation. */
         if (request.getParameter("addActualExpense") != null) {
             String inputDate = request.getParameter("inputDate");
-            String inputName = request.getParameter("inputName");
+            
+            String inputNameAndId = request.getParameter("inputNameAndId");
+            String[] nameAndId = inputNameAndId.split("\\_");
+            String inputName = nameAndId[0];
+            String inputId = nameAndId[1];
+            
             String inputTitle = request.getParameter("inputTitle");
             String inputShop = request.getParameter("inputShop");
             String inputPrice = request.getParameter("inputPrice");
@@ -71,6 +90,12 @@ public class ActualExpensesServlet extends HttpServlet {
                     inputName, inputTitle, inputShop, inputPrice, inputQty, 
                     inputComment);
             if (added) {
+                int inputIdint = Integer.parseInt(inputId);
+                // Calculating Expense. 
+                eHandler.prepareEntityExpenseById(DBConnection, "W", inputIdint);
+                // Updating Expenses Plan.
+                plannedParams.executeUpdateAll(DBConnection, "W");
+
                 log.add(session, currentDateTime + " [Add Actual Expense "
                         + "command entered] : Actual Expense added");
             } else {
@@ -95,7 +120,12 @@ public class ActualExpensesServlet extends HttpServlet {
             if (request.getParameter("submitUpdate_" + String.valueOf(id)) != null) {
                 String idToUpdate = String.valueOf(id);
                 String updateDate = request.getParameter("updateDate");
-                String updateName = request.getParameter("updateName");
+                
+                String updateNameAndId = request.getParameter("updateNameAndId");
+                String[] nameAndId = updateNameAndId.split("\\_");
+                String updateName = nameAndId[0];
+                String updateId = nameAndId[1];                
+
                 String updateTitle = request.getParameter("updateTitle");
                 String updateShop = request.getParameter("updateShop");
                 String updatePrice = request.getParameter("updatePrice");
@@ -105,6 +135,12 @@ public class ActualExpensesServlet extends HttpServlet {
                         updateDate, updateName, updateTitle, updateShop, 
                         updatePrice, updateQty, updateComment);
                 if (updated) {
+                    int updateIdInt = Integer.parseInt(updateId);
+                    // Calculating Expense. 
+                    eHandler.prepareEntityExpenseById(DBConnection, "W", updateIdInt);
+                    // Updating Expenses Plan.
+                    plannedParams.executeUpdateAll(DBConnection, "W");                    
+                    
                     log.add(session, currentDateTime + " [Update Actual Expense "
                             + "command entered] : Actual Expense updated");
                 } else {
@@ -126,17 +162,25 @@ public class ActualExpensesServlet extends HttpServlet {
         /* Defining ID of row which was selected for delete and passing it 
         to Bean for delete operation. */
         for (Integer id : actualExpensesIdList) {
-            if (request.getParameter("delete_" + String.valueOf(id)) != null) {
-                boolean deleted = sql.executeDelete(DBConnection, 
-                        String.valueOf(id));
-                if (deleted) {
-                    log.add(session, currentDateTime + " [Delete Actual Expense "
-                            + "command entered] : Actual Expense deleted");
-                } else {
-                    log.add(session, currentDateTime + " [Delete Actual Expense "
-                            + "command entered] : Command declined");
+            for (Integer expenseId : expensesIdList) {
+                if (request.getParameter("delete_" + String.valueOf(id) 
+                        + "_" + String.valueOf(expenseId)) != null) {
+                    boolean deleted = sql.executeDelete(DBConnection,
+                            String.valueOf(id));
+                    if (deleted) {
+                        // Calculating Expense. 
+                        eHandler.prepareEntityExpenseById(DBConnection, "W", expenseId);
+                        // Updating Expenses Plan.
+                        plannedParams.executeUpdateAll(DBConnection, "W");    
+
+                        log.add(session, currentDateTime + " [Delete Actual Expense "
+                                + "command entered] : Actual Expense deleted");
+                    } else {
+                        log.add(session, currentDateTime + " [Delete Actual Expense "
+                                + "command entered] : Command declined");
+                    }
+                    request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
                 }
-                request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
             }
         }
     }

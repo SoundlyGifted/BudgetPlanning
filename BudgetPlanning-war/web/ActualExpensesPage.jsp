@@ -99,10 +99,10 @@
                             <td></td>
                             <td>
                                 <!--entered expense selection dropdown list.-->              
-                                <select <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> name="inputName" class="inputTextBox" style="font-size:12px">
+                                <select <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> name="inputNameAndId" class="inputTextBox" style="font-size:12px">
                                     <option value="" selected disabled hidden>Choose Expense</option>
                                 <c:forEach var="row2" items="${expensesStructureResultSet.rows}">
-                                    <option value="${row2.NAME}">${row2.NAME}</option>
+                                    <option value="${row2.NAME}_${row2.ID}">${row2.NAME}</option>
                                 </c:forEach>
                             </select>                            
                         </td>
@@ -129,10 +129,10 @@
                                     <td><c:out value = "${row.YEAR}"/></td>
                                     <td>
                                         <!--entered expense selection dropdown list.-->              
-                                        <select name="updateName" class="inputTextBox">
-                                            <option value="${row.EXPENSE_NAME}" selected hidden>${row.EXPENSE_NAME}</option>                                            
+                                        <select name="updateNameAndId" class="inputTextBox">
+                                            <option value="${row.EXPENSE_NAME}_${row.EXPENSE_ID}" selected hidden>${row.EXPENSE_NAME}</option>                                            
                                             <c:forEach var="row2" items="${expensesStructureResultSet.rows}">
-                                                <option value="${row2.NAME}">${row2.NAME}</option>
+                                                <option value="${row2.NAME}_${row2.ID}">${row2.NAME}</option>
                                             </c:forEach>
                                         </select>                                          
                                     </td>
@@ -159,7 +159,7 @@
                                     <td> <c:out value = "${row.COST}"/></td>
                                     <td> <c:out value = "${row.COMMENT}"/></td>
                                     <td><input type="submit" class="button" value="Update" name="update_${row.ID}"/></td>
-                                    <td><input type="submit" class="button" value="Delete" name="delete_${row.ID}"/></td>
+                                    <td><input type="submit" class="button" value="Delete" name="delete_${row.ID}_${row.EXPENSE_ID}"/></td>
                                 </c:otherwise>                            
                             </c:choose>     
                         </tr>
