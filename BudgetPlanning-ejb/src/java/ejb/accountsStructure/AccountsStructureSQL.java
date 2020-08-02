@@ -1,6 +1,7 @@
 
 package ejb.accountsStructure;
 
+import ejb.calculation.AccountsHandlerLocal;
 import ejb.common.SQLAbstract;
 import ejb.calculation.EntityAccount;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 /**
@@ -22,6 +24,9 @@ import javax.ejb.Stateless;
 @Stateless
 public class AccountsStructureSQL extends SQLAbstract
         implements AccountsStructureSQLLocal {
+    
+    @EJB
+    private AccountsHandlerLocal aHandler;
     
     @Override
     public boolean executeInsert(Connection connection, String name,
@@ -140,6 +145,12 @@ public class AccountsStructureSQL extends SQLAbstract
             
             preparedStatement.setInt(1, idInt);
             preparedStatement.executeUpdate();
+            
+            EntityAccount accountInList = aHandler
+                    .getEntityAccountList().get(idInt);
+            if (accountInList != null) {
+                aHandler.removeFromEntityAccountList(accountInList);
+            }
         } catch (SQLException ex) {
             System.out.println("*** AccountsStructureSQL - executeDelete(): "
                     + "Error while setting query parameters or executing "
