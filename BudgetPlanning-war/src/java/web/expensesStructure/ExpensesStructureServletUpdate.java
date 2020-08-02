@@ -2,8 +2,13 @@
 package web.expensesStructure;
 
 import ejb.DBConnection.DBConnectionLocal;
+import ejb.MainScreen.PlannedAccountsValuesSQLLocal;
+import ejb.MainScreen.PlannedVariableParamsSQLLocal;
+import ejb.calculation.AccountsHandlerLocal;
+import ejb.calculation.EntityAccount;
 import ejb.common.OperationResultLogLocal;
 import ejb.calculation.EntityExpense;
+import ejb.calculation.ExpensesHandlerLocal;
 import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import ejb.expensesStructure.ExpensesStructureSQLUpdateLocal;
 import java.io.IOException;
@@ -37,6 +42,18 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
     @EJB
     private OperationResultLogLocal log;
     
+    @EJB
+    private ExpensesHandlerLocal eHandler;
+    
+    @EJB
+    private AccountsHandlerLocal aHandler;
+    
+    @EJB
+    private PlannedVariableParamsSQLLocal plannedParams;
+    
+    @EJB
+    private PlannedAccountsValuesSQLLocal plannedAccountsValues;    
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -97,6 +114,25 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
 
         /* Processing of Update user command. */
         if (request.getParameter("executeUpdate") != null) {
+            /* Old values of the Expense (before change) */
+            String linkedComplExpId = null;
+            String accountId = null;
+            Integer accountIdInt = null;
+            String price = null;
+            String safetyStockPcs = null;
+            String orderQtyPcs = null;
+            if (expenseSelected != null) {
+                linkedComplExpId = Integer
+                        .toString(expenseSelected.getLinkedToComplexId());
+                accountIdInt = expenseSelected.getAccountId();
+                accountId = Integer.toString(accountIdInt);
+                price = Double.toString(expenseSelected.getPrice());
+                safetyStockPcs = Double
+                        .toString(expenseSelected.getSafetyStockPcs());
+                orderQtyPcs = Double
+                        .toString(expenseSelected.getOrderQtyPcs());
+            }
+
             /* Getting values for update existing records in the system. */
             String updateNewName = request.getParameter("updateNewName");
             String updateAccountId = request.getParameter("accountIDSelected");
@@ -106,8 +142,8 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             String updateLinkedComplExpId = request.getParameter("complexExpenseIDSelected");
             if (updateLinkedComplExpId == null || updateLinkedComplExpId.trim().isEmpty()) {
                 updateLinkedComplExpId = (String) request.getAttribute("currentComplexExpenseId");
-            }            
-
+            }
+            
             String updatePrice = request.getParameter("updatePrice");
             String updateSafetyStockPcs = request.getParameter("updateSafetyStockPcs");
             String updateOrderQtyPcs = request.getParameter("updateOrderQtyPcs");
@@ -121,6 +157,79 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                 session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
                 request.setAttribute("currentName", expenseSelected.getName());
                 selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
+
+                /* Updated values. */
+                updateLinkedComplExpId = String
+                        .valueOf(expenseSelected.getLinkedToComplexId());
+                updateAccountId = String
+                        .valueOf(expenseSelected.getAccountId());
+                updatePrice = String.valueOf(expenseSelected.getPrice());
+                updateSafetyStockPcs = String.valueOf(expenseSelected
+                        .getSafetyStockPcs());
+                updateOrderQtyPcs = String.valueOf(expenseSelected
+                        .getOrderQtyPcs());
+                
+                // Recalculating and recording Expense and/or Account Plan
+                // in case if any influencing parameter changed.
+                if (linkedComplExpId != null && accountId != null 
+                        && price != null && safetyStockPcs != null 
+                        && orderQtyPcs != null) {
+                    boolean someParamAndAccountUpdated = false;
+                    boolean someParamNotAccountUpdated = false;
+                    boolean onlyAccountUpdated = false;
+                    if ((!linkedComplExpId.equals(updateLinkedComplExpId) 
+                            || !price.equals(updatePrice) 
+                            || !safetyStockPcs.equals(updateSafetyStockPcs) 
+                            || !orderQtyPcs.equals(updateOrderQtyPcs)) 
+                            && !accountId.equals(updateAccountId)) {
+                        someParamAndAccountUpdated = true;
+                    } else if (!linkedComplExpId.equals(updateLinkedComplExpId) 
+                            || !price.equals(updatePrice) 
+                            || !safetyStockPcs.equals(updateSafetyStockPcs) 
+                            || !orderQtyPcs.equals(updateOrderQtyPcs)) {
+                        someParamNotAccountUpdated = true;
+                    } else if (!accountId.equals(updateAccountId)) {
+                        onlyAccountUpdated = true;
+                    }
+                    if (someParamAndAccountUpdated) {
+                        // Calculating Expense. 
+                        eHandler.prepareEntityExpenseById(DBConnection, "W", 
+                                        expenseSelectedId);
+                        // Updating Expenses Plan.
+                        plannedParams.executeUpdateAll(DBConnection, "W");
+                        // Calculating newly assigned Account.
+                        aHandler.prepareEntityAccountByExpenseId(DBConnection, 
+                                        "W", expenseSelectedId);
+                        // Calculating previously assigned Account as well.
+                        aHandler.prepareEntityAccountById(DBConnection, 
+                                "W", accountIdInt);
+                        // Updating Accounts Plan.
+                        plannedAccountsValues
+                                .executeUpdateAll(DBConnection, "W");
+                    } else if (someParamNotAccountUpdated) {
+                        // Calculating Expense. 
+                        eHandler.prepareEntityExpenseById(DBConnection, "W", 
+                                        expenseSelectedId);
+                        // Updating Expenses Plan.
+                        plannedParams.executeUpdateAll(DBConnection, "W");
+                        // Calculating Account.
+                        aHandler.prepareEntityAccountByExpenseId(DBConnection, 
+                                        "W", expenseSelectedId);
+                        // Updating Accounts Plan.
+                        plannedAccountsValues
+                                .executeUpdateAll(DBConnection, "W");                     
+                    } else if (onlyAccountUpdated) {
+                        // Updating newly assigned Account.
+                        aHandler.prepareEntityAccountByExpenseId(DBConnection, 
+                                        "W", expenseSelectedId);
+                        // Updating previously assigned Account as well.
+                        aHandler.prepareEntityAccountById(DBConnection, 
+                                "W", accountIdInt);
+                        // Updating Accounts Plan.
+                        plannedAccountsValues
+                                .executeUpdateAll(DBConnection, "W");                     
+                    }                    
+                }
                 log.add(session, currentDateTime + " [Update Expense command entered] : Expense attributes updated");
             } else {
                 log.add(session, currentDateTime + " [Update Expense command entered] : Command declined");
