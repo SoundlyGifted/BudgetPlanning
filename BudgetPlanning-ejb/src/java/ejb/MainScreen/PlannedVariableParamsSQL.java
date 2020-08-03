@@ -529,4 +529,39 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         }
         return true;
     }
+    
+    @Override
+    public boolean executeDeleteByExpenseId(Connection connection, String id) {
+        /* Checking of input values. */
+        Integer idInt = stringToInt(id);
+        if (idInt == null) {
+            return false;
+        }
+        
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection, 
+                    "mainScreen/delete.allExpensesPlannedParams.byid");       
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** PlannedVariableParamsSQL "
+                    + "- executeDeleteByExpenseId(): SQL PreparedStatement "
+                    + "failure: " + ex.getMessage() + " ***");
+            return false;
+        }
+        try {
+            //Setting Query Parameters and executing Query;
+            preparedStatement.setInt(1, idInt);
+            preparedStatement.setString(2, "1970-01-01");
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("*** PlannedVariableParamsSQL "
+                    + "- executeDeleteByExpenseId(): Error while setting query "
+                    + "parameters or executing Update Query: " 
+                    + ex.getMessage() + " ***");
+            return false;
+        } finally {
+            clear(preparedStatement);
+        }
+        return true;
+    }
 }

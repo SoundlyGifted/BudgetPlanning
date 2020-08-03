@@ -26,4 +26,6 @@ public interface ActualExpensesSQLLocal {
     public TreeMap<String, Double> calculateActualExpenses(Connection connection,
             TreeSet<String> timePeriodDates, String planningPeriodsFrequency,
             Integer expenseId);
+    
+    public boolean setExpenseToDeleted (Connection connection, String id);
 }

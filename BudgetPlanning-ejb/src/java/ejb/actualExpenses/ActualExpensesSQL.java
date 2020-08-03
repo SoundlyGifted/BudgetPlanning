@@ -389,4 +389,38 @@ public class ActualExpensesSQL extends SQLAbstract
         }
         return result;
     }
+    
+    @Override
+    public boolean setExpenseToDeleted (Connection connection, String id) {
+        if (stringToInt(id) == null) {
+            return false;
+        }
+        int idInt = stringToInt(id);
+        
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection,
+                    "actualExpenses/update.setExpenseToDeleted");
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** ActualExpensesSQL - setExpenseIdToZero(): "
+                    + "SQL PreparedStatement failure: "
+                    + ex.getMessage() + " ***");
+            return false;
+        }          
+        
+        try {
+            //Setting Query Parameters and executing Query;
+            preparedStatement.setInt(1, idInt);
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("*** ActualExpensesSQL - setExpenseIdToZero(): "
+                    + "Error while setting query parameters or executing "
+                    + "Update Query: " + ex.getMessage() + " ***");
+            return false;
+        } finally {
+            clear(preparedStatement);
+        }
+        return true;        
+    }
+    
 }

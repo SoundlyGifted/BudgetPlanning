@@ -95,17 +95,17 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         if (id == null || id < 1) {
             return null;
         }
-        //Set with complete list of Expense IDs and mapped Types from DB.
+        //Complete list of Expense IDs and mapped Types from DB.
         HashMap<Integer, String> typesMap = 
                 select.executeSelectAllTypes(connection);
         if (typesMap.containsKey(id) == false) {
             return null;
         }
-        //Set with complete list of Expense IDs and mapped Maps of fixed
+        //Complete list of Expense IDs and mapped Maps of fixed
         //planning parameters and their values from DB.
         HashMap<Integer, HashMap<String, Double>> valuesMap =
                 select.executeSelectAllValues(connection);
-        //Set with complete list of Expense IDs and mapped Maps of linkage
+        //Complete list of Expense IDs and mapped Maps of linkage
         //parameter names and their values from DB.
         HashMap<Integer, HashMap<String, Integer>> linksMap =
                 select.executeSelectAllLinks(connection);        
@@ -126,12 +126,35 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
             prepareByIdWOComplexExpenseLinkCheck (connection, 
                             inputPlanningPeriodsFrequency, timePeriodDates, 
                             complexIdLinked);
-            for (EntityExpense expense : list) {
-                if (expense.getId() == id) {
-                    return expense;
+//            for (EntityExpense expense : list) {
+//                if (expense.getId() == id) {
+//                    return expense;
+//                }
+//            }
+        }
+
+        // Checking if Expense with given id is a Complex Expense itself,
+        // then getting the list of Expense IDs that are linked to this
+        // Complex Expense, and performing calculations for each of the linked 
+        // Expense using method without checking if they are linked to any
+        // Complex ID.
+        if (typesMap.get(id).equals("COMPLEX_EXPENSES")) {
+            ArrayList<Integer> linkedIdList = new ArrayList<>();
+            for (Map.Entry<Integer, HashMap<String, Integer>> entry 
+                    : linksMap.entrySet()) {
+                if (Objects.equals(entry.getValue()
+                        .get("LINKED_TO_COMPLEX_ID"), id)) {
+                    linkedIdList.add(entry.getKey());
                 }
             }
-        }
+            if (!linkedIdList.isEmpty()) {
+                for (Integer linkedId : linkedIdList) {
+                    prepareByIdWOComplexExpenseLinkCheck (connection, 
+                            inputPlanningPeriodsFrequency, timePeriodDates, 
+                            linkedId);
+                }
+            }
+        }        
 
         for (EntityExpense e : list) {
             if (id == e.getId()) {

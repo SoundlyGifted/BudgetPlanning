@@ -21,6 +21,7 @@
     <!-- JSTL sql query to select all records from EXPENSES_STRUCTURE table -->
     <sql:query dataSource = "${outputDBConnection}" var = "expensesStructureResultSet">
         SELECT * FROM EXPENSES_STRUCTURE
+        WHERE ID > 0
     </sql:query>        
 
     <head>
@@ -99,13 +100,14 @@
                             <td></td>
                             <td>
                                 <!--entered expense selection dropdown list.-->              
-                                <select <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> name="inputNameAndId" class="inputTextBox" style="font-size:12px">
-                                    <option value="" selected disabled hidden>Choose Expense</option>
-                                <c:forEach var="row2" items="${expensesStructureResultSet.rows}">
-                                    <option value="${row2.NAME}_${row2.ID}">${row2.NAME}</option>
-                                </c:forEach>
-                            </select>                            
-                        </td>
+                                <select <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> name="inputIdAndName" class="inputTextBox" style="font-size:12px">
+                                        <option value="" selected disabled hidden>Choose Expense</option>
+                                    <c:forEach var="row2" items="${expensesStructureResultSet.rows}">
+                                        <!--passing JSON object with expense id and name as chosen option.-->
+                                        <option value='{"id":"${row2.ID}","name":"${row2.NAME}"}'>${row2.NAME}</option>
+                                    </c:forEach>
+                                </select>                            
+                            </td>
                         <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputTitle" placeholder="..." maxlength="255"/></td>
                         <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputShop" placeholder="..." maxlength="255"/></td>
                         <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputPrice" placeholder="..."/></td>
@@ -129,10 +131,10 @@
                                     <td><c:out value = "${row.YEAR}"/></td>
                                     <td>
                                         <!--entered expense selection dropdown list.-->              
-                                        <select name="updateNameAndId" class="inputTextBox">
+                                        <select name="updateName" class="inputTextBox">
                                             <option value="${row.EXPENSE_NAME}_${row.EXPENSE_ID}" selected hidden>${row.EXPENSE_NAME}</option>                                            
                                             <c:forEach var="row2" items="${expensesStructureResultSet.rows}">
-                                                <option value="${row2.NAME}_${row2.ID}">${row2.NAME}</option>
+                                                <option value="${row2.NAME}">${row2.NAME}</option>
                                             </c:forEach>
                                         </select>                                          
                                     </td>
@@ -142,7 +144,7 @@
                                     <td><input type="text" class="inputTextBox" value="${row.QTY}" size="10" name="updateQty" placeholder="..."/></td>
                                     <td><c:out value = "${row.COST}"/></td>
                                     <td><input type="text" class="inputTextBox" value="${row.COMMENT}" size="15" name="updateComment" placeholder="..."/></td>
-                                    <td><input type="submit" class="button" value="Submit" name="submitUpdate_${row.ID}"/></td>
+                                    <td><input type="submit" class="button" value="Submit" name="submitUpdate_${row.ID}_${row.EXPENSE_ID}"/></td>
                                     <td><input type="submit" class="button" value="Cancel" name="cancelUpdate_${row.ID}"/></td>                             
                                 </c:when>
                                 <c:otherwise>

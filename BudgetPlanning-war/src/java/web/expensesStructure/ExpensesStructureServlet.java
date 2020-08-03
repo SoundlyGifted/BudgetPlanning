@@ -2,11 +2,11 @@
 package web.expensesStructure;
 
 import ejb.DBConnection.DBConnectionLocal;
+import ejb.MainScreen.PlannedVariableParamsSQLLocal;
 import ejb.common.OperationResultLogLocal;
 import ejb.calculation.EntityExpense;
 import ejb.expensesStructure.ExpensesStructureSQLInsertLocal;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.servlet.http.HttpSession;
 import ejb.calculation.ExpensesHandlerLocal;
+import java.util.HashMap;
 
 /**
  *
@@ -33,6 +34,9 @@ public class ExpensesStructureServlet extends HttpServlet {
     
     @EJB
     private ExpensesHandlerLocal handler;
+    
+    @EJB
+    private PlannedVariableParamsSQLLocal plannedParams;
     
     @EJB
     private ExpensesStructureSQLInsertLocal insert;
@@ -115,7 +119,19 @@ public class ExpensesStructureServlet extends HttpServlet {
             String updateExpenseUserSelected = request.getParameter("updateExpenseUserSelected");
             boolean deleted = false;
             if (updateExpenseUserSelected != null && !updateExpenseUserSelected.trim().isEmpty()) {
-                deleted = delete.executeDeleteById(DBConnection, updateExpenseUserSelected);                
+                // Getting ID of Complex Expense that is the Expense being deleted
+                // is linked to.
+                HashMap<Integer, HashMap<String, Integer>> allLinks = select.executeSelectAllLinks(DBConnection);
+                Integer linkedComplexId = allLinks.get(Integer.parseInt(updateExpenseUserSelected)).get("LINKED_TO_COMPLEX_ID");             
+                deleted = delete.executeDeleteById(DBConnection, updateExpenseUserSelected);
+                // If there is any Complex Expense that the Expense being deleted
+                // is linked to then recalculating its Plan and updating database.
+                if (linkedComplexId != 0) {
+                        // Calculating Expense. 
+                        handler.prepareEntityExpenseById(DBConnection, "W", linkedComplexId);
+                        // Updating Expenses Plan.
+                        plannedParams.executeUpdateAll(DBConnection, "W");                    
+                }                
             }
             if (deleted) {
                 log.add(session, currentDateTime + " [Delete Expense command entered] : Expense deleted");                 

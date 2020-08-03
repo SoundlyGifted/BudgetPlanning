@@ -1,6 +1,10 @@
 
 package ejb.expensesStructure;
 
+import ejb.MainScreen.PlannedAccountsValuesSQLLocal;
+import ejb.MainScreen.PlannedVariableParamsSQLLocal;
+import ejb.actualExpenses.ActualExpensesSQLLocal;
+import ejb.calculation.AccountsHandlerLocal;
 import ejb.calculation.ExpensesHandlerLocal;
 import ejb.common.SQLAbstract;
 import ejb.calculation.EntityExpense;
@@ -9,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -24,10 +29,22 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
     private ExpensesStructureSQLSelectLocal select;
 
     @EJB
-    private ExpensesHandlerLocal handler;
+    private ExpensesHandlerLocal eHandler;
 
     @EJB
     private ExpensesStructureSQLUpdateLocal update;
+    
+    @EJB
+    private PlannedVariableParamsSQLLocal plannedExpensesSQL;
+    
+    @EJB
+    private AccountsHandlerLocal aHandler;
+    
+    @EJB
+    private PlannedAccountsValuesSQLLocal plannedAccountsSQL;
+    
+    @EJB
+    private ActualExpensesSQLLocal actualExpensesSQL;
 
     @Override
     public boolean executeDeleteById(Connection connection, String id) {
@@ -47,8 +64,8 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
                     + ex.getMessage() + " ***");
             return false;
         }
+        
         try {
-            preparedStatement.executeUpdate();
             /* If COMPLEX_EXPENSES expense is being removed then setting to 0 
             all LINKED_TO_COMPLEX_ID fields that had that complex expense id.
             Removing the Expense from EntityExpenseList (regardless of type).*/
@@ -63,7 +80,47 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
                     }
                 }
             }
-            handler.removeFromEntityExpenseList(expense);
+            /* Removing Expense from the EntityExpenseList. */
+            eHandler.removeFromEntityExpenseList(expense);
+                
+            // Removing all Plan for the deleted Expense.
+            plannedExpensesSQL.executeDeleteByExpenseId(connection, id);            
+            
+            // Updating Complex Expese Plan (if the deleted Expense was linked
+            // to any Complex Expense).
+            HashMap<Integer, HashMap<String, Integer>> allLinks 
+                    = select.executeSelectAllLinks(connection);
+            Integer linkedComplexIdInt = allLinks
+                    .get(idInt).get("LINKED_TO_COMPLEX_ID");        
+            if (linkedComplexIdInt != 0) {
+                eHandler.prepareEntityExpenseById(connection, "W", 
+                        linkedComplexIdInt);
+                
+                // eHandler operation created Expense object again during
+                // calculation (because database record with the expense is not
+                // removed yet at the moment.
+                // Therefore removing Expense from the EntityExpenseList again.
+                eHandler.removeFromEntityExpenseList(expense);                   
+                
+                plannedExpensesSQL.executeUpdateAll(connection, "W");
+                
+                aHandler.prepareEntityAccountByExpenseId(connection, "W", 
+                        linkedComplexIdInt);
+                plannedAccountsSQL.executeUpdateAll(connection, "W");
+            } else {
+                aHandler.prepareEntityAccountByExpenseId(connection, "W", 
+                        idInt);
+                plannedAccountsSQL.executeUpdateAll(connection, "W");
+            }
+
+            // Changing Expense ID in Actual Expenses database table to zero
+            // to indicate that this Expense category was deleted (records of 
+            // actual expenses for this category will remain in the database
+            // for the analysis purposes).
+            actualExpensesSQL.setExpenseToDeleted(connection, id);
+            
+            preparedStatement.executeUpdate();
+            
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLDelete: "
                     + "executeDeleteById() Error while executing Delete Query: "

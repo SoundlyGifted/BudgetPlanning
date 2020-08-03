@@ -28,4 +28,6 @@ public interface PlannedVariableParamsSQLLocal {
     
     public boolean executeUpdateAll(Connection connection, 
             String inputPlanningPeriodsFrequency);
+    
+    public boolean executeDeleteByExpenseId(Connection connection, String id);
 }

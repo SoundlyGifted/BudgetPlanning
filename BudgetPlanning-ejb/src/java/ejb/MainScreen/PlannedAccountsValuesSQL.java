@@ -3,7 +3,6 @@ package ejb.MainScreen;
 
 import ejb.calculation.AccountsHandlerLocal;
 import ejb.calculation.EntityAccount;
-import ejb.calculation.EntityExpense;
 import ejb.calculation.TimePeriodsHandlerLocal;
 import ejb.common.SQLAbstract;
 import java.io.IOException;

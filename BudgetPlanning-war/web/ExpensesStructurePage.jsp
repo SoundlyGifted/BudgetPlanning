@@ -22,6 +22,7 @@
     left join
     EXPENSES_STRUCTURE T2
     on T2.ID = T1.LINKED_TO_COMPLEX_ID
+    where T1.ID > 0
 </sql:query>       
 
 <!-- JSTL sql query to select ID and NAME from ACCOUNTS_STRUCTURE table -->

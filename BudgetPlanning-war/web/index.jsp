@@ -15,6 +15,7 @@
     <!-- JSTL sql query to select all records from EXPENSES_STRUCTURE table -->
     <sql:query dataSource = "${outputDBConnection}" var = "expensesStructureResultSet">
         select * from EXPENSES_STRUCTURE
+        where ID > 0
         order by
         (case
         when LINKED_TO_COMPLEX_ID = 0 then ID
