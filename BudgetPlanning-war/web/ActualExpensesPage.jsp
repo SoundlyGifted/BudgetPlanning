@@ -29,6 +29,43 @@
         <link rel="stylesheet" href="css/NavigationBarStyles.css" />
         <link rel="stylesheet" href="css/GeneralStyles.css" />
         <title>Actual Expenses Module</title>
+        
+        <style>
+            .inputTextBox {
+                font-size: 12px;
+            }
+        </style>
+        
+        <script src="http://code.jquery.com/jquery-1.9.1.js" 
+                type="text/javascript">
+        </script>
+        
+        <script>
+            // Keeping scroll position after 'input' field is clicked.
+            // (preventing browser from scrolling to the top.
+            ;(function($){
+            $.fn.saveScrollPosition = function () {
+                if (sessionStorage) {
+                    var tempScrollTop = sessionStorage.getItem("tempScrollTop");
+                    if (tempScrollTop) {
+                        $(window).scrollTop(tempScrollTop);
+                        sessionStorage.removeItem("tempScrollTop");
+                    }
+                    $(this).click(function(e) {
+                        sessionStorage.setItem("tempScrollTop", $(window).scrollTop());
+                    });
+                    return true;
+                }
+                return false;
+            };
+
+            $(document).ready(function () {
+                $('input').saveScrollPosition();
+            });
+
+            }(jQuery));
+        </script>
+
     </head>    
 
         <!-- Navigation Bar at the top of the screen -->
@@ -93,7 +130,7 @@
                         <%  SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
                             request.setAttribute("currentDate", fmt.format(new Date()));
                         %>                        
-                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="date" name="inputDate" class="inputTextBox" value="${currentDate}" style="font-size:12px"/></td>
+                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="date" name="inputDate" class="inputTextBox" value="${currentDate}"/></td>
                             <td></td>
                             <td></td>                        
                             <td></td>
@@ -108,12 +145,12 @@
                                     </c:forEach>
                                 </select>                            
                             </td>
-                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputTitle" placeholder="..." maxlength="255"/></td>
-                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputShop" placeholder="..." maxlength="255"/></td>
-                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputPrice" placeholder="..."/></td>
-                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="10" name="inputQty" placeholder="..."/></td>
+                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" value="" size="10" name="inputTitle" placeholder="..." maxlength="255"/></td>
+                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" value="" size="10" name="inputShop" placeholder="..." maxlength="255"/></td>
+                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" value="" size="10" name="inputPrice" placeholder="..."/></td>
+                        <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" value="" size="10" name="inputQty" placeholder="..."/></td>
                             <td></td>
-                            <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" style="font-size:12px" value="" size="15" name="inputComment" placeholder="..."/></td>
+                            <td><input <c:if test="${requestScope.rowSelectedForUpdate != null}">disabled</c:if> type="text" class="inputTextBox" value="" size="15" name="inputComment" placeholder="..."/></td>
                         <td><c:if test="${requestScope.rowSelectedForUpdate == null}"><input type="submit" class="button" value="Add" name="addActualExpense"/></c:if></td>
                             <td></td>
                     </tr>                 
@@ -131,7 +168,7 @@
                                     <td><c:out value = "${row.YEAR}"/></td>
                                     <td>
                                         <!--entered expense selection dropdown list.-->              
-                                        <select name="updateName" class="inputTextBox">
+                                        <select name="updateName" class="inputTextBox" style="font-size:12px">
                                             <option value="${row.EXPENSE_NAME}" selected hidden>${row.EXPENSE_NAME}</option>                                            
                                             <c:forEach var="row2" items="${expensesStructureResultSet.rows}">
                                                 <option value="${row2.NAME}">${row2.NAME}</option>

@@ -22,6 +22,37 @@
         <link rel="stylesheet" href="css/NavigationBarStyles.css" />
         <link rel="stylesheet" href="css/GeneralStyles.css" />
         <title>Accounts Structure Module</title>
+        
+        <script src="http://code.jquery.com/jquery-1.9.1.js" 
+                type="text/javascript">
+        </script>
+        
+        <script>
+            // Keeping scroll position after 'input' field is clicked.
+            // (preventing browser from scrolling to the top.
+            ;(function($){
+            $.fn.saveScrollPosition = function () {
+                if (sessionStorage) {
+                    var tempScrollTop = sessionStorage.getItem("tempScrollTop");
+                    if (tempScrollTop) {
+                        $(window).scrollTop(tempScrollTop);
+                        sessionStorage.removeItem("tempScrollTop");
+                    }
+                    $(this).click(function(e) {
+                        sessionStorage.setItem("tempScrollTop", $(window).scrollTop());
+                    });
+                    return true;
+                }
+                return false;
+            };
+
+            $(document).ready(function () {
+                $('input').saveScrollPosition();
+            });
+
+            }(jQuery));
+        </script>
+        
     </head>
     
     <body>

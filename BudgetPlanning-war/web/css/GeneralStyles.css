@@ -154,7 +154,7 @@ input[type=submit].smallButton {
 }
 
 .outputTable1 td {
-    padding: 10px;
+    padding: 5px;
 }
 
 .outputTable1 tr:nth-child(3){
@@ -196,7 +196,7 @@ input[type=submit].smallButton {
 }
 
 .outputTable2 td {
-    padding: 10px;
+    padding: 5px;
 }
 
 .outputTable2 tr:nth-child(odd) {
