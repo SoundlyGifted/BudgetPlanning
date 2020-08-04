@@ -140,7 +140,7 @@ public class ActualExpensesSQL extends SQLAbstract
                 || !inputCheckLength(shopName) || !inputCheckLength(comment)) {
             return false;
         }        
-
+        
         String week;
         int dayN;
         String dayC;
@@ -402,7 +402,7 @@ public class ActualExpensesSQL extends SQLAbstract
             preparedStatement = createPreparedStatement(connection,
                     "actualExpenses/update.setExpenseToDeleted");
         } catch (SQLException | IOException ex) {
-            System.out.println("*** ActualExpensesSQL - setExpenseIdToZero(): "
+            System.out.println("*** ActualExpensesSQL - setExpenseToDeleted(): "
                     + "SQL PreparedStatement failure: "
                     + ex.getMessage() + " ***");
             return false;
@@ -413,7 +413,7 @@ public class ActualExpensesSQL extends SQLAbstract
             preparedStatement.setInt(1, idInt);
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
-            System.out.println("*** ActualExpensesSQL - setExpenseIdToZero(): "
+            System.out.println("*** ActualExpensesSQL - setExpenseToDeleted(): "
                     + "Error while setting query parameters or executing "
                     + "Update Query: " + ex.getMessage() + " ***");
             return false;
@@ -423,4 +423,38 @@ public class ActualExpensesSQL extends SQLAbstract
         return true;        
     }
     
+    @Override
+    public boolean recoverDeletedExpenseId (Connection connection, 
+            Integer expenseId, String expenseName) {
+        if (expenseId == null || !inputCheckNullBlank(expenseName)) {
+            return false;
+        }
+        
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection,
+                    "actualExpenses/update.recoverDeletedExpenseId");
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** ActualExpensesSQL "
+                    + "- recoverDeletedExpenseId(): SQL PreparedStatement "
+                    + "failure: " + ex.getMessage() + " ***");
+            return false;
+        }          
+        
+        try {
+            //Setting Query Parameters and executing Query;
+                preparedStatement.setInt(1, expenseId);
+                preparedStatement.setString(2, expenseName);
+                preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("*** ActualExpensesSQL "
+                    + "- recoverDeletedExpenseId(): Error while setting query "
+                    + "parameters or executing Update Query: " 
+                    + ex.getMessage() + " ***");
+            return false;
+        } finally {
+            clear(preparedStatement);
+        }
+        return true;
+    }       
 }

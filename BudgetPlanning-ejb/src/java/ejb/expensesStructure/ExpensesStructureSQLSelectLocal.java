@@ -28,4 +28,6 @@ public interface ExpensesStructureSQLSelectLocal {
 
     public HashMap<Integer, HashMap<String, Integer>>
             executeSelectAllLinks(Connection connection);
+            
+    public Integer executeSelectIdByName (Connection connection, String name);
 }

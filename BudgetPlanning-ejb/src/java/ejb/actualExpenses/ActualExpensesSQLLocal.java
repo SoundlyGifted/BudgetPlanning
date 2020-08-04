@@ -28,4 +28,7 @@ public interface ActualExpensesSQLLocal {
             Integer expenseId);
     
     public boolean setExpenseToDeleted (Connection connection, String id);
+    
+    public boolean recoverDeletedExpenseId (Connection connection, 
+            Integer expenseId, String expenseName);
 }

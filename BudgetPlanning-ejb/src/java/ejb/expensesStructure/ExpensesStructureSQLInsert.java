@@ -2,6 +2,7 @@
 package ejb.expensesStructure;
 
 import ejb.accountsStructure.AccountsStructureSQLLocal;
+import ejb.actualExpenses.ActualExpensesSQLLocal;
 import ejb.common.SQLAbstract;
 import ejb.calculation.EntityAccount;
 import ejb.expensesStructure.ExpensesTypes.ExpenseType;
@@ -21,7 +22,13 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
         implements ExpensesStructureSQLInsertLocal {
        
     @EJB
-    private AccountsStructureSQLLocal accountsSQL;    
+    private ExpensesStructureSQLSelectLocal select;
+    
+    @EJB
+    private AccountsStructureSQLLocal accountsSQL;
+    
+    @EJB
+    private ActualExpensesSQLLocal actualExpensesSQL;
 
     @Override
     public boolean execute(Connection connection, String type, String name, 
@@ -111,6 +118,19 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             preparedStatement.setDouble(13, 0);
             preparedStatement.setDouble(14, 0);
             preparedStatement.executeUpdate();
+            
+            
+            // Executing update of Expense ID in the Actual Expenses database
+            // table where it was previously set to "-1" (Expense removed 
+            // status).
+            // If the given name is the same as the name of Expense with 
+            // ID = -1 then assigning the proper ID value.
+            Integer expenseId = select.executeSelectIdByName(connection, name);
+            if (expenseId != null) {
+                actualExpensesSQL.recoverDeletedExpenseId(connection, 
+                        expenseId, name);
+            }            
+            
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLInsert: Error while "
                     + "setting query parameters or executing Insert Query: "

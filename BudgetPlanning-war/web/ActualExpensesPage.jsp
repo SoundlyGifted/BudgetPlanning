@@ -132,7 +132,7 @@
                                     <td>
                                         <!--entered expense selection dropdown list.-->              
                                         <select name="updateName" class="inputTextBox">
-                                            <option value="${row.EXPENSE_NAME}_${row.EXPENSE_ID}" selected hidden>${row.EXPENSE_NAME}</option>                                            
+                                            <option value="${row.EXPENSE_NAME}" selected hidden>${row.EXPENSE_NAME}</option>                                            
                                             <c:forEach var="row2" items="${expensesStructureResultSet.rows}">
                                                 <option value="${row2.NAME}">${row2.NAME}</option>
                                             </c:forEach>

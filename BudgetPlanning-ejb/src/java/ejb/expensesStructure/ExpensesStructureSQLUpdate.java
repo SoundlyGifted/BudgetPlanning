@@ -2,6 +2,7 @@
 package ejb.expensesStructure;
 
 import ejb.accountsStructure.AccountsStructureSQLLocal;
+import ejb.actualExpenses.ActualExpensesSQLLocal;
 import ejb.common.SQLAbstract;
 import ejb.calculation.EntityAccount;
 import ejb.calculation.EntityExpense;
@@ -24,7 +25,10 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
     private ExpensesStructureSQLSelectLocal select;
 
     @EJB
-    private AccountsStructureSQLLocal accountsSQL;  
+    private AccountsStructureSQLLocal accountsSQL;
+    
+    @EJB
+    private ActualExpensesSQLLocal actualExpensesSQL;
     
     @Override
     public boolean execute(Connection connection, String name, String newName, 
@@ -77,9 +81,13 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         }
         
         PreparedStatement preparedStatement;
+        PreparedStatement psUpdateActualExpensesName;
         try {
             preparedStatement = createPreparedStatement(connection, 
                     "expensesStructure/update");
+            psUpdateActualExpensesName 
+                    = createPreparedStatement(connection, 
+                            "actualExpenses/update.actualExpensesName");
         } catch (SQLException | IOException ex) {
             System.out.println("*** ExpensesStructureSQLUpdate: "
                     + "SQL PreparedStatement failure: "
@@ -162,8 +170,11 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         currentStockWscPcsDouble = currentStockPcsDouble - safetyStockPcsDouble;
         currentStockWscCurDouble = round(priceDouble * 
                 currentStockWscPcsDouble, 2);
+
+        Integer expenseId = select.executeSelectIdByName(connection, name);
         
         try {
+            // Main update statement execution.
             preparedStatement.setString(1, newName);
             preparedStatement.setInt(2, accountIdInt);
             preparedStatement.setString(3, accountName);
@@ -179,6 +190,22 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             preparedStatement.setDouble(13, orderQtyCurDouble);
             preparedStatement.setString(14, name);
             preparedStatement.executeUpdate();
+            
+            // Executing update of Expense ID where it was previously set to 
+            // "-1" (Expense removed status).
+            // If the given name is the same as the name of Expense with 
+            // ID = -1 then assigning the proper ID value.
+            if (expenseId != null) {
+                actualExpensesSQL.recoverDeletedExpenseId(connection, 
+                        expenseId, newName);
+            }
+
+            // Executing update of Expense Name in the Actual Expenses database
+            // table.
+            psUpdateActualExpensesName.setString(1, newName);
+            psUpdateActualExpensesName.setString(2, name);
+            psUpdateActualExpensesName.executeUpdate();
+            
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLUpdate: Error while "
                     + "setting query parameters or executing Update Query: "

@@ -308,4 +308,39 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
             }
         }
     }
+        
+    @Override    
+    public Integer executeSelectIdByName (Connection connection, String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return null;
+        }
+        
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection, 
+                    "expensesStructure/select.byname");
+            preparedStatement.setString(1, name);
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** ExpensesStructureSQLSelect: "
+                    + "executeSelectIdByName() "
+                    + "SQL PreparedStatement failure: "
+                    + ex.getMessage() + " ***");
+            return null;
+        }
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            if (resultSet.next()) {                
+                return resultSet.getInt("ID");
+            } else {
+                return null;
+            }
+        } catch (SQLException ex) {
+            System.out.println("***ExpensesStructureSQLSelect: "
+                    + "executeSelectIdByName() Error while "
+                    + "executing Select Query: "
+                    + ex.getMessage() + "***");
+            return null;
+        } finally {
+            clear(preparedStatement);
+        }        
+    }    
 }

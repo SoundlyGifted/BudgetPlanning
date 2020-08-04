@@ -1,0 +1,4 @@
+update ACTUAL_EXPENSES
+set EXPENSE_NAME = ?
+where EXPENSE_NAME = ?
+
