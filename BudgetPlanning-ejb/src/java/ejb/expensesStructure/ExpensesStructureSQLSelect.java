@@ -181,7 +181,7 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
         HashMap<Integer, String> result = new HashMap<>();
         
         Statement statement = null;
-        String query = "select ID, TYPE from EXPENSES_STRUCTURE";
+        String query = "select ID, TYPE from EXPENSES_STRUCTURE where ID > 0";
 
         try {
             statement = connection.createStatement();
@@ -222,7 +222,7 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
         
         Statement statement = null;
         String query = "select ID, PRICE, SAFETY_STOCK_PCS, ORDER_QTY_PCS,"
-                + "CURRENT_STOCK_PCS from EXPENSES_STRUCTURE";
+                + "CURRENT_STOCK_PCS from EXPENSES_STRUCTURE where ID > 0";
 
         try {
             statement = connection.createStatement();
@@ -272,7 +272,7 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
         
         Statement statement = null;
         String query = "select ID, LINKED_TO_COMPLEX_ID, ACCOUNT_ID"
-                + " from EXPENSES_STRUCTURE";
+                + " from EXPENSES_STRUCTURE where ID > 0";
 
         try {
             statement = connection.createStatement();

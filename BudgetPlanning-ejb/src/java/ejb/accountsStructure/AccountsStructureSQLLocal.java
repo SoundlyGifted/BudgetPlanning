@@ -31,4 +31,7 @@ public interface AccountsStructureSQLLocal {
     
     public HashMap<Integer, HashMap<String, Double>> 
         executeSelectAllValues(Connection connection);
+        
+    public boolean updateCurrentRemainderById(Connection connection, Integer id, 
+            Double newCurrentRemainderCur);    
 }

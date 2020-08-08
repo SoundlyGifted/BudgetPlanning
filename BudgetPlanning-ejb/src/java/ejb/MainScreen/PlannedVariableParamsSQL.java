@@ -32,7 +32,7 @@ public class PlannedVariableParamsSQL extends SQLAbstract
     
     @EJB
     private TimePeriodsHandlerLocal timePeriods;
-    
+      
     @Override
     public boolean executeUpdate(Connection connection, String expenseId, 
             String paramName, Map<String, String> updatedValues) {
@@ -148,39 +148,122 @@ public class PlannedVariableParamsSQL extends SQLAbstract
     @Override
     public boolean setCurrentPeriodDate(Connection connection, String date) {
         
-        Statement statement = null;
-        String clearDateQuery = "update PLANNED_VARIABLE_PARAMS "
+        Statement statementClearCurrentPeriodFlag = null;
+        String clearCurrentPeriodFlag = "update PLANNED_VARIABLE_PARAMS "
                 + "set CURPFL = ''";        
-        String setDateQuery = "update PLANNED_VARIABLE_PARAMS set CURPFL = 'Y' "
-                + "where DATE = '" + date + "'";
 
+        PreparedStatement psSelectPlannedParamsByDate;
+        PreparedStatement psSelectAllFromExpensesStructure;
+        PreparedStatement psSetCurrentPeriodFlagByDate;
+        PreparedStatement psInsertRecordsForGivenDate;
         try {
-            statement = connection.createStatement();
-        } catch (SQLException ex) {
+            statementClearCurrentPeriodFlag = connection.createStatement();
+            
+            psSelectPlannedParamsByDate = createPreparedStatement(connection, 
+                    "mainScreen/select.plannedParams.byDate");
+            psSelectPlannedParamsByDate.setString(1, date);
+            
+            psSelectAllFromExpensesStructure 
+                    = createPreparedStatement(connection, 
+                            "expensesStructure/select.all");
+            
+            psSetCurrentPeriodFlagByDate = createPreparedStatement(connection, 
+                    "mainScreen/update.plannedExpenses.setCurrentPeriodFlag"
+                            + ".byDate");
+            
+            psInsertRecordsForGivenDate = createPreparedStatement(connection, 
+                    "mainScreen/insert.allExpensesPlannedParams.byid");
+            
+        } catch (SQLException | IOException ex) {
             System.out.println("*** PlannedVariableParamsSQL : "
-                    + "setCurrentPeriodDate() error while creating statement: " 
+                    + "setCurrentPeriodDate() error while creating statements: " 
                     + ex.getMessage());
             return false;
         }
 
-        try {
-            statement.executeUpdate(clearDateQuery);
-            statement.executeUpdate(setDateQuery);
-            return true;
+        try(ResultSet resultSet = psSelectPlannedParamsByDate.executeQuery()) {
+            if (resultSet.next()) {
+                // Setting Current Period Flag for the given date if there is
+                // a planning data in the database for at least one Expense
+                // Category for this date.
+                statementClearCurrentPeriodFlag
+                        .execute(clearCurrentPeriodFlag);
+                psSetCurrentPeriodFlagByDate.setString(1, date);
+                psSetCurrentPeriodFlagByDate.executeUpdate();
+            } else {
+                // If there is no planning data in the database for any of the
+                // Expense Categories then inserting zero-plan for each of the
+                // Expense Categories of "SIMPLE_EXPENSES" and "GOODS" type.
+                try(ResultSet rsSelectAllExpenses 
+                        = psSelectAllFromExpensesStructure.executeQuery()) {
+                    while (rsSelectAllExpenses.next()) {
+                        String type = rsSelectAllExpenses.getString("TYPE");
+                        if (type.equals("SIMPLE_EXPENSES") 
+                                || type.equals("GOODS")) {
+                            int id = rsSelectAllExpenses.getInt("ID");
+                            String name = rsSelectAllExpenses.getString("NAME");
+
+                            String week;
+                            int dayN;
+                            String dayC;
+                            int monthN;
+                            String monthC;
+                            int year;
+
+                            String[] partOfDate = date.split("\\-");
+                            dayN = Integer.parseInt(partOfDate[2]);
+                            monthN = Integer.parseInt(partOfDate[1]);
+                            year = Integer.parseInt(partOfDate[0]);
+
+                            Calendar c = Calendar.getInstance();
+                            c.set(year, monthN - 1, dayN);
+                            dayC = getDay(c.get(Calendar.DAY_OF_WEEK));
+                            monthC = getMonth(monthN);
+                            week = getWeek(c.get(Calendar.WEEK_OF_YEAR));
+
+                            psInsertRecordsForGivenDate.setString(1, date);
+                            psInsertRecordsForGivenDate.setString(2, week);
+                            psInsertRecordsForGivenDate.setInt(3, dayN);
+                            psInsertRecordsForGivenDate.setString(4, dayC);
+                            psInsertRecordsForGivenDate.setInt(5, monthN);
+                            psInsertRecordsForGivenDate.setString(6, monthC);
+                            psInsertRecordsForGivenDate.setInt(7, year);
+                            psInsertRecordsForGivenDate.setInt(8, id);
+                            psInsertRecordsForGivenDate.setString(9, name);
+                            psInsertRecordsForGivenDate.setDouble(10, 0);
+                            psInsertRecordsForGivenDate.setDouble(11, 0);
+                            psInsertRecordsForGivenDate.setDouble(12, 0);
+                            psInsertRecordsForGivenDate.setDouble(13, 0);
+                            psInsertRecordsForGivenDate.setDouble(14, 0);
+                            psInsertRecordsForGivenDate.setDouble(15, 0);
+                            psInsertRecordsForGivenDate.setDouble(16, 0);
+                            psInsertRecordsForGivenDate.setDouble(17, 0);
+                            psInsertRecordsForGivenDate.setDouble(18, 0);
+                            psInsertRecordsForGivenDate.setDouble(19, 0);
+                            psInsertRecordsForGivenDate.setDouble(20, 0);
+                            psInsertRecordsForGivenDate.setDouble(21, 0);
+                            psInsertRecordsForGivenDate.setString(22, "Y");
+
+                            psInsertRecordsForGivenDate.addBatch();
+                        }
+                    }
+                    statementClearCurrentPeriodFlag
+                        .execute(clearCurrentPeriodFlag);
+                    psInsertRecordsForGivenDate.executeBatch();
+                }
+            }
         } catch (SQLException ex) {
-            System.out.println("*** PlannedVariableParamsSQL : "
-                    + "setCurrentPeriodDate() error while executing "
-                    + " query: " + ex.getMessage());
+            System.out.println("***PlannedVariableParamsSQL: "
+                    + "setCurrentPeriodDate() Error while executing "
+                    + "Query: " + ex.getMessage() + "***");
             return false;
         } finally {
-            try {
-                statement.close();
-            } catch (SQLException ex) {
-                System.out.println("*** PlannedVariableParamsSQL : "
-                        + "setCurrentPeriodDate() error while closing "
-                        + "statement: " + ex.getMessage());
-            }
+            clear(psSelectPlannedParamsByDate);
+            clear(psSelectAllFromExpensesStructure);
+            clear(psSetCurrentPeriodFlagByDate);
+            clear(psInsertRecordsForGivenDate);
         }
+        return true;
     }
     
     @Override
@@ -264,6 +347,131 @@ public class PlannedVariableParamsSQL extends SQLAbstract
             clear(preparedStatement);
         }
         return consumptionPcs;
+    }
+    
+    @Override
+    public TreeMap<String, Double> selectDifferencePcsById(Connection 
+            connection, Integer id) {
+        if (id == null || id < 1) {
+            return null;
+        }
+
+        TreeMap<String, Double> consumptionPcs = new TreeMap<>();
+        
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection,
+                    "mainScreen/select.differencePcs.byExpenseId");
+            preparedStatement.setInt(1, id);
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** PlannedVariableParamsSQL: "
+                    + "selectDifferencePcsById() SQL PreparedStatement "
+                    + "failure: " + ex.getMessage() + " ***");
+            return null;
+        }
+        
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                String key = resultSet.getString("DATE");
+                Double value = resultSet.getDouble("DIFFERENCE_PCS");
+                consumptionPcs.put(key, value);
+            }
+        } catch (SQLException ex) {
+            System.out.println("***PlannedVariableParamsSQL: "
+                    + "selectDifferencePcsById() Error while executing Select "
+                    + "Query: " + ex.getMessage() + "***");
+            return null;
+        } finally {
+            clear(preparedStatement);
+        }
+        return consumptionPcs;
+    }    
+
+    @Override
+    public TreeMap<String, Double> 
+        selectPlannedExpAndDiffCurSumByAcctIdAndDate(Connection connection, 
+                Integer accountId, String date) {
+        if (accountId == null || accountId < 1 || !inputCheckNullBlank(date)) {
+            return null;
+        }
+
+        TreeMap<String, Double> result = new TreeMap<>();
+        Double plannedCurSum;
+        Double differenceCurSum;
+        
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection,
+                    "mainScreen/select"
+                            + ".plannedExpAndDiffCurSum.byAcctIdAndDate");
+            preparedStatement.setInt(1, accountId);
+            preparedStatement.setString(2, date);
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** PlannedVariableParamsSQL: "
+                    + "selectPlannedExpAndDiffCurSumByAcctIdAndDate() SQL "
+                    + "PreparedStatement failure: " + ex.getMessage() + " ***");
+            return null;
+        }
+        
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                plannedCurSum = resultSet.getDouble("PLANNED_CUR");
+                differenceCurSum = resultSet.getDouble("DIFFERENCE_CUR");
+                result.put("PLANNED_CUR", plannedCurSum);
+                result.put("DIFFERENCE_CUR", differenceCurSum);
+            }
+        } catch (SQLException ex) {
+            System.out.println("***PlannedVariableParamsSQL: "
+                    + "selectPlannedExpAndDiffCurSumByAcctIdAndDate() Error "
+                    + "while executing Select Query: " 
+                    + ex.getMessage() + "***");
+            return null;
+        } finally {
+            clear(preparedStatement);
+        }
+        return result;            
+    }    
+    
+    @Override
+    public TreeMap<String, Double> 
+        selectPlannedExpCurSumByAcctId(Connection connection, 
+                Integer accountId) {
+        if (accountId == null || accountId < 1) {
+            return null;
+        }
+
+        TreeMap<String, Double> result = new TreeMap<>();
+        String date;
+        Double plannedCurSumVal;
+        
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection,
+                    "mainScreen/select.plannedExpCurSum.byAcctId");
+            preparedStatement.setInt(1, accountId);
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** PlannedVariableParamsSQL: "
+                    + "selectPlannedExpCurSumByAcctId() SQL "
+                    + "PreparedStatement failure: " + ex.getMessage() + " ***");
+            return null;
+        }
+        
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                date = resultSet.getString("DATE");
+                plannedCurSumVal = resultSet.getDouble("PLANNED_CUR");
+                result.put(date, plannedCurSumVal);
+            }
+        } catch (SQLException ex) {
+            System.out.println("***PlannedVariableParamsSQL: "
+                    + "selectPlannedExpCurSumByAcctId() Error "
+                    + "while executing Select Query: " 
+                    + ex.getMessage() + "***");
+            return null;
+        } finally {
+            clear(preparedStatement);
+        }
+        return result;            
     }
     
     @Override

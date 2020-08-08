@@ -14,4 +14,10 @@ public interface TimePeriodsHandlerLocal {
     
     public TreeSet<String> calculateTimePeriodDates(Connection 
             connection, String inputPlanningPeriodsFrequency);
+    
+    public String getNextPeriodDate(Connection connection,
+            String inputPlanningPeriodsFrequency);
+    
+    public String getPreviousPeriodDate(Connection connection,
+            String inputPlanningPeriodsFrequency);
 }

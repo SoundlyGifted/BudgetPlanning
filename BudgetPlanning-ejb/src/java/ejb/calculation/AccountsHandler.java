@@ -13,25 +13,30 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
+import javax.ejb.Startup;
 
 /**
  *
  * @author SoundlyGifted
  */
 @Singleton
+@Startup
 public class AccountsHandler implements AccountsHandlerLocal {
 
     @EJB
-    private AccountsStructureSQLLocal aSelect;
+    private AccountsStructureSQLLocal accountsStructureSQL;
     
     @EJB
-    private ExpensesStructureSQLSelectLocal eSelect;
+    private ExpensesStructureSQLSelectLocal expensesStructureSQLSelect;
 
     @EJB
     private PlannedVariableParamsSQLLocal plannedExpenses;
     
     @EJB
     private PlannedAccountsValuesSQLLocal plannedAccounts;
+    
+    @EJB
+    private ExpensesHandlerLocal eHandler;
     
     @EJB
     private TimePeriodsHandlerLocal timePeriods;
@@ -82,7 +87,7 @@ public class AccountsHandler implements AccountsHandlerLocal {
     public ArrayList<EntityAccount> actualizeEntityAccountList(Connection 
             connection) {
         ArrayList<EntityAccount> accountListDB = 
-                aSelect.executeSelectAll(connection);
+                accountsStructureSQL.executeSelectAll(connection);
         replaceEntityAccountList(accountListDB);
         return accountListDB;
     }
@@ -107,12 +112,12 @@ public class AccountsHandler implements AccountsHandlerLocal {
         //Map with complete list of Account IDs and Maps of fixed
         //planning parameters and their values from DB.
         HashMap<Integer, HashMap<String, Double>> valuesMap =
-                aSelect.executeSelectAllValues(connection);        
+                accountsStructureSQL.executeSelectAllValues(connection);        
         
         // Selecting all links of all Expenses 
         // (links to Complex Expenses and links to Accounts).
-        HashMap<Integer, HashMap<String, Integer>> allLinks = eSelect
-                .executeSelectAllLinks(connection);
+        HashMap<Integer, HashMap<String, Integer>> allLinks 
+                = expensesStructureSQLSelect.executeSelectAllLinks(connection);
         // Links of input Expense (expense id).
         HashMap<String, Integer> links = allLinks.get(inputExpenseId);
 
@@ -153,7 +158,7 @@ public class AccountsHandler implements AccountsHandlerLocal {
             // EntityAccount with such id does not exist in the 
             // EntityExpenseList so adding EntityAccount with this id to 
             // the EntityExpenseList based on the database record.
-            EntityAccount account = aSelect
+            EntityAccount account = accountsStructureSQL
                     .executeSelectById(connection, linkedAccountId);
             // Preparing Account for calculation.
             account.setCurrentRemainderCur(valuesMap.get(linkedAccountId)
@@ -188,7 +193,7 @@ public class AccountsHandler implements AccountsHandlerLocal {
         //Map with complete list of Account IDs and Maps of fixed
         //planning parameters and their values from DB.
         HashMap<Integer, HashMap<String, Double>> valuesMap =
-                aSelect.executeSelectAllValues(connection);        
+                accountsStructureSQL.executeSelectAllValues(connection);        
         
         // Checking if EntityAccount with given id exists in
         // EntityAccountList.
@@ -208,7 +213,7 @@ public class AccountsHandler implements AccountsHandlerLocal {
         // EntityAccount with such id does not exist in the 
         // EntityExpenseList so adding EntityAccount with this id to 
         // the EntityExpenseList based on the database record.
-        EntityAccount account = aSelect
+        EntityAccount account = accountsStructureSQL
                 .executeSelectById(connection, id);
         // Preparing Account for calculation.
         account.setCurrentRemainderCur(valuesMap.get(id)
@@ -222,64 +227,170 @@ public class AccountsHandler implements AccountsHandlerLocal {
     private void 
         obtainChangeableVarParamsForEntityAccount(Connection connection, 
                 EntityAccount account) {
-              
-        // Selecting all links of all Expenses 
-        // (links to Complex Expenses and links to Accounts).
-        HashMap<Integer, HashMap<String, Integer>> allLinks = eSelect
-                .executeSelectAllLinks(connection);
-        
+      
         int id = account.getId();
         
-        // Array to collect IDs of Expenses that are linked to the given 
-        // Account.
-        ArrayList<Integer> expensesIDsWithAcctLinkedList = new ArrayList<>();
+        // Getting Sum of Planned Expenses values (CUR) of all Expenses that are
+        // linked to the given Account.
+        TreeMap<String, Double> plannedSumCur = plannedExpenses
+                .selectPlannedExpCurSumByAcctId(connection, id);
         
-        for (Map.Entry<Integer, HashMap<String, Integer>> entry 
-                : allLinks.entrySet()) {
-            HashMap<String, Integer> links = entry.getValue();
-            int linkedAccountId = links.get("ACCOUNT_ID");
-            if (linkedAccountId == id) {
-                expensesIDsWithAcctLinkedList.add(entry.getKey());
-            }
-        }
-        
-        // Getting planned expenses (CUR) for each Expense that is linked to
-        // given Account.
-        TreeMap<String, Double> plannedSumCur = new TreeMap<>();
-        TreeMap<String, Double> plannedCurValues;
-        for (Integer expenseId : expensesIDsWithAcctLinkedList) {
-            plannedCurValues = plannedExpenses
-                    .selectPlannedExpensesById(connection, expenseId);
-            if (plannedCurValues != null) {
-                if (plannedSumCur.isEmpty()) {
-                    plannedSumCur = plannedCurValues;
-                } else {
-                    for (Map.Entry<String, Double> entry 
-                            : plannedSumCur.entrySet()) {
-                        String key = entry.getKey();
-                        Double value1 = entry.getValue();
-                        if (value1 == null) {
-                            value1 = (double) 0;
-                        }
-                        Double value2 = plannedCurValues.get(key);
-                        if (value2 == null) {
-                            value2 = (double) 0;
-                        }
-                        Double sum = value1 + value2;
-                        plannedSumCur.put(key, sum);
-                    }
-                }                
-            }
-        }
-
         // Getting planned income (CUR) for the Account.
         TreeMap<String, Double> incomeCurValues = plannedAccounts
                 .selectPlannedAccountsValuesById(connection, id, 
                         "PLANNED_INCOME_CUR");
         
+        // Setting Planned parameters to the object 
+        // of Account calculation class.
         account.setPlannedSumCur(plannedSumCur);
         account.setIncomeCur(incomeCurValues);
     }    
     
-    
+    @Override
+    public boolean
+            calculateAllCurrentRemainderCurForNextPeriod(Connection 
+                    connection) {  
+        // The date of Current Period from the database.
+        String currentPeriodDate = plannedExpenses
+                .getCurrentPeriodDate(connection);
+        
+        // All Accounts user-changeable parameter values.
+        HashMap<Integer, HashMap<String, Double>> accountsAllValues
+                = accountsStructureSQL.executeSelectAllValues(connection);
+        
+        // Variable Identifier of an Account.
+        Integer accountId;     
+
+        // Variables for calculation of Accounts Current Remainders.
+        Double currentRemainderCur;
+        TreeMap<String, Double> incomeCur;
+        TreeMap<String, Double> linkedExpPlannedParamValues;   
+        Double incomeCurVal;
+        Double plannedCurSum;
+        Double differenceCurSum;
+
+        // Flag to indicate that Accounts current remainders were recalculated
+        // and updated in the database.
+        boolean allCurrentRemainderCurUpdated = true;
+        
+        for (Map.Entry<Integer, HashMap<String, Double>> entryAccount
+                : accountsAllValues.entrySet()) {
+            accountId = entryAccount.getKey();
+            currentRemainderCur = entryAccount.getValue()
+                    .get("CURRENT_REMAINDER_CUR");
+
+            incomeCur = plannedAccounts
+                    .selectPlannedAccountsValuesById(connection, accountId,
+                            "PLANNED_INCOME_CUR");
+            if (incomeCur == null || incomeCur.isEmpty()) {
+                incomeCurVal = (double) 0;
+            } else {
+                incomeCurVal = incomeCur.get(currentPeriodDate);
+                if (incomeCurVal == null) {
+                    incomeCurVal = (double) 0;
+                }
+            }
+            
+            linkedExpPlannedParamValues = plannedExpenses
+                    .selectPlannedExpAndDiffCurSumByAcctIdAndDate(connection, 
+                            accountId, currentPeriodDate);
+            if (linkedExpPlannedParamValues == null 
+                    || linkedExpPlannedParamValues.isEmpty()) {
+                plannedCurSum = (double) 0;
+                differenceCurSum = (double) 0;
+            } else {
+                plannedCurSum = linkedExpPlannedParamValues.get("PLANNED_CUR");
+                differenceCurSum = linkedExpPlannedParamValues
+                        .get("DIFFERENCE_CUR");                
+            }
+            
+            // Recalculating Current Remainder value for the Next 
+            // Planning Period.   
+            currentRemainderCur = currentRemainderCur - plannedCurSum 
+                    + incomeCurVal - differenceCurSum;
+            
+            // Now write to the database.
+            boolean updated = accountsStructureSQL
+                    .updateCurrentRemainderById(connection, accountId, 
+                            currentRemainderCur);
+            if (!updated) {
+                allCurrentRemainderCurUpdated = false;
+            }
+        }
+        return allCurrentRemainderCurUpdated;
+    }   
+        
+    @Override
+    public boolean
+            calculateAllCurrentRemainderCurForPreviousPeriod(Connection 
+                    connection) {
+        // The date of Current Period from the database.
+        String currentPeriodDate = plannedExpenses
+                .getCurrentPeriodDate(connection);
+        
+        // All Accounts user-changeable parameter values.
+        HashMap<Integer, HashMap<String, Double>> accountsAllValues
+                = accountsStructureSQL.executeSelectAllValues(connection);
+        
+        // Variable Identifier of an Account.
+        Integer accountId;
+
+        // Variables for calculation of Accounts Current Remainders.
+        Double currentRemainderCur;
+        TreeMap<String, Double> incomeCur;
+        TreeMap<String, Double> linkedExpPlannedParamValues;   
+        Double incomeCurVal;
+        Double plannedCurSum;
+        Double differenceCurSum;
+
+        // Flag to indicate that Accounts current remainders were recalculated
+        // and updated in the database.
+        boolean allCurrentRemainderCurUpdated = true;
+        
+        for (Map.Entry<Integer, HashMap<String, Double>> entryAccount
+                : accountsAllValues.entrySet()) {
+            accountId = entryAccount.getKey();
+            currentRemainderCur = entryAccount.getValue()
+                    .get("CURRENT_REMAINDER_CUR");
+
+            incomeCur = plannedAccounts
+                    .selectPlannedAccountsValuesById(connection, accountId,
+                            "PLANNED_INCOME_CUR");
+            if (incomeCur == null || incomeCur.isEmpty()) {
+                incomeCurVal = (double) 0;
+            } else {
+                incomeCurVal = incomeCur.get(currentPeriodDate);
+                if (incomeCurVal == null) {
+                    incomeCurVal = (double) 0;
+                }
+            }
+            
+            linkedExpPlannedParamValues = plannedExpenses
+                    .selectPlannedExpAndDiffCurSumByAcctIdAndDate(connection, 
+                            accountId, currentPeriodDate);
+            if (linkedExpPlannedParamValues == null 
+                    || linkedExpPlannedParamValues.isEmpty()) {
+                plannedCurSum = (double) 0;
+                differenceCurSum = (double) 0;
+            } else {
+                plannedCurSum = linkedExpPlannedParamValues.get("PLANNED_CUR");
+                differenceCurSum = linkedExpPlannedParamValues
+                        .get("DIFFERENCE_CUR");                
+            }
+
+            // Recalculating Current Remainder value for the Previous 
+            // Planning Period.            
+            currentRemainderCur = currentRemainderCur + plannedCurSum 
+                    - incomeCurVal + differenceCurSum;
+            
+            // Now write to the database.
+            boolean updated = accountsStructureSQL
+                    .updateCurrentRemainderById(connection, accountId, 
+                            currentRemainderCur);
+            if (!updated) {
+                allCurrentRemainderCurUpdated = false;
+            }
+        }
+        return allCurrentRemainderCurUpdated;
+    }
 }

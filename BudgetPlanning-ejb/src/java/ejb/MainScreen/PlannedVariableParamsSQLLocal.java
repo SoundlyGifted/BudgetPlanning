@@ -26,6 +26,17 @@ public interface PlannedVariableParamsSQLLocal {
     public TreeMap<String, Double> selectConsumptionPcsById(Connection 
             connection, Integer id);
     
+    public TreeMap<String, Double> selectDifferencePcsById(Connection 
+            connection, Integer id);
+    
+    public TreeMap<String, Double> 
+        selectPlannedExpAndDiffCurSumByAcctIdAndDate(Connection connection, 
+                Integer accountId, String date);
+
+    public TreeMap<String, Double> 
+        selectPlannedExpCurSumByAcctId(Connection connection, 
+                Integer accountId);        
+
     public boolean executeUpdateAll(Connection connection, 
             String inputPlanningPeriodsFrequency);
     

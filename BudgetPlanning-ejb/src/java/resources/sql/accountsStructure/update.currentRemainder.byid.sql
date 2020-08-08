@@ -1,0 +1,4 @@
+update ACCOUNTS_STRUCTURE
+set CURRENT_REMAINDER_CUR = ?
+where ID = ?
+

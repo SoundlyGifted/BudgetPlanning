@@ -16,5 +16,8 @@ public interface ExpensesStructureSQLUpdateLocal {
             String currentStockPcs, String safetyStockPcs, String orderQtyPcs);
     
     public boolean clearAssignmentToComplexExpense(Connection connection, 
-            String name);  
+            String name);
+    
+    public boolean updateCurrentStockById(Connection connection, Integer id, 
+            Double newCurrentStockPcs);
 }

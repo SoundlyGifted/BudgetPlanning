@@ -4,6 +4,7 @@ package ejb.calculation;
 import ejb.MainScreen.PlannedVariableParamsSQLLocal;
 import ejb.actualExpenses.ActualExpensesSQLLocal;
 import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
+import ejb.expensesStructure.ExpensesStructureSQLUpdateLocal;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,9 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
 
     @EJB
     private ExpensesStructureSQLSelectLocal select;
+    
+    @EJB
+    private ExpensesStructureSQLUpdateLocal update;
    
     @EJB
     private ActualExpensesSQLLocal actualExpenses;
@@ -325,4 +329,169 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         return expenseListDB;
     }
     
+    @Override
+    public boolean 
+        calculateAllCurrentStockPcsForNextPeriod(Connection connection) {
+        
+        HashMap<Integer, String> allTypes 
+                = select.executeSelectAllTypes(connection);
+        HashMap<Integer, HashMap<String, Double>> allValues 
+                = select.executeSelectAllValues(connection);
+        
+        String currentPeriodDate 
+                = plannedParams.getCurrentPeriodDate(connection);
+        
+        Integer id;
+        Double currentStock;
+//        Double safetyStock;
+        
+        TreeMap<String, Double> consumptionPcs;
+        TreeMap<String, Double> plannedPcs;
+        TreeMap<String, Double> differencePcs;
+
+        Double consumptionPcsVal;
+        Double plannedPcsVal;
+        Double differencePcsVal;
+        
+        boolean allCurrentStockPcsUpdated = true;
+
+        for (Map.Entry<Integer, String> entry : allTypes.entrySet()) {
+            String type = entry.getValue();
+            if (type.equals("GOODS")) {
+                id = entry.getKey();
+                currentStock = allValues.get(id).get("CURRENT_STOCK_PCS");
+//                safetyStock = allValues.get(id).get("SAFETY_STOCK_PCS");
+                
+                consumptionPcs = plannedParams
+                        .selectConsumptionPcsById(connection, id);
+                plannedPcs = plannedParams
+                        .selectPlannedExpensesById(connection, id);
+                differencePcs = plannedParams
+                        .selectDifferencePcsById(connection, id);
+                
+                if (consumptionPcs == null || consumptionPcs.isEmpty()) {
+                    consumptionPcsVal = (double) 0;
+                } else {
+                    consumptionPcsVal = consumptionPcs.get(currentPeriodDate);
+                    if (consumptionPcsVal == null) {
+                        consumptionPcsVal = (double) 0;
+                    }
+                }
+                
+                if (plannedPcs == null || plannedPcs.isEmpty()) {
+                    plannedPcsVal = (double) 0;
+                } else {
+                    plannedPcsVal = plannedPcs.get(currentPeriodDate);
+                    if (plannedPcsVal == null) {
+                        plannedPcsVal = (double) 0;
+                    }
+                }                
+                
+                if (differencePcs == null || differencePcs.isEmpty()) {
+                    differencePcsVal = (double) 0;
+                } else {
+                    differencePcsVal = differencePcs.get(currentPeriodDate);
+                    if (differencePcsVal == null) {
+                        differencePcsVal = (double) 0;
+                    }
+                }
+                
+                // Recalculating Current Stock value for the Next 
+                // Planning Period.
+                currentStock = currentStock - consumptionPcsVal + plannedPcsVal 
+                        + differencePcsVal /*+ safetyStock*/;
+                // Updating the value of Current Stock for this Expense Id
+                // in the database.
+                boolean updated = update
+                        .updateCurrentStockById(connection, id, currentStock);
+                if (!updated) {
+                    allCurrentStockPcsUpdated = false;
+                }
+            }
+        }
+        return allCurrentStockPcsUpdated;     
+    }
+    
+    @Override
+    public boolean 
+        calculateAllCurrentStockPcsForPreviousPeriod(Connection connection) {
+        
+        HashMap<Integer, String> allTypes 
+                = select.executeSelectAllTypes(connection);
+        HashMap<Integer, HashMap<String, Double>> allValues 
+                = select.executeSelectAllValues(connection);
+        
+        String currentPeriodDate 
+                = plannedParams.getCurrentPeriodDate(connection);
+        
+        Integer id;
+        Double currentStock;
+//        Double safetyStock;
+        
+        TreeMap<String, Double> consumptionPcs;
+        TreeMap<String, Double> plannedPcs;
+        TreeMap<String, Double> differencePcs;
+
+        Double consumptionPcsVal;
+        Double plannedPcsVal;
+        Double differencePcsVal;
+        
+        boolean allCurrentStockPcsUpdated = true;
+
+        for (Map.Entry<Integer, String> entry : allTypes.entrySet()) {
+            String type = entry.getValue();
+            if (type.equals("GOODS")) {
+                id = entry.getKey();
+                currentStock = allValues.get(id).get("CURRENT_STOCK_PCS");
+//                safetyStock = allValues.get(id).get("SAFETY_STOCK_PCS");
+                
+                consumptionPcs = plannedParams
+                        .selectConsumptionPcsById(connection, id);
+                plannedPcs = plannedParams
+                        .selectPlannedExpensesById(connection, id);
+                differencePcs = plannedParams
+                        .selectDifferencePcsById(connection, id);
+                
+                if (consumptionPcs == null || consumptionPcs.isEmpty()) {
+                    consumptionPcsVal = (double) 0;
+                } else {
+                    consumptionPcsVal = consumptionPcs.get(currentPeriodDate);
+                    if (consumptionPcsVal == null) {
+                        consumptionPcsVal = (double) 0;
+                    }
+                }
+                
+                if (plannedPcs == null || plannedPcs.isEmpty()) {
+                    plannedPcsVal = (double) 0;
+                } else {
+                    plannedPcsVal = plannedPcs.get(currentPeriodDate);
+                    if (plannedPcsVal == null) {
+                        plannedPcsVal = (double) 0;
+                    }
+                }                
+                
+                if (differencePcs == null || differencePcs.isEmpty()) {
+                    differencePcsVal = (double) 0;
+                } else {
+                    differencePcsVal = differencePcs.get(currentPeriodDate);
+                    if (differencePcsVal == null) {
+                        differencePcsVal = (double) 0;
+                    }
+                }
+                
+                // Recalculating Current Stock value for the Previous 
+                // Planning Period.
+                currentStock = currentStock + consumptionPcsVal - plannedPcsVal 
+                        - differencePcsVal /*- safetyStock*/;
+                // Updating the value of Current Stock for this Expense Id
+                // in the database.
+                boolean updated = update
+                        .updateCurrentStockById(connection, id, currentStock);
+                if (!updated) {
+                    allCurrentStockPcsUpdated = false;
+                }
+            }
+        }
+        return allCurrentStockPcsUpdated;
+    } 
 }

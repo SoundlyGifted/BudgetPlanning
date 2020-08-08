@@ -20,5 +20,7 @@ public interface PlannedAccountsValuesSQLLocal {
             connection, Integer id, String paramName);
     
     public boolean executeUpdateAll(Connection connection,
-            String inputPlanningPeriodsFrequency);    
+            String inputPlanningPeriodsFrequency);
+    
+    public boolean setCurrentPeriodDate(Connection connection, String date);
 }

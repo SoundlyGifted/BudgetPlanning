@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -249,6 +250,53 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         } catch (SQLException ex) {
             System.out.println("***ExpensesStructureSQLUpdate: "
                     + "clearAssignmentToComplexExpense() Error while "
+                    + "setting query parameters or executing Update Query: "
+                    + ex.getMessage() + "***");
+            return false;
+        } finally {
+            clear(preparedStatement);
+        }
+        return true;
+    }
+    
+    @Override
+    public boolean updateCurrentStockById(Connection connection, Integer id, 
+            Double newCurrentStockPcs) {
+        if (id == null || id <= 0 || newCurrentStockPcs == null) {
+            return false;
+        }
+
+        HashMap<Integer, HashMap<String, Double>> allValues = 
+                select.executeSelectAllValues(connection);
+        Double price = allValues.get(id).get("PRICE");
+        Double safetyStock = allValues.get(id).get("SAFETY_STOCK_PCS");
+        Double newCurrentStockCur = round(newCurrentStockPcs * price, 2);
+        Double newCurrentStockWscPcs = newCurrentStockPcs - safetyStock;
+        Double newCurrentStockWscCur = round(newCurrentStockWscPcs * price, 2);
+
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection, 
+                    "expensesStructure/update.currentStock.byid");
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** ExpensesStructureSQLUpdate: "
+                    + "updateCurrentStockById() "
+                    + "SQL PreparedStatement failure: "
+                    + ex.getMessage() + " ***");
+            return false;
+        }
+
+        try {
+            preparedStatement.setDouble(1, newCurrentStockPcs);
+            preparedStatement.setDouble(2, newCurrentStockCur);
+            preparedStatement.setDouble(3, newCurrentStockWscPcs);
+            preparedStatement.setDouble(4, newCurrentStockWscCur);
+            preparedStatement.setInt(5, id);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("***ExpensesStructureSQLUpdate: "
+                    + "updateCurrentStockById() Error while "
                     + "setting query parameters or executing Update Query: "
                     + ex.getMessage() + "***");
             return false;

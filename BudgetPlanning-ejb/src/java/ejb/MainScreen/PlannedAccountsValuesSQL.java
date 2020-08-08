@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
@@ -289,6 +290,114 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
             if (account.isCalculated()) {
                 account.resetVariableParams();
             }
+        }
+        return true;
+    }
+    
+    @Override
+    public boolean setCurrentPeriodDate(Connection connection, String date) {
+        
+        Statement statementClearCurrentPeriodFlag = null;
+        String clearCurrentPeriodFlag = "update PLANNED_ACCOUNTS_VALUES "
+                + "set CURPFL = ''";        
+
+        PreparedStatement psSelectPlannedAccountsByDate;
+        PreparedStatement psSelectAllFromAccountsStructure;
+        PreparedStatement psSetCurrentPeriodFlagByDate;
+        PreparedStatement psInsertRecordsForGivenDate;
+        try {
+            statementClearCurrentPeriodFlag = connection.createStatement();
+            
+            psSelectPlannedAccountsByDate = createPreparedStatement(connection, 
+                    "mainScreen/select.plannedAccounts.byDate");
+            psSelectPlannedAccountsByDate.setString(1, date);
+            
+            psSelectAllFromAccountsStructure 
+                    = createPreparedStatement(connection, 
+                            "accountsStructure/select.all");
+            
+            psSetCurrentPeriodFlagByDate = createPreparedStatement(connection, 
+                    "mainScreen/update.plannedAccounts.setCurrentPeriodFlag"
+                            + ".byDate");
+            
+            psInsertRecordsForGivenDate = createPreparedStatement(connection, 
+                    "mainScreen/insert.allAccountsPlannedParams.byid");
+            
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** PlannedAccountsValuesSQL : "
+                    + "setCurrentPeriodDate() error while creating statements: " 
+                    + ex.getMessage());
+            return false;
+        }
+
+        try(ResultSet resultSet = psSelectPlannedAccountsByDate
+                .executeQuery()) {
+            if (resultSet.next()) {
+                // Setting Current Period Flag for the given date if there is
+                // a planning data in the database for at least one Account
+                // for this date.
+                statementClearCurrentPeriodFlag
+                        .execute(clearCurrentPeriodFlag);
+                psSetCurrentPeriodFlagByDate.setString(1, date);
+                psSetCurrentPeriodFlagByDate.executeUpdate();
+            } else {
+                // If there is no planning data in the database for any of the
+                // Accounts then inserting zero-plan for each of the
+                // Account.
+                try(ResultSet rsSelectAllAccounts 
+                        = psSelectAllFromAccountsStructure.executeQuery()) {
+                    while (rsSelectAllAccounts.next()) {
+                            int id = rsSelectAllAccounts.getInt("ID");
+                            String name = rsSelectAllAccounts.getString("NAME");
+
+                            String week;
+                            int dayN;
+                            String dayC;
+                            int monthN;
+                            String monthC;
+                            int year;
+
+                            String[] partOfDate = date.split("\\-");
+                            dayN = Integer.parseInt(partOfDate[2]);
+                            monthN = Integer.parseInt(partOfDate[1]);
+                            year = Integer.parseInt(partOfDate[0]);
+
+                            Calendar c = Calendar.getInstance();
+                            c.set(year, monthN - 1, dayN);
+                            dayC = getDay(c.get(Calendar.DAY_OF_WEEK));
+                            monthC = getMonth(monthN);
+                            week = getWeek(c.get(Calendar.WEEK_OF_YEAR));
+
+                            psInsertRecordsForGivenDate.setString(1, date);
+                            psInsertRecordsForGivenDate.setString(2, week);
+                            psInsertRecordsForGivenDate.setInt(3, dayN);
+                            psInsertRecordsForGivenDate.setString(4, dayC);
+                            psInsertRecordsForGivenDate.setInt(5, monthN);
+                            psInsertRecordsForGivenDate.setString(6, monthC);
+                            psInsertRecordsForGivenDate.setInt(7, year);
+                            psInsertRecordsForGivenDate.setInt(8, id);
+                            psInsertRecordsForGivenDate.setString(9, name);
+                            psInsertRecordsForGivenDate.setDouble(10, 0);
+                            psInsertRecordsForGivenDate.setDouble(11, 0);
+                            psInsertRecordsForGivenDate.setString(12, "Y");
+
+                            psInsertRecordsForGivenDate.addBatch();
+                    }
+                    statementClearCurrentPeriodFlag
+                        .execute(clearCurrentPeriodFlag);
+                    psInsertRecordsForGivenDate.executeBatch();
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("***PlannedAccountsValuesSQL: "
+                    + "setCurrentPeriodDate() Error while executing "
+                    + "Query: " + ex.getMessage() + "***");
+            return false;
+        } finally {
+            clear(psSelectPlannedAccountsByDate);
+            clear(psSelectAllFromAccountsStructure);
+            clear(psSetCurrentPeriodFlagByDate);
+            clear(psInsertRecordsForGivenDate);
         }
         return true;
     }

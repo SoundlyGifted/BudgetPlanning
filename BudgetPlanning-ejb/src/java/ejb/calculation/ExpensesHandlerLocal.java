@@ -21,4 +21,10 @@ public interface ExpensesHandlerLocal {
     
     public ArrayList<EntityExpense> actualizeEntityExpenseList(Connection 
             connection);
+    
+    public boolean 
+        calculateAllCurrentStockPcsForNextPeriod(Connection connection);
+        
+    public boolean 
+        calculateAllCurrentStockPcsForPreviousPeriod(Connection connection);        
 }

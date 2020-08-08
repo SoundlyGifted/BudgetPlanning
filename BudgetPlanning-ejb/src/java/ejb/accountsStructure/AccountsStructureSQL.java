@@ -80,12 +80,13 @@ public class AccountsStructureSQL extends SQLAbstract
         double CurrentRemainderDouble = stringToDouble(currentRemainder);
 
         PreparedStatement preparedStatement;
-        PreparedStatement preparedStatementExpensesAccounts;
+        PreparedStatement preparedStatementExpenseLinkToAccount;
         try {
             preparedStatement = createPreparedStatement(connection,
                     "accountsStructure/update");
-            preparedStatementExpensesAccounts = createPreparedStatement(connection,
-                    "accountsStructure/updateExpensesAccounts");            
+            preparedStatementExpenseLinkToAccount 
+                    = createPreparedStatement(connection,
+                        "expensesStructure/update.expenseLinkToAccount");            
         } catch (SQLException | IOException ex) {
             System.out.println("*** AccountsStructureSQL - executeUpdate(): "
                     + "SQL PreparedStatement failure: "
@@ -100,10 +101,10 @@ public class AccountsStructureSQL extends SQLAbstract
             preparedStatement.setInt(3, idForUpdateInt);
             preparedStatement.executeUpdate();
             
-            preparedStatementExpensesAccounts.setInt(1, idForUpdateInt);
-            preparedStatementExpensesAccounts.setString(2, name);
-            preparedStatementExpensesAccounts.setInt(3, idForUpdateInt);
-            preparedStatementExpensesAccounts.executeUpdate();
+            preparedStatementExpenseLinkToAccount.setInt(1, idForUpdateInt);
+            preparedStatementExpenseLinkToAccount.setString(2, name);
+            preparedStatementExpenseLinkToAccount.setInt(3, idForUpdateInt);
+            preparedStatementExpenseLinkToAccount.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("*** AccountsStructureSQL - executeUpdate(): "
                     + "Error while setting query parameters or executing "
@@ -123,12 +124,13 @@ public class AccountsStructureSQL extends SQLAbstract
         int idInt = stringToInt(id);
 
         PreparedStatement preparedStatement;
-        PreparedStatement preparedStatementExpensesAccounts;
+        PreparedStatement preparedStatementExpenseLinkToAccount;
         try {
             preparedStatement = createPreparedStatement(connection,
                     "accountsStructure/delete");
-            preparedStatementExpensesAccounts = createPreparedStatement(connection,
-                    "accountsStructure/updateExpensesAccounts");              
+            preparedStatementExpenseLinkToAccount 
+                    = createPreparedStatement(connection,
+                        "expensesStructure/update.expenseLinkToAccount");              
         } catch (SQLException | IOException ex) {
             System.out.println("*** AccountsStructureSQL - executeDelete(): "
                     + "SQL PreparedStatement failure: "
@@ -138,10 +140,10 @@ public class AccountsStructureSQL extends SQLAbstract
 
         try {
             //Setting Query Parameters and executing Query;
-            preparedStatementExpensesAccounts.setInt(1, 0);
-            preparedStatementExpensesAccounts.setString(2, "NOT SET");
-            preparedStatementExpensesAccounts.setInt(3, idInt);
-            preparedStatementExpensesAccounts.executeUpdate();            
+            preparedStatementExpenseLinkToAccount.setInt(1, 0);
+            preparedStatementExpenseLinkToAccount.setString(2, "NOT SET");
+            preparedStatementExpenseLinkToAccount.setInt(3, idInt);
+            preparedStatementExpenseLinkToAccount.executeUpdate();            
             
             preparedStatement.setInt(1, idInt);
             preparedStatement.executeUpdate();
@@ -308,4 +310,40 @@ public class AccountsStructureSQL extends SQLAbstract
             }
         }
     }
+        
+    @Override
+    public boolean updateCurrentRemainderById(Connection connection, Integer id,
+            Double newCurrentRemainderCur) {
+        if (id == null || id <= 0 || newCurrentRemainderCur == null) {
+            return false;
+        }
+
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = createPreparedStatement(connection,
+                    "accountsStructure/update.currentRemainder.byid");
+        } catch (SQLException | IOException ex) {
+            System.out.println("*** AccountsStructureSQL: "
+                    + "updateCurrentRemainderById() "
+                    + "SQL PreparedStatement failure: "
+                    + ex.getMessage() + " ***");
+            return false;
+        }
+
+        try {
+            preparedStatement.setDouble(1, newCurrentRemainderCur);
+            preparedStatement.setInt(2, id);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("***AccountsStructureSQL: "
+                    + "updateCurrentRemainderById() Error while "
+                    + "setting query parameters or executing Update Query: "
+                    + ex.getMessage() + "***");
+            return false;
+        } finally {
+            clear(preparedStatement);
+        }
+        return true;
+    } 
 }

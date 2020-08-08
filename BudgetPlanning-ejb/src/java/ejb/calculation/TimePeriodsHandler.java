@@ -114,9 +114,9 @@ public class TimePeriodsHandler extends EjbCommonMethods
             try {
                 c.setTime(fmt.parse(tempDate));
             } catch (ParseException ex) {
-                System.out.println("EntityExpense: calculateTimePeriodDates() "
-                        + "- error while parsing next date " + tempDate + " : "
-                        + ex.getMessage());
+                System.out.println("TimePeriodsHandeler: "
+                        + "calculateTimePeriodDates() - error while parsing "
+                        + "next date " + tempDate + " : " + ex.getMessage());
             }
             switch (TimePeriods.planningPeriodsFrequency) {
                 case "W":
@@ -137,5 +137,79 @@ public class TimePeriodsHandler extends EjbCommonMethods
         }
         TimePeriods.timePeriodDates = result;
         return result;
+    }
+    
+    @Override
+    public String getNextPeriodDate(Connection connection,
+            String inputPlanningPeriodsFrequency) {
+        if (!inputCheckFrequency(inputPlanningPeriodsFrequency)) {
+            return null;
+        }
+        
+        String currentPeriodDate = plannedParams
+                .getCurrentPeriodDate(connection);
+
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+
+        try {
+            c.setTime(fmt.parse(currentPeriodDate));
+        } catch (ParseException ex) {
+            System.out.println("TimePeriodsHandeler: "
+                    + "getNextPeriodDate() - error while parsing "
+                    + "current date " + currentPeriodDate + " : "
+                    + ex.getMessage());
+        }
+        switch (inputPlanningPeriodsFrequency) {
+            case "W":
+                c.add(Calendar.DAY_OF_MONTH, 7);
+                break;
+            case "M":
+                c.add(Calendar.MONTH, 1);
+                break;
+            case "D":
+                c.add(Calendar.DAY_OF_MONTH, 1);
+                break;
+            default:
+                return null;
+        }
+        return fmt.format(c.getTime());
+    }
+    
+    @Override
+    public String getPreviousPeriodDate(Connection connection,
+            String inputPlanningPeriodsFrequency) {
+        if (!inputCheckFrequency(inputPlanningPeriodsFrequency)) {
+            return null;
+        }
+        
+        String currentPeriodDate = plannedParams
+                .getCurrentPeriodDate(connection);
+
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+
+        try {
+            c.setTime(fmt.parse(currentPeriodDate));
+        } catch (ParseException ex) {
+            System.out.println("TimePeriodsHandeler: "
+                    + "getNextPeriodDate() - error while parsing "
+                    + "current date " + currentPeriodDate + " : "
+                    + ex.getMessage());
+        }
+        switch (inputPlanningPeriodsFrequency) {
+            case "W":
+                c.add(Calendar.DAY_OF_MONTH, -7);
+                break;
+            case "M":
+                c.add(Calendar.MONTH, -1);
+                break;
+            case "D":
+                c.add(Calendar.DAY_OF_MONTH, -1);
+                break;
+            default:
+                return null;
+        }
+        return fmt.format(c.getTime());
     }
 }
