@@ -32,8 +32,8 @@ import javax.servlet.http.HttpSession;
 
 
 /**
- *
- * @author SoundlyGifted
+ * MainScreenServlet Servlet processes commands that come from user form on the 
+ * Main Screen page.
  */
 @WebServlet(name = "MainScreenServlet", urlPatterns = {"/MainScreenServlet"})
 public class MainScreenServlet extends HttpServlet {
@@ -81,40 +81,49 @@ public class MainScreenServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, 
+            HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(Calendar.getInstance().getTime());
+        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
+                .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
-        Connection DBConnection = connector.connection(session, "mainScreenDBConnection");
+        Connection DBConnection = connector.connection(session, 
+                "mainScreenDBConnection");
         
-        ArrayList<Integer> expensesIdList = commonMethods.getIdList(DBConnection, "EXPENSES_STRUCTURE");
-        ArrayList<Integer> accountsIdList = commonMethods.getIdList(DBConnection, "ACCOUNTS_STRUCTURE");        
+        ArrayList<Integer> expensesIdList = commonMethods
+                .getIdList(DBConnection, "EXPENSES_STRUCTURE");
+        ArrayList<Integer> accountsIdList = commonMethods
+                .getIdList(DBConnection, "ACCOUNTS_STRUCTURE");        
         
         EntityExpense selectedExpense = null;
         
         /* Processing Shift of Planning Period (one Period Forward). */
         if (request.getParameter("shiftPeriodForward") != null) {
             
-            String nextPeriodDate = timePeriodsHandler.getNextPeriodDate(DBConnection, "W");
+            String nextPeriodDate = timePeriodsHandler
+                    .getNextPeriodDate(DBConnection, "W");
             
             handler.calculateAllCurrentStockPcsForNextPeriod(DBConnection);
             aHandler.calculateAllCurrentRemainderCurForNextPeriod(DBConnection);
             
             plannedParams.setCurrentPeriodDate(DBConnection, nextPeriodDate);
-            plannedAccountsValues.setCurrentPeriodDate(DBConnection, nextPeriodDate);
+            plannedAccountsValues.setCurrentPeriodDate(DBConnection, 
+                    nextPeriodDate);
             
-            HashMap<Integer, String> allTypes = select.executeSelectAllTypes(DBConnection);
+            HashMap<Integer, String> allTypes = select
+                    .executeSelectAllTypes(DBConnection);
             Integer expenseId;
             String type;
             for (Map.Entry<Integer, String> entry : allTypes.entrySet()) {
                 expenseId = entry.getKey();
                 type = entry.getValue();
                 if (type.equals("SIMPLE_EXPENSES") || type.equals("GOODS")) {
-                    handler.prepareEntityExpenseById(DBConnection, "W", expenseId);
+                    handler.prepareEntityExpenseById(DBConnection, "W", 
+                            expenseId);
                 }
             }
             plannedParams.executeUpdateAll(DBConnection, "W");
@@ -129,31 +138,39 @@ public class MainScreenServlet extends HttpServlet {
             }        
             plannedAccountsValues.executeUpdateAll(DBConnection, "W");
 
-            request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-            request.setAttribute("currentEntityAccountList", EntityAccountListString());                
+            request.setAttribute("currentEntityExpenseList",
+                    EntityExpenseListString());
+            request.setAttribute("currentEntityAccountList", 
+                    EntityAccountListString());                
                 
-            request.getRequestDispatcher("index.jsp").forward(request, response);            
+            request.getRequestDispatcher("index.jsp")
+                    .forward(request, response);            
         }         
 
         /* Processing Shift of Planning Period (one Period Back). */
         if (request.getParameter("shiftPeriodBack") != null) {
                 
-            String previousPeriodDate = timePeriodsHandler.getPreviousPeriodDate(DBConnection, "W");
+            String previousPeriodDate = timePeriodsHandler
+                    .getPreviousPeriodDate(DBConnection, "W");
             
-            plannedParams.setCurrentPeriodDate(DBConnection, previousPeriodDate);
-            plannedAccountsValues.setCurrentPeriodDate(DBConnection, previousPeriodDate);
+            plannedParams.setCurrentPeriodDate(DBConnection, 
+                    previousPeriodDate);
+            plannedAccountsValues.setCurrentPeriodDate(DBConnection, 
+                    previousPeriodDate);
             
             handler.calculateAllCurrentStockPcsForPreviousPeriod(DBConnection);
             aHandler.calculateAllCurrentRemainderCurForPreviousPeriod(DBConnection);
             
-            HashMap<Integer, String> allTypes = select.executeSelectAllTypes(DBConnection);
+            HashMap<Integer, String> allTypes = select
+                    .executeSelectAllTypes(DBConnection);
             Integer expenseId;
             String type;
             for (Map.Entry<Integer, String> entry : allTypes.entrySet()) {
                 expenseId = entry.getKey();
                 type = entry.getValue();
                 if (type.equals("SIMPLE_EXPENSES") || type.equals("GOODS")) {
-                    handler.prepareEntityExpenseById(DBConnection, "W", expenseId);
+                    handler.prepareEntityExpenseById(DBConnection, "W",
+                            expenseId);
                 }
             }
             plannedParams.executeUpdateAll(DBConnection, "W");
@@ -168,40 +185,54 @@ public class MainScreenServlet extends HttpServlet {
             }        
             plannedAccountsValues.executeUpdateAll(DBConnection, "W");            
 
-            request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-            request.setAttribute("currentEntityAccountList", EntityAccountListString());                
+            request.setAttribute("currentEntityExpenseList", 
+                    EntityExpenseListString());
+            request.setAttribute("currentEntityAccountList", 
+                    EntityAccountListString());                
                 
-            request.getRequestDispatcher("index.jsp").forward(request, response);            
+            request.getRequestDispatcher("index.jsp")
+                    .forward(request, response);            
         }
            
         /* Processing current Stock adjust operation. */
         /* Defining ID of row which was selected for update and passing it 
         as request attribute. */
         for (Integer id : expensesIdList) {
-            if (request.getParameter("update_CURRENT_STOCK_PCS_" + String.valueOf(id)) != null) {
+            if (request.getParameter("update_CURRENT_STOCK_PCS_" 
+                    + String.valueOf(id)) != null) {
 
-                request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-                request.setAttribute("currentEntityAccountList", EntityAccountListString());                
+                request.setAttribute("currentEntityExpenseList", 
+                        EntityExpenseListString());
+                request.setAttribute("currentEntityAccountList", 
+                        EntityAccountListString());                
                 
                 request.setAttribute("rowSelectedForCurrentStockUpdate", id);
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp")
+                        .forward(request, response);
             }
         }
         /* Defining ID of row which was submitted for update and passing it 
         to Bean for update operation. */
         for (Integer id : expensesIdList) {
-            if (request.getParameter("submitUpdate_CURRENT_STOCK_PCS_" + String.valueOf(id)) != null) {
+            if (request.getParameter("submitUpdate_CURRENT_STOCK_PCS_" 
+                    + String.valueOf(id)) != null) {
                 String idToUpdate = String.valueOf(id);
-                String updateCurrentStock = request.getParameter("updateCurrentStock");                
+                String updateCurrentStock = request
+                        .getParameter("updateCurrentStock");                
                 
-                selectedExpense = select.executeSelectById(DBConnection, Integer.parseInt(idToUpdate));
+                selectedExpense = select.executeSelectById(DBConnection, 
+                        Integer.parseInt(idToUpdate));
                 String name = selectedExpense.getName();
-                String accountId = String.valueOf(selectedExpense.getAccountId());
-                String linkedToComplexId = String.valueOf(selectedExpense.getLinkedToComplexId());
+                String accountId = String.valueOf(selectedExpense
+                        .getAccountId());
+                String linkedToComplexId = String.valueOf(selectedExpense
+                        .getLinkedToComplexId());
                 String price = String.valueOf(selectedExpense.getPrice());
 
-                String safetyStockPcs = String.valueOf(selectedExpense.getSafetyStockPcs());
-                String orderQtyPcs = String.valueOf(selectedExpense.getOrderQtyPcs());
+                String safetyStockPcs = String.valueOf(selectedExpense
+                        .getSafetyStockPcs());
+                String orderQtyPcs = String.valueOf(selectedExpense
+                        .getOrderQtyPcs());
                 
                 boolean updated = update.execute(DBConnection, name, name, 
                         accountId, linkedToComplexId, price, updateCurrentStock, 
@@ -210,7 +241,8 @@ public class MainScreenServlet extends HttpServlet {
                     handler.prepareEntityExpenseById(DBConnection, "W", id);
                     plannedParams.executeUpdateAll(DBConnection, "W");
 
-                    aHandler.prepareEntityAccountByExpenseId(DBConnection, "W", id);
+                    aHandler.prepareEntityAccountByExpenseId(DBConnection, "W", 
+                            id);
                     plannedAccountsValues.executeUpdateAll(DBConnection, "W");                    
  
                     log.add(session, currentDateTime + " [Adjust Current Stock "
@@ -220,10 +252,13 @@ public class MainScreenServlet extends HttpServlet {
                             + "command entered] : Command declined");
                 }
                 
-                request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-                request.setAttribute("currentEntityAccountList", EntityAccountListString());                
+                request.setAttribute("currentEntityExpenseList", 
+                        EntityExpenseListString());
+                request.setAttribute("currentEntityAccountList", 
+                        EntityAccountListString());                
                 
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp")
+                        .forward(request, response);
             }
         }
         
@@ -231,25 +266,32 @@ public class MainScreenServlet extends HttpServlet {
         /* Defining ID of row which was selected for update and passing it 
         as request attribute. */
         for (Integer id : expensesIdList) {
-            if (request.getParameter("update_PLANNED_PCS_" + String.valueOf(id)) != null) {
+            if (request.getParameter("update_PLANNED_PCS_" 
+                    + String.valueOf(id)) != null) {
                 
-                request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-                request.setAttribute("currentEntityAccountList", EntityAccountListString());                
+                request.setAttribute("currentEntityExpenseList", 
+                        EntityExpenseListString());
+                request.setAttribute("currentEntityAccountList", 
+                        EntityAccountListString());                
                 
                 request.setAttribute("rowSelectedForExpensesPlanPcsUpdate", id);
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp")
+                        .forward(request, response);
             }
         }
         /* Defining ID of row which was submitted for update and passing it 
         to Bean for update operation. */
         for (Integer id : expensesIdList) {
-            if (request.getParameter("submitUpdate_PLANNED_PCS_" + String.valueOf(id)) != null) {
+            if (request.getParameter("submitUpdate_PLANNED_PCS_" 
+                    + String.valueOf(id)) != null) {
                 String idToUpdate = String.valueOf(id);               
                 
-                ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
+                ArrayList<String> dates = commonMethods
+                        .getDatesList(DBConnection);
                 Map<String, String> updateExpensesPlanPcsList = new TreeMap<>();
                 for (String date : dates) {
-                    updateExpensesPlanPcsList.put(date, request.getParameter("updateExpensesPlanPcs_" + date));
+                    updateExpensesPlanPcsList.put(date, request
+                            .getParameter("updateExpensesPlanPcs_" + date));
                 }
                 
                 boolean updated = plannedParams.executeUpdate(DBConnection, 
@@ -258,21 +300,26 @@ public class MainScreenServlet extends HttpServlet {
                     handler.prepareEntityExpenseById(DBConnection, "W", id);
                     plannedParams.executeUpdateAll(DBConnection, "W");
 
-                    aHandler.prepareEntityAccountByExpenseId(DBConnection, "W", id);                
+                    aHandler.prepareEntityAccountByExpenseId(DBConnection, "W", 
+                            id);                
                     plannedAccountsValues.executeUpdateAll(DBConnection, "W");                    
                     
-                    log.add(session, currentDateTime + " [Update Expenses Plan "
-                            + "PCS command entered] : Expenses Plan "
-                            + "updated");
+                    log.add(session, currentDateTime 
+                            + " [Update Expenses Plan PCS command entered] : "
+                                    + "Expenses Plan updated");
                 } else {
-                    log.add(session, currentDateTime + " [Update Expenses Plan "
-                            + "PCS command entered] : Command declined");
+                    log.add(session, currentDateTime 
+                            + " [Update Expenses Plan PCS command entered] : "
+                                    + "Command declined");
                 }
                 
-                request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-                request.setAttribute("currentEntityAccountList", EntityAccountListString());                
+                request.setAttribute("currentEntityExpenseList", 
+                        EntityExpenseListString());
+                request.setAttribute("currentEntityAccountList",
+                        EntityAccountListString());                
                 
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp")
+                        .forward(request, response);
             }
         }        
         
@@ -280,48 +327,60 @@ public class MainScreenServlet extends HttpServlet {
         /* Defining ID of row which was selected for update and passing it 
         as request attribute. */
         for (Integer id : expensesIdList) {
-            if (request.getParameter("update_CONSUMPTION_PCS_" + String.valueOf(id)) != null) {
+            if (request.getParameter("update_CONSUMPTION_PCS_" 
+                    + String.valueOf(id)) != null) {
 
-                request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-                request.setAttribute("currentEntityAccountList", EntityAccountListString());                
+                request.setAttribute("currentEntityExpenseList",
+                        EntityExpenseListString());
+                request.setAttribute("currentEntityAccountList",
+                        EntityAccountListString());                
                 
                 request.setAttribute("rowSelectedForConsumptionPcsUpdate", id);
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp")
+                        .forward(request, response);
             }
         }
         /* Defining ID of row which was submitted for update and passing it 
         to Bean for update operation. */
         for (Integer id : expensesIdList) {
-            if (request.getParameter("submitUpdate_CONSUMPTION_PCS_" + String.valueOf(id)) != null) {
+            if (request.getParameter("submitUpdate_CONSUMPTION_PCS_" 
+                    + String.valueOf(id)) != null) {
                 String idToUpdate = String.valueOf(id);               
                 
-                ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
+                ArrayList<String> dates = commonMethods
+                        .getDatesList(DBConnection);
                 Map<String, String> updateConsumptionPcsList = new TreeMap<>();
                 for (String date : dates) {
-                    updateConsumptionPcsList.put(date, request.getParameter("updateConsumptionPcs_" + date));
+                    updateConsumptionPcsList.put(date, request
+                            .getParameter("updateConsumptionPcs_" + date));
                 }
                 
                 boolean updated = plannedParams.executeUpdate(DBConnection, 
-                        idToUpdate, "CONSUMPTION_PCS", updateConsumptionPcsList);
+                        idToUpdate, "CONSUMPTION_PCS", 
+                        updateConsumptionPcsList);
                 if (updated) {
                     handler.prepareEntityExpenseById(DBConnection, "W", id);
                     plannedParams.executeUpdateAll(DBConnection, "W");
 
-                    aHandler.prepareEntityAccountByExpenseId(DBConnection, "W", id);
+                    aHandler.prepareEntityAccountByExpenseId(DBConnection, "W", 
+                            id);
                     plannedAccountsValues.executeUpdateAll(DBConnection, "W");                     
 
-                    log.add(session, currentDateTime + " [Update Consumption "
-                            + "PCS command entered] : Expenses Plan "
-                            + "updated");
+                    log.add(session, currentDateTime 
+                            + " [Update Consumption PCS command entered] : "
+                                    + "Expenses Plan updated");
                 } else {
                     log.add(session, currentDateTime + " [Update Consumption "
                             + "PCS command entered] : Command declined");
                 }
  
-                request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-                request.setAttribute("currentEntityAccountList", EntityAccountListString());                
+                request.setAttribute("currentEntityExpenseList", 
+                        EntityExpenseListString());
+                request.setAttribute("currentEntityAccountList", 
+                        EntityAccountListString());                
                 
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp")
+                        .forward(request, response);
             }
         }        
         
@@ -329,25 +388,32 @@ public class MainScreenServlet extends HttpServlet {
         /* Defining ID of row which was selected for update and passing it 
         as request attribute. */
         for (Integer id : expensesIdList) {
-            if (request.getParameter("update_PLANNED_CUR_" + String.valueOf(id)) != null) {
+            if (request.getParameter("update_PLANNED_CUR_" 
+                    + String.valueOf(id)) != null) {
 
-                request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-                request.setAttribute("currentEntityAccountList", EntityAccountListString());                
+                request.setAttribute("currentEntityExpenseList", 
+                        EntityExpenseListString());
+                request.setAttribute("currentEntityAccountList", 
+                        EntityAccountListString());                
                 
                 request.setAttribute("rowSelectedForExpensesPlanCurUpdate", id);
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp")
+                        .forward(request, response);
             }
         }
         /* Defining ID of row which was submitted for update and passing it 
         to Bean for update operation. */
         for (Integer id : expensesIdList) {
-            if (request.getParameter("submitUpdate_PLANNED_CUR_" + String.valueOf(id)) != null) {
+            if (request.getParameter("submitUpdate_PLANNED_CUR_" 
+                    + String.valueOf(id)) != null) {
                 String idToUpdate = String.valueOf(id);               
                 
-                ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
+                ArrayList<String> dates = commonMethods
+                        .getDatesList(DBConnection);
                 Map<String, String> updateExpensesPlanCurList = new TreeMap<>();
                 for (String date : dates) {
-                    updateExpensesPlanCurList.put(date, request.getParameter("updateExpensesPlanCur_" + date));
+                    updateExpensesPlanCurList.put(date, request
+                            .getParameter("updateExpensesPlanCur_" + date));
                 }
                 
                 boolean updated = plannedParams.executeUpdate(DBConnection, 
@@ -356,21 +422,26 @@ public class MainScreenServlet extends HttpServlet {
                     handler.prepareEntityExpenseById(DBConnection, "W", id);
                     plannedParams.executeUpdateAll(DBConnection, "W");
 
-                    aHandler.prepareEntityAccountByExpenseId(DBConnection, "W", id);
+                    aHandler.prepareEntityAccountByExpenseId(DBConnection, "W", 
+                            id);
                     plannedAccountsValues.executeUpdateAll(DBConnection, "W");                      
 
-                    log.add(session, currentDateTime + " [Update Expenses Plan "
-                            + "CUR command entered] : Expenses Plan "
-                            + "updated");
+                    log.add(session, currentDateTime 
+                            + " [Update Expenses Plan CUR command entered] : "
+                                    + "Expenses Plan updated");
                 } else {
-                    log.add(session, currentDateTime + " [Update Expenses Plan "
-                            + "CUR command entered] : Command declined");
+                    log.add(session, currentDateTime 
+                            + " [Update Expenses Plan CUR command entered] : "
+                                    + "Command declined");
                 }
     
-                request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-                request.setAttribute("currentEntityAccountList", EntityAccountListString());                
+                request.setAttribute("currentEntityExpenseList", 
+                        EntityExpenseListString());
+                request.setAttribute("currentEntityAccountList", 
+                        EntityAccountListString());                
                 
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp")
+                        .forward(request, response);
             }
         }
         
@@ -378,28 +449,36 @@ public class MainScreenServlet extends HttpServlet {
         /* Defining ID of row which was selected for update and passing it 
         as request attribute. */
         for (Integer id : accountsIdList) {
-            if (request.getParameter("update_PLANNED_INCOME_CUR_" + String.valueOf(id)) != null) {
+            if (request.getParameter("update_PLANNED_INCOME_CUR_" 
+                    + String.valueOf(id)) != null) {
             
-                request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-                request.setAttribute("currentEntityAccountList", EntityAccountListString());
+                request.setAttribute("currentEntityExpenseList", 
+                        EntityExpenseListString());
+                request.setAttribute("currentEntityAccountList", 
+                        EntityAccountListString());
                 
                 request.setAttribute("rowSelectedForIncomeCurUpdate", id);
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp")
+                        .forward(request, response);
             }
         }
         /* Defining ID of row which was submitted for update and passing it 
         to Bean for update operation. */
         for (Integer id : accountsIdList) {
-            if (request.getParameter("submitUpdate_PLANNED_INCOME_CUR_" + String.valueOf(id)) != null) {
+            if (request.getParameter("submitUpdate_PLANNED_INCOME_CUR_" 
+                    + String.valueOf(id)) != null) {
                 String idToUpdate = String.valueOf(id);               
                 
-                ArrayList<String> dates = commonMethods.getDatesList(DBConnection);
+                ArrayList<String> dates = commonMethods
+                        .getDatesList(DBConnection);
                 Map<String, String> updateIncomeCurList = new TreeMap<>();
                 for (String date : dates) {
-                    updateIncomeCurList.put(date, request.getParameter("updateIncomeCur_" + date));
+                    updateIncomeCurList.put(date, request
+                            .getParameter("updateIncomeCur_" + date));
                 }
                 
-                boolean updated = plannedAccountsValues.executeUpdate(DBConnection, 
+                boolean updated = plannedAccountsValues
+                        .executeUpdate(DBConnection, 
                         idToUpdate, "PLANNED_INCOME_CUR", updateIncomeCurList);
                 if (updated) {
                     aHandler.prepareEntityAccountById(DBConnection, "W", id);
@@ -413,15 +492,26 @@ public class MainScreenServlet extends HttpServlet {
                             + "CUR command entered] : Command declined");
                 }
 
-                request.setAttribute("currentEntityExpenseList", EntityExpenseListString());
-                request.setAttribute("currentEntityAccountList", EntityAccountListString());
+                request.setAttribute("currentEntityExpenseList", 
+                        EntityExpenseListString());
+                request.setAttribute("currentEntityAccountList", 
+                        EntityAccountListString());
                 
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp")
+                        .forward(request, response);
             }
         }        
 
     }
 
+    /**
+     * Converts collection of EntityExpense objects that is held in 
+     * {@link ejb.calculation.EntityExpenseList#expenseList} into String 
+     * representing HTML bulleted list.
+     * 
+     * @return EntityExpense objects converted to String in HTML bulleted list
+     * form.
+     */
     private String EntityExpenseListString() {
         ArrayList<EntityExpense> list = handler.getEntityExpenseList();
         StringBuilder sb = new StringBuilder();
@@ -431,6 +521,14 @@ public class MainScreenServlet extends HttpServlet {
         return sb.toString();
     }
 
+    /**
+     * Converts collection of EntityAccount objects that is held in 
+     * {@link ejb.calculation.EntityAccountList#accountList} into String 
+     * representing HTML bulleted list.
+     * 
+     * @return EntityAccount objects converted to String in HTML bulleted list
+     * form.
+     */
     private String EntityAccountListString() {
         ArrayList<EntityAccount> list = aHandler.getEntityAccountList();
         StringBuilder sb = new StringBuilder();
@@ -439,7 +537,6 @@ public class MainScreenServlet extends HttpServlet {
         }
         return sb.toString();
     }
-    
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

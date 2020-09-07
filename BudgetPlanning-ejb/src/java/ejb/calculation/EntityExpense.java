@@ -8,8 +8,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- *
- * @author SoundlyGifted
+ * EntityExpense class is used to perform calculations of attributes and 
+ * parameters of a certain Expense database representation and hold the 
+ * calculated values until they are placed into the database.
  */
 public class EntityExpense extends EjbCommonMethods {
 
@@ -59,29 +60,26 @@ public class EntityExpense extends EjbCommonMethods {
     
     // Constructors for the case of selection of Expense from database tables.
     /**
-     * EntityExpense Constructor for the case of selection from database tables, 
-     * initializes Constant parameters and Fixed parameters only.
+     * Constructor of the EntityExpense class (setting all attributes for 
+     * Expense paramter values calculation purpose).
      * 
-     * Constant parameters for each Expense Category:
-     * @param id
-     * @param type
-     * 
-     * Common Fixed parameter variables for all Expense types:
-     * @param name
-     * @param accountId
-     * @param accountLinked
-     * @param linkedToComplexId
-     * 
-     * Fixed parameter variables for 'GOODS' Expense type only:
-     * @param price
-     * @param currentStockPcs
-     * @param currentStockCur
-     * @param currentStockWscPcs
-     * @param currentStockWscCur
-     * @param safetyStockPcs
-     * @param safetyStockCur
-     * @param orderQtyPcs
-     * @param orderQtyCur 
+     * @param id database Expense ID.
+     * @param type type of the Expense.
+     * @param name Expense name.
+     * @param accountId Expense linked account database ID.
+     * @param accountLinked Expense linked account name.
+     * @param linkedToComplexId Expense linked Complex Expense database ID.
+     * @param price Expense planning price (price for planning purpose).
+     * @param currentStockPcs Expense Current Stock (PCS) attribute.
+     * @param currentStockCur Expense Current Stock (CUR) attribute.
+     * @param currentStockWscPcs Expense Current Stock With Safety Stock
+     * Consideration (PCS) attribute.
+     * @param currentStockWscCur Expense Current Stock With Safety Stock
+     * Consideration (CUR) attribute.
+     * @param safetyStockPcs Expense Safety Stock (PCS) attribute.
+     * @param safetyStockCur Expense Safety Stock (CUR) attribute.
+     * @param orderQtyPcs Expense Order Quantity (PCS) attribure.
+     * @param orderQtyCur Expense Order Quantity (CUR) attribure.
      */
     public EntityExpense(int id, String type, String name, int accountId, 
             String accountLinked, int linkedToComplexId, Double price,
@@ -118,25 +116,19 @@ public class EntityExpense extends EjbCommonMethods {
     }
     
     /**
-     * EntityExpense Constructor, initializes Constant parameters and Fixed 
-     * parameters only (receives user-changeable Fixed parameters and 
-     * calculates application-calculated Fixed parameters).
+     * Constructor of the EntityExpense class (setting only the attributes 
+     * necessary to perform database operations).
      * 
-     * Constant parameters for each Expense Category:
-     * @param id
-     * @param type
-     * 
-     * Common Fixed parameter variables for all Expense types:
-     * @param name
-     * @param accountId
-     * @param accountLinked
-     * @param linkedToComplexId
-     * 
-     * User-changeable Fixed parameter variables for 'GOODS' Expense type only:
-     * @param price
-     * @param currentStockPcs
-     * @param safetyStockPcs
-     * @param orderQtyPcs
+     * @param id database Expense ID.
+     * @param type type of the Expense.
+     * @param name Expense name.
+     * @param accountId Expense linked account database ID.
+     * @param accountLinked Expense linked account name.
+     * @param linkedToComplexId Expense linked Complex Expense database ID.
+     * @param price Expense planning price (price for planning purpose).
+     * @param currentStockPcs Expense Current Stock (PCS) attribute.
+     * @param safetyStockPcs Expense Safety Stock (PCS) attribute.
+     * @param orderQtyPcs Expense Order Quantity (PCS) attribure.
      */
     public EntityExpense(int id, String type, String name, int accountId, 
             String accountLinked, int linkedToComplexId, 
@@ -169,23 +161,11 @@ public class EntityExpense extends EjbCommonMethods {
     }    
 
     /**
-     * Method calculates all application-calculated Fixed parameters within
-     * the calculational EntityExpense object based on the user-changeable 
-     * Fixed parameters, only for Expenses with type = "GOODS".
-     * User-changeable Fixed parameter list:
-     * price - planning-purpose value of price (price as planning basis).
+     * Method calculates all application-calculated Fixed attributes within
+     * the EntityExpense object based on the user-changeable Fixed parameters, 
+     * only for Expenses with type = "GOODS".
      * 
-     * currentStockPcs - current stock in pcs.
-     * safetyStockPcs - safety stock in pcs.
-     * orderQtyPcs - normal order quantity in pcs.
-     * 
-     * Application-calculated Fixed parameter list:
-     * currentStockCur - current stock in currency.
-     * currentStockWscPcs - current stock with safety stock consideration in pcs.
-     * currentStockWscCur - current stock with safety stock consideration in currency.
-     * safetyStockCur - safety stock in currency.
-     * orderQtyCur - normal order quantity in currency.
-     * @return 
+     * @return "true" in case of success of the operation and "false" otherwise.
      */
     public final boolean calculateFixedParameters() {
         if (type.equals("GOODS")) {
@@ -198,6 +178,13 @@ public class EntityExpense extends EjbCommonMethods {
         return true;
     }
     
+    /**
+     * Calculates variable parameters of this EntityExpense object based on the
+     * data within the object and the calls of private methods that use domain 
+     * specific formulae for calculation.
+     * 
+     * @param timePeriodDates set of planning period dates.
+     */
     public void calculateVariableParameters(TreeSet<String> 
             timePeriodDates) {
         switch(type) {
@@ -218,6 +205,13 @@ public class EntityExpense extends EjbCommonMethods {
         }
     }
  
+    /**
+     * Initializes given variable parameter.
+     * 
+     * @param param variable parameter name.
+     * @return new variable parameter object (if given parameter does not exist)
+     * of parameter with all values cleared (if given parameter exists).
+     */
     private TreeMap<String, Double>
             initializeVariableParam(TreeMap<String, Double> param) {
         if (param == null) {
@@ -226,7 +220,13 @@ public class EntityExpense extends EjbCommonMethods {
         param.clear();
         return param;
     }
-                  
+   
+    /**
+     * Resets all variable parameters in this EntityExpense object which means
+     * their values will be cleared (if parameter exists) and the "calculated"
+     * flag of the object (representing the parameter calculation status of the
+     * object) will be set to "false".
+     */        
     public void resetVariableParams() {
         if (plannedCur != null && !plannedCur.isEmpty()) {
             plannedCur.clear();
@@ -267,6 +267,13 @@ public class EntityExpense extends EjbCommonMethods {
         calculated = false;
     }    
 
+    /**
+     * Calculates variable parameters of this EntityExpense object (with type =
+     * 'GOODS') based on data within the object and the domain specific 
+     * formulae.
+     * 
+     * @param timePeriodDates set of planning period dates.
+     */
     private void 
         calculateVariableParametersForGoods(TreeSet<String> timePeriodDates) {
         plannedCur = initializeVariableParam(plannedCur);
@@ -331,7 +338,14 @@ public class EntityExpense extends EjbCommonMethods {
             requirementCur.put(date, round(price * requirementPcsVal, 2));
         }
     }
-       
+        
+    /**
+     * Calculates variable parameters of this EntityExpense object (with type =
+     * 'SIMPLE_EXPENSES') based on data within the object and the domain 
+     * specific formulae.
+     * 
+     * @param timePeriodDates set of planning period dates.
+     */   
     private void calculateVariableParametersForSimpleExpenses(TreeSet<String> 
             timePeriodDates) {
         
@@ -354,6 +368,13 @@ public class EntityExpense extends EjbCommonMethods {
         }
     }
 
+    /**
+     * Calculates variable parameters of this EntityExpense object (with type =
+     * 'COMPLEX_EXPENSES') based on data within the object and the domain 
+     * specific formulae.
+     * 
+     * @param timePeriodDates set of planning period dates.
+     */
     private void calculateVariableParametersForComplexExpenses(TreeSet<String> 
             timePeriodDates) {
         plannedCur = initializeVariableParam(plannedCur);

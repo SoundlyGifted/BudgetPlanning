@@ -8,7 +8,8 @@
 <html>
 
     <!-- JSTL database connection -->
-    <sql:setDataSource var = "outputDBConnection" driver = "org.apache.derby.jdbc.ClientDriver"
+    <sql:setDataSource var = "outputDBConnection" 
+                       driver = "org.apache.derby.jdbc.ClientDriver"
                        url = "jdbc:derby://localhost:1527/BudgetPlanningAppDB"
                        user = "app"  password = "app"/>    
 
@@ -817,22 +818,6 @@
 
             </table>
             </form>
-   
-            <%--
-            <%  String currentEntityExpenseList = (String) request.getAttribute("currentEntityExpenseList");
-                    if (currentEntityExpenseList != null && !currentEntityExpenseList.trim().isEmpty()) {
-                        out.println(currentEntityExpenseList);
-                    }
-            %>
-
-            
-            <%  String currentEntityAccountList = (String) request.getAttribute("currentEntityAccountList");
-                    if (currentEntityAccountList != null && !currentEntityAccountList.trim().isEmpty()) {
-                        out.println(currentEntityAccountList);
-                    }
-            %>            
-            --%>            
-            
         </div>
 
     </body>

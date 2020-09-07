@@ -1,3 +1,5 @@
+-- resources.sql.mainScreen --
+-- select.plannedExpCurSum.byAcctId.sql --
 select T3."DATE", sum(T3.PLANNED_CUR) as PLANNED_CUR
 from
 (select T1.* from

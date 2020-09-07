@@ -1,10 +1,15 @@
 package ejb.calculation;
 
 /**
- *
- * @author SoundlyGifted
+ * PlanningPeriodsFrequencies interface to contain enumiration of possible
+ * planning periods frequencies pre-specified in the application.
  */
 public interface PlanningPeriodsFrequencies {
+    
+    /**
+     * Enumiration of possible planning periods frequencies pre-specified in 
+     * the application.
+     */
     enum Frequency {
 
         WEEKLY("W"),

@@ -1,3 +1,5 @@
+-- resources.sql.mainScreen --
+-- select.plannedExpAndDiffCurSum.byAcctIdAndDate.sql --
 select T1."DATE", T2.ACCOUNT_ID, 
     sum(T1.PLANNED_CUR) as PLANNED_CUR, 
         sum(T1.DIFFERENCE_CUR) as DIFFERENCE_CUR

@@ -1,3 +1,5 @@
+-- resources.sql.mainScreen --
+-- select.accountPlannedVarParams.byid.sql --
 select "DATE", PLANNED_REMAINDER_CUR, PLANNED_INCOME_CUR
 from PLANNED_ACCOUNTS_VALUES
 cross join

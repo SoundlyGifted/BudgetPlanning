@@ -9,10 +9,8 @@ import java.sql.SQLException;
 import javax.ejb.EJB;
 
 /**
- * Abstract class to contain common Methods that are used by Session Beans in
- * EJB module that interact with the database.
- * 
- * @author SoundlyGifted
+ * SQLAbstract class is extended by Session Beans in EJB module that interact 
+ * with the database and contain common database operation methods.
  */
 public abstract class SQLAbstract extends EjbCommonMethods{
     
@@ -26,9 +24,8 @@ public abstract class SQLAbstract extends EjbCommonMethods{
     /**
      * Creates PreparedStatement based on the Connection and Path given.
      * 
-     * @param connection Connection to the database.
-     * @param path String path to the SQL file without extension (starting from 
-     *             the "resources/sql/")
+     * @param connection database Connection.
+     * @param path String path to the SQL file.
      * @return PreparedStatement based on the Connection and Path given.
      * @throws SQLException
      * @throws IOException 
@@ -36,9 +33,6 @@ public abstract class SQLAbstract extends EjbCommonMethods{
     public PreparedStatement createPreparedStatement(Connection connection,
             String path)
             throws SQLException, IOException {
-        String className = this.getClass().getSimpleName();
-        System.out.println("*** " + className + ": createPreparedStatement() "
-                + "current connection = " + connection.hashCode());
         String query = queryProvider.getQuery(path);
         return connection.prepareStatement(query);
     }

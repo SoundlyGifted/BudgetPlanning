@@ -20,8 +20,8 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB PlannedVariableParamsSQL is used to perform operations on planned and
+ * calculated parameters data of the Expenses in the database.
  */
 @Stateless
 public class PlannedVariableParamsSQL extends SQLAbstract 
@@ -33,6 +33,9 @@ public class PlannedVariableParamsSQL extends SQLAbstract
     @EJB
     private TimePeriodsHandlerLocal timePeriods;
       
+    /**
+     * {@inheritDoc} 
+     */
     @Override
     public boolean executeUpdate(Connection connection, String expenseId, 
             String paramName, Map<String, String> updatedValues) {
@@ -106,7 +109,10 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         }
         return true;
     }
-    
+
+    /**
+     * {@inheritDoc} 
+     */    
     @Override
     public String getCurrentPeriodDate(Connection connection) {
         
@@ -144,7 +150,10 @@ public class PlannedVariableParamsSQL extends SQLAbstract
             }
         }
     }
-    
+ 
+    /**
+     * {@inheritDoc} 
+     */    
     @Override
     public boolean setCurrentPeriodDate(Connection connection, String date) {
         
@@ -265,7 +274,10 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         }
         return true;
     }
-    
+
+    /**
+     * {@inheritDoc} 
+     */    
     @Override
     public TreeMap<String, Double> selectPlannedExpensesById(Connection 
             connection, Integer id) {
@@ -310,7 +322,10 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         }
         return plannedExpense;
     }
-    
+
+    /**
+     * {@inheritDoc} 
+     */    
     @Override
     public TreeMap<String, Double> selectConsumptionPcsById(Connection 
             connection, Integer id) {
@@ -349,6 +364,9 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         return consumptionPcs;
     }
     
+    /**
+     * {@inheritDoc} 
+     */
     @Override
     public TreeMap<String, Double> selectDifferencePcsById(Connection 
             connection, Integer id) {
@@ -387,6 +405,9 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         return consumptionPcs;
     }    
 
+    /**
+     * {@inheritDoc} 
+     */    
     @Override
     public TreeMap<String, Double> 
         selectPlannedExpAndDiffCurSumByAcctIdAndDate(Connection connection, 
@@ -431,7 +452,10 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         }
         return result;            
     }    
-    
+
+    /**
+     * {@inheritDoc} 
+     */        
     @Override
     public TreeMap<String, Double> 
         selectPlannedExpCurSumByAcctId(Connection connection, 
@@ -473,7 +497,10 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         }
         return result;            
     }
-    
+
+    /**
+     * {@inheritDoc} 
+     */        
     @Override
     public boolean executeUpdateAll(Connection connection,
             String inputPlanningPeriodsFrequency) {
@@ -737,7 +764,10 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         }
         return true;
     }
-    
+
+    /**
+     * {@inheritDoc} 
+     */    
     @Override
     public boolean executeDeleteByExpenseId(Connection connection, String id) {
         /* Checking of input values. */

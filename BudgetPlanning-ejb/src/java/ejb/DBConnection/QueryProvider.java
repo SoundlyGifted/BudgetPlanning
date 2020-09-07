@@ -10,12 +10,15 @@ import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB QueryProvider is used to provide SQL queries red from sql-files.
  */
 @Singleton
 @DependsOn("DbConnectionProvider")
 public class QueryProvider implements QueryProviderLocal {
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getQuery(String path) throws IOException {
         path = "resources/sql/" + path + ".sql";

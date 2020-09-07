@@ -9,8 +9,8 @@ import javax.ejb.Stateless;
 import javax.servlet.http.HttpSession;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB "DBConnection" is used to provide and close database Connection to
+ * necessary methods of EJB components.
  */
 @Stateless
 @DependsOn("DbConnectionProvider")
@@ -19,20 +19,16 @@ public class DBConnection implements DBConnectionLocal {
     @EJB
     private DbConnectionProviderLocal connectionProvider;
 
-    /* Creating connection and assigning it to the given attribute of the 
-    given session. */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Connection connection(HttpSession session,
             String sessionAttributeName) {
-        System.out.println("*** Checking DB connection for current session = "
-                + session.hashCode() + ", session attribute = '"
-                + sessionAttributeName + "'");
         Connection DBConnection
                 = (Connection) session.getAttribute(sessionAttributeName);
         try {
             if (DBConnection == null || DBConnection.isClosed()) {
-                System.out.println("*** DBConnection does not exist, "
-                        + "getting connection...");
                 DBConnection = connectionProvider.getConnection();
                 session.setAttribute(sessionAttributeName, DBConnection);
             }
@@ -40,17 +36,14 @@ public class DBConnection implements DBConnectionLocal {
             System.out.println("*** DBConnection establishing error : "
                     + ex.getMessage());
         }
-        if (DBConnection != null) {
-            System.out.println("*** DBConnection established = "
-                    + DBConnection.hashCode() + ", and placed to the session "
-                    + "attribute named '" + sessionAttributeName + "'");
-        }
         return DBConnection;
     }
 
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public Connection connection() {
-        System.out.println("*** Attempt to establish DBConnection ...");
         Connection DBconnection = null;
         try {
             DBconnection = connectionProvider.getConnection();
@@ -58,28 +51,20 @@ public class DBConnection implements DBConnectionLocal {
             System.out.println("*** DBConnection establishing error : "
                     + ex.getMessage());
         }
-        if (DBconnection != null) {
-            System.out.println("*** DBConnection established = "
-                    + DBconnection.hashCode());
-        }
         return DBconnection;
     }
 
-    /* Removing assigned connection from the session attribute and closing the 
-    connection. */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void closeConnection(HttpSession session,
             String sessionAttributeName) {
-        System.out.println("*** Checking DB connection for current session = "
-                + session.hashCode() + ", session attribute = '"
-                + sessionAttributeName + "'");
         Connection DBConnection
                 = (Connection) session.getAttribute(sessionAttributeName);
         try {
             if (DBConnection == null || DBConnection.isClosed()) {
             } else {
-                System.out.println("*** DB connection exists, attempt to "
-                        + "close...");
                 session.removeAttribute(sessionAttributeName);
                 DBConnection.close();
                 DBConnection = null;
@@ -88,9 +73,11 @@ public class DBConnection implements DBConnectionLocal {
             System.out.println("*** DBConnection closing error : "
                     + ex.getMessage());
         }
-        System.out.println("*** DB connection closed for the session.");
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void closeConnection(Connection connection) {
         try {
@@ -103,6 +90,5 @@ public class DBConnection implements DBConnectionLocal {
             System.out.println("*** DBConnection closing error : "
                     + ex.getMessage());
         }
-        System.out.println("*** DBConnection closed. ");
     }
 }

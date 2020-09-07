@@ -1,3 +1,5 @@
+-- resources.sql.actualExpenses --
+-- select.calculateActualExpenses.byExpenseId.weekly.sql --
 select T2."TYPE", T2.ID, T1."YEAR", T1.WEEK, T1.ACTUAL_PCS, T1.ACTUAL_CUR
 from
 (select EXPENSE_ID, "YEAR", cast(substr(WEEK, 3, 2) as int) as WEEK, 

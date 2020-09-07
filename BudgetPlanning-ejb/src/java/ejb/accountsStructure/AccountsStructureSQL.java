@@ -18,8 +18,8 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB AccountsStructureSQL is used to perform operations on Account records in 
+ * the database.
  */
 @Stateless
 public class AccountsStructureSQL extends SQLAbstract
@@ -28,6 +28,9 @@ public class AccountsStructureSQL extends SQLAbstract
     @EJB
     private AccountsHandlerLocal aHandler;
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean executeInsert(Connection connection, String name,
             String currentRemainder) {
@@ -66,6 +69,9 @@ public class AccountsStructureSQL extends SQLAbstract
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean executeUpdate(Connection connection, String idForUpdate,
             String name, String currentRemainder) {
@@ -116,6 +122,9 @@ public class AccountsStructureSQL extends SQLAbstract
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean executeDelete(Connection connection, String id) {
         if (stringToInt(id) == null) {
@@ -164,6 +173,9 @@ public class AccountsStructureSQL extends SQLAbstract
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public ArrayList<EntityAccount> executeSelectAll(Connection connection) {
         PreparedStatement preparedStatement;
@@ -194,6 +206,9 @@ public class AccountsStructureSQL extends SQLAbstract
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public EntityAccount executeSelectByName(Connection connection,
             String name) {
@@ -231,6 +246,9 @@ public class AccountsStructureSQL extends SQLAbstract
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public EntityAccount executeSelectById(Connection connection, Integer id) {
         if (id == null || id < 0) {
@@ -265,7 +283,10 @@ public class AccountsStructureSQL extends SQLAbstract
             clear(preparedStatement);
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public HashMap<Integer, HashMap<String, Double>> 
         executeSelectAllValues(Connection connection) {
@@ -310,7 +331,10 @@ public class AccountsStructureSQL extends SQLAbstract
             }
         }
     }
-        
+
+    /**
+     * {@inheritDoc}
+     */        
     @Override
     public boolean updateCurrentRemainderById(Connection connection, Integer id,
             Double newCurrentRemainderCur) {

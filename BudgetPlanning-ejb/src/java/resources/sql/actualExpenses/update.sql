@@ -1,3 +1,5 @@
+-- resources.sql.actualExpenses --
+-- update.sql --
 update ACTUAL_EXPENSES 
 set "DATE" = ?,
     WEEK = ?,

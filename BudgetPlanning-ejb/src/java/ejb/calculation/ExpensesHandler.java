@@ -17,8 +17,8 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB ExpensesHandler is used to perform operations on EntityExpense objects 
+ * in the EntityExpenseList collection.
  */
 @Singleton
 @Startup
@@ -40,10 +40,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
     private TimePeriodsHandlerLocal timePeriods;
     
     /**
-     * Method to remove an EntityExpense element from the EntityExpenseList
-     * collection
-     * 
-     * @param entity EntityExpense element to be removed.
+     * {@inheritDoc}
      */
     @Override
     public void removeFromEntityExpenseList(EntityExpense entity) {
@@ -51,10 +48,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
     }
     
     /**
-     * Gets collection of EntityExpense elements (EntityExpenseList) for 
-     * further usage (calculation of parameters).
-     * 
-     * @return EntityExpenseList collection.
+     * {@inheritDoc}
      */
     @Override
     public ArrayList<EntityExpense> getEntityExpenseList() {
@@ -75,23 +69,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
     }
        
     /**
-     * Method to get a certain EntityExpense element from EntityExpenseList
-     * collection by id.If EntityExpense with the given id does not exist in the 
-     * EntityExpenseList then it is created and placed to the collection 
-     * based on the database record.
-     * If exists in the EntityExpenseList then
-     * it's parameters are updated based on the database record. If no such 
-     * record in the database then returns null.
-     * Method also checks whether any Complex EntityExpense linked to the
-     * EntityExpense with given id exists in the EntityExpenseList in the way 
-     * like described above.
-     * 
-     * @param connection database connection.
-     * @param inputPlanningPeriodsFrequency
-     * @param id the value of "id" variable of the EntityExpense to be 
-     *           selected.
-     * @return EntityExpense with the given id if exists in the 
-     *         EntityExpenseList and database record exists, null otherwise.
+     * {@inheritDoc}
      */
     @Override
     public EntityExpense prepareEntityExpenseById(Connection connection,
@@ -130,11 +108,6 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
             prepareByIdWOComplexExpenseLinkCheck (connection, 
                             inputPlanningPeriodsFrequency, timePeriodDates, 
                             complexIdLinked);
-//            for (EntityExpense expense : list) {
-//                if (expense.getId() == id) {
-//                    return expense;
-//                }
-//            }
         }
 
         // Checking if Expense with given id is a Complex Expense itself,
@@ -195,7 +168,19 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         return expenseDB;
     }
     
-    
+    /**
+     * Method is doing the same job as 
+     * {@link ExpensesHandler#prepareEntityExpenseById(java.sql.Connection, 
+     * java.lang.String, java.lang.Integer)} but it does not
+     * check whether Expense with given database ID is linked to any Complex
+     * Expense.
+     * 
+     * @param connection database Connection.
+     * @param inputPlanningPeriodsFrequency frequency of the planning time 
+     * periods.
+     * @param timePeriodDates set of planning period dates.
+     * @param id database Expense ID.
+     */
     private void prepareByIdWOComplexExpenseLinkCheck (Connection connection,
             String inputPlanningPeriodsFrequency, 
             TreeSet<String> timePeriodDates, Integer id) {
@@ -277,6 +262,16 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         list.add(expenseDB);   
     }
     
+    /**
+     * Obtains changeable parameter values from the database into a given
+     * EntityExpense object.
+     * 
+     * @param connection database Connection.
+     * @param inputPlanningPeriodsFrequency frequency of the planning time 
+     * periods.
+     * @param timePeriodDates set of planning period dates.
+     * @param expense EntityExpense object.
+     */
     private void obtainChangeableVarParamsForEntityExpense(Connection 
             connection, String inputPlanningPeriodsFrequency, 
             TreeSet<String> timePeriodDates, EntityExpense expense) {
@@ -314,11 +309,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
     }
     
     /**
-     * Actualizes EntityExpenseList (replaces it with the list obtained from
-     * the database).
-     * 
-     * @param connection database connection.
-     * @return EntityExpenseList obtained based on the database records.
+     * {@inheritDoc}
      */
     @Override
     public ArrayList<EntityExpense> actualizeEntityExpenseList(Connection 
@@ -328,7 +319,10 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         replaceEntityExpenseList(expenseListDB);
         return expenseListDB;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean 
         calculateAllCurrentStockPcsForNextPeriod(Connection connection) {
@@ -343,7 +337,6 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         
         Integer id;
         Double currentStock;
-//        Double safetyStock;
         
         TreeMap<String, Double> consumptionPcs;
         TreeMap<String, Double> plannedPcs;
@@ -360,7 +353,6 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
             if (type.equals("GOODS")) {
                 id = entry.getKey();
                 currentStock = allValues.get(id).get("CURRENT_STOCK_PCS");
-//                safetyStock = allValues.get(id).get("SAFETY_STOCK_PCS");
                 
                 consumptionPcs = plannedParams
                         .selectConsumptionPcsById(connection, id);
@@ -411,7 +403,10 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         }
         return allCurrentStockPcsUpdated;     
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */        
     @Override
     public boolean 
         calculateAllCurrentStockPcsForPreviousPeriod(Connection connection) {
@@ -426,7 +421,6 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         
         Integer id;
         Double currentStock;
-//        Double safetyStock;
         
         TreeMap<String, Double> consumptionPcs;
         TreeMap<String, Double> plannedPcs;
@@ -443,7 +437,6 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
             if (type.equals("GOODS")) {
                 id = entry.getKey();
                 currentStock = allValues.get(id).get("CURRENT_STOCK_PCS");
-//                safetyStock = allValues.get(id).get("SAFETY_STOCK_PCS");
                 
                 consumptionPcs = plannedParams
                         .selectConsumptionPcsById(connection, id);

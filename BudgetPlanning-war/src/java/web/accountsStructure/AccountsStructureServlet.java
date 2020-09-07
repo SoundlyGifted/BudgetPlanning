@@ -22,10 +22,11 @@ import javax.servlet.http.HttpSession;
 import web.common.WebServletCommonMethods;
 
 /**
- *
- * @author SoundlyGifted
+ * AccountsStructureServlet Servlet processes commands that come from user form 
+ * on the Accounts Structure page. 
  */
-@WebServlet(name = "AccountsStructureServlet", urlPatterns = {"/AccountsStructureServlet"})
+@WebServlet(name = "AccountsStructureServlet", 
+        urlPatterns = {"/AccountsStructureServlet"})
 public class AccountsStructureServlet extends HttpServlet {
 
     @EJB
@@ -41,7 +42,7 @@ public class AccountsStructureServlet extends HttpServlet {
     private AccountsHandlerLocal aHandler;
     
     @EJB
-    private PlannedAccountsValuesSQLLocal plannedAccountsValues;    
+    private PlannedAccountsValuesSQLLocal plannedAccountsValues;
     
     @EJB
     private WebServletCommonMethods commonMethods;
@@ -55,22 +56,27 @@ public class AccountsStructureServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, 
+            HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(Calendar.getInstance().getTime());
+        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
+                .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
-        Connection DBConnection = connector.connection(session, "accountsStructureDBConnection");
+        Connection DBConnection = connector.connection(session, 
+                "accountsStructureDBConnection");
         
-        ArrayList<Integer> accountsIdList = commonMethods.getIdList(DBConnection, "ACCOUNTS_STRUCTURE");
+        ArrayList<Integer> accountsIdList = commonMethods
+                .getIdList(DBConnection, "ACCOUNTS_STRUCTURE");
                      
          /* Processing Add operation. */
         if (request.getParameter("addAccount") != null) {
             String inputName = request.getParameter("inputName");
-            String inputCurrentRemainder = request.getParameter("inputCurrentRemainder");
+            String inputCurrentRemainder = request
+                    .getParameter("inputCurrentRemainder");
             
             boolean added = sql.executeInsert(DBConnection, inputName, 
                     inputCurrentRemainder);
@@ -81,7 +87,8 @@ public class AccountsStructureServlet extends HttpServlet {
                 log.add(session, currentDateTime + " [Add Account "
                         + "command entered] : Command declined");
             }
-            request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
+            request.getRequestDispatcher("AccountsStructurePage.jsp")
+                    .forward(request, response);
         }       
         
         /* Processing Update operation. */
@@ -90,13 +97,15 @@ public class AccountsStructureServlet extends HttpServlet {
         for (Integer id : accountsIdList) {
             if (request.getParameter("update_" + String.valueOf(id)) != null) {
                 request.setAttribute("rowSelectedForUpdate", id);
-                request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
+                request.getRequestDispatcher("AccountsStructurePage.jsp")
+                        .forward(request, response);
             }
         }
         /* Defining ID of row which was submitted for update and passing it 
         to Bean for update operation. */
         for (Integer id : accountsIdList) {
-            if (request.getParameter("submitUpdate_" + String.valueOf(id)) != null) {
+            if (request.getParameter("submitUpdate_" 
+                    + String.valueOf(id)) != null) {
                 String idToUpdate = String.valueOf(id);
                 
                 // Current value of currentRemainderCur. 
@@ -107,7 +116,8 @@ public class AccountsStructureServlet extends HttpServlet {
 
                 // Updated values. 
                 String updateName = request.getParameter("updateName");
-                String updateCurrentRemainder = request.getParameter("updateCurrentRemainder");
+                String updateCurrentRemainder = request
+                        .getParameter("updateCurrentRemainder");
                 boolean updated = sql.executeUpdate(DBConnection, idToUpdate, 
                         updateName, updateCurrentRemainder);
                 if (updated) {
@@ -125,14 +135,17 @@ public class AccountsStructureServlet extends HttpServlet {
                     log.add(session, currentDateTime + " [Update Account "
                             + "command entered] : Command declined");
                 }
-                request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
+                request.getRequestDispatcher("AccountsStructurePage.jsp")
+                        .forward(request, response);
             }
         }
         /* Defining ID of row which was cancelled for update and passing it 
         as request attribute. */
         for (Integer id : accountsIdList) {
-            if (request.getParameter("cancelUpdate_" + String.valueOf(id)) != null) {
-                request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
+            if (request.getParameter("cancelUpdate_" 
+                    + String.valueOf(id)) != null) {
+                request.getRequestDispatcher("AccountsStructurePage.jsp")
+                        .forward(request, response);
             }
         }        
         
@@ -150,7 +163,8 @@ public class AccountsStructureServlet extends HttpServlet {
                     log.add(session, currentDateTime + " [Delete Account "
                             + "command entered] : Command declined");
                 }
-                request.getRequestDispatcher("AccountsStructurePage.jsp").forward(request, response);
+                request.getRequestDispatcher("AccountsStructurePage.jsp")
+                        .forward(request, response);
             }
         }
     }

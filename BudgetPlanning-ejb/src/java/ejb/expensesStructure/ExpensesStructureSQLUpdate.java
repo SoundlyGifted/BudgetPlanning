@@ -15,8 +15,8 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB ExpensesStructureSQLInsert is used to perform update operations on 
+ * Expenses records in the database.
  */
 @Stateless
 public class ExpensesStructureSQLUpdate extends SQLAbstract
@@ -31,6 +31,9 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
     @EJB
     private ActualExpensesSQLLocal actualExpensesSQL;
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean execute(Connection connection, String name, String newName, 
             String accountId, String linkedToComplexId, String price,
@@ -218,6 +221,9 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean clearAssignmentToComplexExpense(Connection connection, 
             String name) {
@@ -258,7 +264,10 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         }
         return true;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean updateCurrentStockById(Connection connection, Integer id, 
             Double newCurrentStockPcs) {

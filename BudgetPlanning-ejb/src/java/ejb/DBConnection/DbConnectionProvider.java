@@ -12,8 +12,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB DbConnectionProvider is used to create database Connection.
  */
 @Singleton
 @Startup
@@ -24,6 +23,9 @@ public class DbConnectionProvider implements DbConnectionProviderLocal {
     
     private Connection connection;
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Connection connection() {
         return connection;
@@ -33,15 +35,12 @@ public class DbConnectionProvider implements DbConnectionProviderLocal {
     public void init() {
         ClassLoader classLoader = this.getClass().getClassLoader();
         try (InputStream stream = classLoader.getResourceAsStream(CONFIGS)) {
-            System.out.println("*** DbConnectionProvider : Launched. "
-                    + "DB Connection CONFIGS input stream: " + stream);
             configs.load(stream);
         } catch (IOException ioex) {
             System.out.println("*** DbConnectionProvider: Input stream or "
                     + "connection Properties loading failure: "
                     + ioex.getMessage() + " ***");
         }
-        System.out.println("*** DbConnectionProvider : configs loaded: " + configs);
         try {
             connection = getConnection();
         } catch (SQLException sqlex) {
@@ -49,17 +48,21 @@ public class DbConnectionProvider implements DbConnectionProviderLocal {
                     + "establishing failure: "
                     + sqlex.getMessage() + " ***");                
         }
-        System.out.println("*** DbConnectionProvider : connection established: " 
-                + connection.hashCode());
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     private String getUrl() {
         return configs.getProperty("database.driver") + "://" +
                configs.getProperty("database.host") + ":" +
                configs.getProperty("database.port") + "/" +
                configs.getProperty("database.name");
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public Connection getConnection() throws SQLException {
         String username = configs.getProperty("database.user");

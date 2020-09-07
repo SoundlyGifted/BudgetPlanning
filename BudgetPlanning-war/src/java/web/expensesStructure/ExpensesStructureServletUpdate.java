@@ -23,10 +23,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- *
- * @author SoundlyGifted
+ * ExpensesStructureServletUpdate Servlet processes commands that come from user 
+ * form on the Expenses Structure Update page.
  */
-@WebServlet(name = "ExpensesStructureServletUpdate", urlPatterns = {"/ExpensesStructureServletUpdate"})
+@WebServlet(name = "ExpensesStructureServletUpdate", 
+        urlPatterns = {"/ExpensesStructureServletUpdate"})
 public class ExpensesStructureServletUpdate extends HttpServlet {
 
     @EJB
@@ -62,53 +63,65 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, 
+            HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(Calendar.getInstance().getTime());
+        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
+                .format(Calendar.getInstance().getTime());
 
         HttpSession session = request.getSession();
-        Connection DBConnection = connector.connection(session, "expensesStructureDBConnection");
+        Connection DBConnection = connector.connection(session, 
+                "expensesStructureDBConnection");
 
         /* EntityExpense Selected by User for the Update operation.*/
-        EntityExpense expenseSelected = (EntityExpense) session.getAttribute("ExpensesStructure_ExpenseSelected");
+        EntityExpense expenseSelected = (EntityExpense) session
+                .getAttribute("ExpensesStructure_ExpenseSelected");
         Integer expenseSelectedId = null;
         String currentName = null;
         String currentStockPcs = null;
         
         if (expenseSelected != null) {
             expenseSelectedId = expenseSelected.getId();
-            currentStockPcs = String.valueOf(expenseSelected.getCurrentStockPcs());
+            currentStockPcs = String.valueOf(expenseSelected
+                    .getCurrentStockPcs());
             /* Setting Selected EntityExpense fields as reqeust attributes 
             for passing to the jsp-page. */
             currentName = expenseSelected.getName();
             request.setAttribute("currentName", currentName);
-            selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
+            selectedExpenseToRequestAttributes(DBConnection, request, 
+                    expenseSelected);
         }     
         
         /* Processing Refresh the page user command. */
         if (request.getParameter("refresh") != null) {
             if (expenseSelectedId != null) {
-                expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
-                session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
+                expenseSelected = select.executeSelectById(DBConnection, 
+                        expenseSelectedId);
+                session.setAttribute("ExpensesStructure_ExpenseSelected", 
+                        expenseSelected);
                 request.setAttribute("currentName", expenseSelected.getName());
             }
             log.add(session, currentDateTime + " Awaiting for user command...");
-            request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
+            request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp")
+                    .forward(request, response);
         }
 
         /* Clearing System message log. */
         if (request.getParameter("clearLog") != null) {
             if (expenseSelectedId != null) {
-                expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
-                session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
+                expenseSelected = select.executeSelectById(DBConnection, 
+                        expenseSelectedId);
+                session.setAttribute("ExpensesStructure_ExpenseSelected", 
+                        expenseSelected);
                 request.setAttribute("currentName", expenseSelected.getName());
             }
             log.clear(session);
             log.add(session, "Awaiting for initial user command...");
-            request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
+            request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp")
+                    .forward(request, response);
         }
 
         /* Processing of Update user command. */
@@ -136,26 +149,36 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
             String updateNewName = request.getParameter("updateNewName");
             String updateAccountId = request.getParameter("accountIDSelected");
             if (updateAccountId == null || updateAccountId.trim().isEmpty()) {
-                updateAccountId = (String) request.getAttribute("currentAccountId");
+                updateAccountId = (String) request
+                        .getAttribute("currentAccountId");
             }
-            String updateLinkedComplExpId = request.getParameter("complexExpenseIDSelected");
-            if (updateLinkedComplExpId == null || updateLinkedComplExpId.trim().isEmpty()) {
-                updateLinkedComplExpId = (String) request.getAttribute("currentComplexExpenseId");
+            String updateLinkedComplExpId = request
+                    .getParameter("complexExpenseIDSelected");
+            if (updateLinkedComplExpId == null 
+                    || updateLinkedComplExpId.trim().isEmpty()) {
+                updateLinkedComplExpId = (String) request
+                        .getAttribute("currentComplexExpenseId");
             }
             
             String updatePrice = request.getParameter("updatePrice");
-            String updateSafetyStockPcs = request.getParameter("updateSafetyStockPcs");
-            String updateOrderQtyPcs = request.getParameter("updateOrderQtyPcs");
+            String updateSafetyStockPcs = request
+                    .getParameter("updateSafetyStockPcs");
+            String updateOrderQtyPcs = request
+                    .getParameter("updateOrderQtyPcs");
             
-            boolean updated = update.execute(DBConnection, currentName, updateNewName,
-                    updateAccountId, updateLinkedComplExpId, updatePrice, 
-                    currentStockPcs, updateSafetyStockPcs, updateOrderQtyPcs);
+            boolean updated = update.execute(DBConnection, currentName, 
+                    updateNewName, updateAccountId, updateLinkedComplExpId, 
+                    updatePrice, currentStockPcs, updateSafetyStockPcs, 
+                    updateOrderQtyPcs);
             
             if (updated) {
-                expenseSelected = select.executeSelectById(DBConnection, expenseSelectedId);
-                session.setAttribute("ExpensesStructure_ExpenseSelected", expenseSelected);
+                expenseSelected = select.executeSelectById(DBConnection, 
+                        expenseSelectedId);
+                session.setAttribute("ExpensesStructure_ExpenseSelected", 
+                        expenseSelected);
                 request.setAttribute("currentName", expenseSelected.getName());
-                selectedExpenseToRequestAttributes(DBConnection, request, expenseSelected);
+                selectedExpenseToRequestAttributes(DBConnection, request, 
+                        expenseSelected);
 
                 /* Updated values. */
                 updateLinkedComplExpId = String
@@ -229,22 +252,37 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                                 .executeUpdateAll(DBConnection, "W");                     
                     }                    
                 }
-                log.add(session, currentDateTime + " [Update Expense command entered] : Expense attributes updated");
+                log.add(session, currentDateTime 
+                        + " [Update Expense command entered] : Expense "
+                                + "attributes updated");
             } else {
-                log.add(session, currentDateTime + " [Update Expense command entered] : Command declined");
+                log.add(session, currentDateTime 
+                        + " [Update Expense command entered] : Command "
+                                + "declined");
             }
-            request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp").forward(request, response);
+            request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp")
+                    .forward(request, response);
         }
 
         /* Processing Return to Expenses Structure page user command. */
         if (request.getParameter("return") != null) {
             session.removeAttribute("ExpensesStructure_ExpenseSelected");
             session.removeAttribute("ExpensesStructure_ExpenseSelectedType");
-            request.getRequestDispatcher("ExpensesStructurePage.jsp").forward(request, response);
+            request.getRequestDispatcher("ExpensesStructurePage.jsp")
+                    .forward(request, response);
         }
     }
 
-    private void selectedExpenseToRequestAttributes(Connection connection, HttpServletRequest request, EntityExpense expenseSelected) {
+    /**
+     * Converts EntityExpense object attributes into HttpServletRequest 
+     * attributes.
+     * 
+     * @param connection database Connection.
+     * @param request HttpServletRequest.
+     * @param expenseSelected EntityExpense object.
+     */
+    private void selectedExpenseToRequestAttributes(Connection connection, 
+            HttpServletRequest request, EntityExpense expenseSelected) {
         int currentAccountId = expenseSelected.getAccountId();
         String currentAccount = expenseSelected.getAccountLinked();
         int linkedToComplexId = expenseSelected.getLinkedToComplexId();
@@ -252,22 +290,25 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         double currentSafetyStockPcs = expenseSelected.getSafetyStockPcs();
         double currentOrderQtyPcs = expenseSelected.getOrderQtyPcs();   
 
-        request.setAttribute("currentAccountId", Integer.toString(currentAccountId));
+        request.setAttribute("currentAccountId", Integer
+                .toString(currentAccountId));
         request.setAttribute("currentAccount", currentAccount);
-        request.setAttribute("currentComplexExpenseId", Integer.toString(linkedToComplexId));
+        request.setAttribute("currentComplexExpenseId", Integer
+                .toString(linkedToComplexId));
         if (linkedToComplexId == 0) {
             request.setAttribute("currentLinkedToComplExpName", "NOT SET");
         } else {
             request.setAttribute("currentLinkedToComplExpName", 
-                select.executeSelectById(connection, linkedToComplexId).getName());
+                select.executeSelectById(connection, linkedToComplexId)
+                        .getName());
         }
         request.setAttribute("currentPrice", Double.toString(currentPrice));
-        request.setAttribute("currentSafetyStockPcs", Double.toString(currentSafetyStockPcs));
-        request.setAttribute("currentOrderQtyPcs", Double.toString(currentOrderQtyPcs));    
+        request.setAttribute("currentSafetyStockPcs", Double
+                .toString(currentSafetyStockPcs));
+        request.setAttribute("currentOrderQtyPcs", Double
+                .toString(currentOrderQtyPcs));    
     }
-    
-    
-    
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

@@ -12,14 +12,20 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB WebServletCommonMethods contains common methods used by application 
+ * servlets.
  */
 @Stateless
 @LocalBean
 public class WebServletCommonMethods {
-    
-    /* returns Collection of IDs from a database table. */
+
+    /**
+     * Returns collection of IDs from a database table with a given name.
+     * 
+     * @param connection database Connection.
+     * @param tableName name of the database table.
+     * @return collection of IDs from a database table with a given name.
+     */
     public ArrayList<Integer> getIdList(Connection connection,
             String tableName) {
 
@@ -54,9 +60,15 @@ public class WebServletCommonMethods {
             }
         }
     }
-    
-    /* returns Collection of Dates from PLANNED_VARIABLE_PARAMS database 
-    table. */
+
+    /**
+     * Returns collection of planning dates from PLANNED_VARIABLE_PARAMS 
+     * database table.
+     * 
+     * @param connection database Connection.
+     * @return collection of planning dates from PLANNED_VARIABLE_PARAMS 
+     * database table.
+     */
     public ArrayList<String> getDatesList(Connection connection) {
 
         Statement statement = null;
@@ -90,6 +102,5 @@ public class WebServletCommonMethods {
                         + ex.getMessage());
             }
         }
-    }    
-
+    }
 }

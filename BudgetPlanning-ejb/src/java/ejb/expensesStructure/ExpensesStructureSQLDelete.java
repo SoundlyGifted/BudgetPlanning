@@ -18,8 +18,8 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB ExpensesStructureSQLDelete is used to perform delete operations on 
+ * Expenses records in the database.
  */
 @Stateless
 public class ExpensesStructureSQLDelete extends SQLAbstract
@@ -46,6 +46,9 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
     @EJB
     private ActualExpensesSQLLocal actualExpensesSQL;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean executeDeleteById(Connection connection, String id) {
         Integer idInt = stringToInt(id);

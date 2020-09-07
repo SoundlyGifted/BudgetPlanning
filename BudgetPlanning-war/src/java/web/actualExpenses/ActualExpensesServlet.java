@@ -6,7 +6,6 @@ import ejb.MainScreen.PlannedVariableParamsSQLLocal;
 import ejb.actualExpenses.ActualExpensesSQLLocal;
 import ejb.calculation.ExpensesHandlerLocal;
 import ejb.common.OperationResultLogLocal;
-import ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
 import java.io.IOException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
@@ -23,10 +22,11 @@ import web.common.WebServletCommonMethods;
 import org.json.*;
 
 /**
- *
- * @author SoundlyGifted
+ * ActualExpensesServlet Servlet processes commands that come from user form 
+ * on the Actual Expenses page.
  */
-@WebServlet(name = "ActualExpensesServlet", urlPatterns = {"/ActualExpensesServlet"})
+@WebServlet(name = "ActualExpensesServlet", 
+        urlPatterns = {"/ActualExpensesServlet"})
 public class ActualExpensesServlet extends HttpServlet {
 
     @EJB
@@ -37,9 +37,6 @@ public class ActualExpensesServlet extends HttpServlet {
     
     @EJB
     private ActualExpensesSQLLocal sql;
-    
-    @EJB
-    private ExpensesStructureSQLSelectLocal selectExpense;
     
     @EJB
     private ExpensesHandlerLocal eHandler;
@@ -59,18 +56,23 @@ public class ActualExpensesServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, 
+            HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(Calendar.getInstance().getTime());
+        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
+                .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
-        Connection DBConnection = connector.connection(session, "actualExpensesDBConnection");
+        Connection DBConnection = connector
+                .connection(session, "actualExpensesDBConnection");
         
-        ArrayList<Integer> actualExpensesIdList = commonMethods.getIdList(DBConnection, "ACTUAL_EXPENSES");        
-        ArrayList<Integer> expensesIdList = commonMethods.getIdList(DBConnection, "EXPENSES_STRUCTURE");   
+        ArrayList<Integer> actualExpensesIdList = commonMethods
+                .getIdList(DBConnection, "ACTUAL_EXPENSES");        
+        ArrayList<Integer> expensesIdList = commonMethods
+                .getIdList(DBConnection, "EXPENSES_STRUCTURE");   
         
         /* Processing Add operation. */
         if (request.getParameter("addActualExpense") != null) {
@@ -92,7 +94,8 @@ public class ActualExpensesServlet extends HttpServlet {
             if (added) {
                 int inputIdint = Integer.parseInt(inputId);
                 // Calculating Expense. 
-                eHandler.prepareEntityExpenseById(DBConnection, "W", inputIdint);
+                eHandler.prepareEntityExpenseById(DBConnection, "W", 
+                        inputIdint);
                 // Updating Expenses Plan.
                 plannedParams.executeUpdateAll(DBConnection, "W");
 
@@ -102,7 +105,8 @@ public class ActualExpensesServlet extends HttpServlet {
                 log.add(session, currentDateTime + " [Add Actual Expense "
                         + "command entered] : Command declined");
             }
-            request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
+            request.getRequestDispatcher("ActualExpensesPage.jsp")
+                    .forward(request, response);
         }
 
         /* Processing Update operation. */
@@ -111,7 +115,8 @@ public class ActualExpensesServlet extends HttpServlet {
         for (Integer id : actualExpensesIdList) {
             if (request.getParameter("update_" + String.valueOf(id)) != null) {
                 request.setAttribute("rowSelectedForUpdate", id);
-                request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
+                request.getRequestDispatcher("ActualExpensesPage.jsp")
+                        .forward(request, response);
             }
         }
         /* Defining ID of row which was submitted for update and passing it 
@@ -130,32 +135,39 @@ public class ActualExpensesServlet extends HttpServlet {
                     String updateShop = request.getParameter("updateShop");
                     String updatePrice = request.getParameter("updatePrice");
                     String updateQty = request.getParameter("updateQty");
-                    String updateComment = request.getParameter("updateComment");
-                    boolean updated = sql.executeUpdate(DBConnection, idToUpdate,
-                            updateDate, updateName, updateTitle, updateShop, 
-                            updatePrice, updateQty, updateComment);
+                    String updateComment = request
+                            .getParameter("updateComment");
+                    boolean updated = sql.executeUpdate(DBConnection, 
+                            idToUpdate, updateDate, updateName, updateTitle, 
+                            updateShop, updatePrice, updateQty, updateComment);
                     if (updated) {
                         int updateIdInt = Integer.parseInt(updateId);
                         // Calculating Expense. 
-                        eHandler.prepareEntityExpenseById(DBConnection, "W", updateIdInt);
+                        eHandler.prepareEntityExpenseById(DBConnection, "W", 
+                                updateIdInt);
                         // Updating Expenses Plan.
                         plannedParams.executeUpdateAll(DBConnection, "W");                    
 
-                        log.add(session, currentDateTime + " [Update Actual Expense "
-                                + "command entered] : Actual Expense updated");
+                        log.add(session, currentDateTime 
+                                + " [Update Actual Expense command entered] : "
+                                        + "Actual Expense updated");
                     } else {
-                        log.add(session, currentDateTime + " [Update Actual Expense "
-                                + "command entered] : Command declined");
+                        log.add(session, currentDateTime 
+                                + " [Update Actual Expense command entered] : "
+                                        + "Command declined");
                     }
-                    request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
+                    request.getRequestDispatcher("ActualExpensesPage.jsp")
+                            .forward(request, response);
                 }                
             }
         }
         /* Defining ID of row which was cancelled for update and passing it 
         as request attribute. */
         for (Integer id : actualExpensesIdList) {
-            if (request.getParameter("cancelUpdate_" + String.valueOf(id)) != null) {
-                request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
+            if (request.getParameter("cancelUpdate_" 
+                    + String.valueOf(id)) != null) {
+                request.getRequestDispatcher("ActualExpensesPage.jsp")
+                        .forward(request, response);
             }
         }
         
@@ -170,17 +182,21 @@ public class ActualExpensesServlet extends HttpServlet {
                             String.valueOf(id));
                     if (deleted) {
                         // Calculating Expense. 
-                        eHandler.prepareEntityExpenseById(DBConnection, "W", expenseId);
+                        eHandler.prepareEntityExpenseById(DBConnection, "W", 
+                                expenseId);
                         // Updating Expenses Plan.
                         plannedParams.executeUpdateAll(DBConnection, "W");    
 
-                        log.add(session, currentDateTime + " [Delete Actual Expense "
-                                + "command entered] : Actual Expense deleted");
+                        log.add(session, currentDateTime 
+                                + " [Delete Actual Expense command entered] : "
+                                        + "Actual Expense deleted");
                     } else {
-                        log.add(session, currentDateTime + " [Delete Actual Expense "
-                                + "command entered] : Command declined");
+                        log.add(session, currentDateTime 
+                                + " [Delete Actual Expense command entered] : "
+                                        + "Command declined");
                     }
-                    request.getRequestDispatcher("ActualExpensesPage.jsp").forward(request, response);
+                    request.getRequestDispatcher("ActualExpensesPage.jsp")
+                            .forward(request, response);
                 }
             }
         }

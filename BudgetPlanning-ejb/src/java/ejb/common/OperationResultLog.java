@@ -5,12 +5,14 @@ import javax.ejb.Stateless;
 import javax.servlet.http.HttpSession;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB OperationResultLog is used to to perform operations of Application Log.
  */
 @Stateless
 public class OperationResultLog implements OperationResultLogLocal {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void add(HttpSession session, String resultToAdd) {
         if (session != null && resultToAdd != null && !resultToAdd.trim().isEmpty()) {
@@ -24,6 +26,9 @@ public class OperationResultLog implements OperationResultLogLocal {
         }
     }
     
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public void clear(HttpSession session) {
         if (session != null) {

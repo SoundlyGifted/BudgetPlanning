@@ -1,3 +1,5 @@
+-- resources.sql.mainScreen --
+-- select.plannedExpenses.byExpenseId.sql --
 select T1.*, T2."TYPE"
 from
 (select EXPENSE_ID, "DATE", PLANNED_PCS, PLANNED_CUR

@@ -10,7 +10,7 @@
                    url = "jdbc:derby://localhost:1527/BudgetPlanningAppDB"
                    user = "app"  password = "app"/>        
     
-<!-- JSTL sql query to select ID and NAME from ACCOUNTS_STRUCTURE table -->
+<!-- JSTL sql query to select ID and NAME from EXPENSES_STRUCTURE table -->
 <sql:query dataSource = "${outputDBConnection}" var = "complexExpenseResultSet">
     SELECT ID, NAME FROM EXPENSES_STRUCTURE
     WHERE TYPE = 'COMPLEX_EXPENSES'
@@ -85,23 +85,25 @@
                             </select>
                         </td>
                         <td><b>${currentAccount}</b></td>                      
-                    </tr>                    
-                    <tr valign="top">
-                        <td><b>Linked to Complex Expense Name</b></td>
-                        <td>
-                            <!--Complex Expense selection dropdown list.-->              
-                            <select name="complexExpenseIDSelected" class="inputTextBox" style="width:340px">
-                                <option value="${currentComplexExpenseId}" selected disabled hidden>${currentLinkedToComplExpName}</option>
-                                <option value="0">NOT SET</option>
-                                <c:forEach var="row" items="${complexExpenseResultSet.rows}">
-                                    <option value="${row.ID}">
-                                        ${row.NAME}
-                                    </option>
-                                </c:forEach>
-                            </select>
-                        </td>
-                        <td><b>${currentLinkedToComplExpName}</b></td>                 
                     </tr>
+                    <c:if test="${ExpensesStructure_ExpenseSelectedType != 'COMPLEX_EXPENSES'}">
+                        <tr valign="top">
+                            <td><b>Linked to Complex Expense Name</b></td>
+                            <td>
+                                <!--Complex Expense selection dropdown list.-->              
+                                <select name="complexExpenseIDSelected" class="inputTextBox" style="width:340px">
+                                    <option value="${currentComplexExpenseId}" selected disabled hidden>${currentLinkedToComplExpName}</option>
+                                    <option value="0">NOT SET</option>
+                                    <c:forEach var="row" items="${complexExpenseResultSet.rows}">
+                                        <option value="${row.ID}">
+                                            ${row.NAME}
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </td>
+                            <td><b>${currentLinkedToComplExpName}</b></td>                 
+                        </tr>                        
+                    </c:if>
                     <c:if test="${ExpensesStructure_ExpenseSelectedType == 'GOODS'}">                 
                         <tr valign="top">
                             <td><b>Price</b></td>

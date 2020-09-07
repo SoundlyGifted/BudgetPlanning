@@ -7,8 +7,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- *
- * @author SoundlyGifted
+ * EntityAccount class is used to perform calculations of attributes and 
+ * parameters of a certain Account database representation and hold the 
+ * calculated values until they are placed into the database.
  */
 public class EntityAccount extends EjbCommonMethods {
     
@@ -27,12 +28,27 @@ public class EntityAccount extends EjbCommonMethods {
     // calculations.
     private boolean calculated = false;    
 
+    /**
+     * Constructor of the EntityAccount class.
+     * 
+     * @param id database Account ID.
+     * @param name Account name.
+     * @param currentRemainderCur Current Remainder (CUR) attribute of the 
+     * Account.
+     */
     public EntityAccount(int id, String name, double currentRemainderCur) {
         this.id = id;
         this.name = name;
         this.currentRemainderCur = currentRemainderCur;
     }
 
+    /**
+     * Initializes given variable parameter.
+     * 
+     * @param param variable parameter name.
+     * @return new variable parameter object (if given parameter does not exist)
+     * of parameter with all values cleared (if given parameter exists).
+     */
     private TreeMap<String, Double>
             initializeVariableParam(TreeMap<String, Double> param) {
         if (param == null) {
@@ -41,7 +57,13 @@ public class EntityAccount extends EjbCommonMethods {
         param.clear();
         return param;
     }
-            
+    
+    /**
+     * Resets all variable parameters in this EntityAccount object which means
+     * their values will be cleared (if parameter exists) and the "calculated"
+     * flag of the object (representing the parameter calculation status of the
+     * object) will be set to "false".
+     */        
     public void resetVariableParams() {
         if (plannedRemainderCur != null && !plannedRemainderCur.isEmpty()) {
             plannedRemainderCur.clear();
@@ -55,6 +77,12 @@ public class EntityAccount extends EjbCommonMethods {
         calculated = false;
     }              
 
+    /**
+     * Calculates variable parameters of this EntityAccount object based on
+     * data within the object and the domain specific formulae.
+     * 
+     * @param timePeriodDates set of planning period dates.
+     */
     public void calculateVariableParameters(TreeSet<String> 
             timePeriodDates) {
         

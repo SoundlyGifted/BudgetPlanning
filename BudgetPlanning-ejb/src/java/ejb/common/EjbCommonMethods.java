@@ -8,9 +8,8 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 
 /**
- * Abstract class to contain common Methods that are used in the EJB module.
- * 
- * @author SoundlyGifted
+ * EjbCommonMethods class is used to contain common Methods that are used in 
+ * the EJB module.
  */
 public abstract class EjbCommonMethods {
 
@@ -19,7 +18,7 @@ public abstract class EjbCommonMethods {
      * 
      * @param stringVal given String value to convert to Integer.
      * @return Integer value if conversion of given String value is possible 
-     *         and null otherwise.
+     * and null otherwise.
      */
     public Integer stringToInt(String stringVal) {
         if (!inputCheckNullBlank(stringVal)) {
@@ -38,9 +37,8 @@ public abstract class EjbCommonMethods {
      * Converts String value to Double value.
      * 
      * @param stringVal given String value to convert to Double.
-     * @return Double value if conversion of given String value is possible,
-     *         zero if given String is null or blank
-     *         and null otherwise. 
+     * @return Double value if conversion of given String value is possible, 
+     * zero if given String is null or blank and null otherwise. 
      */
     public Double stringToDouble(String stringVal) {
         if (!inputCheckNullBlank(stringVal)) {
@@ -62,9 +60,9 @@ public abstract class EjbCommonMethods {
      * 
      * @param value value to be rounded.
      * @param dplaces desired number of decimal places.
-     * @return Double value rounded by given number of decimal places. Negative
-     *         number of decimal places given will perform rounding by zero
-     *         decimal places.
+     * @return Double value rounded by given number of decimal places. Negative 
+     * number of decimal places given will perform rounding by zero decimal 
+     * places.
      */
     public double round(double value, int dplaces) {
         if (dplaces < 0) {
@@ -77,13 +75,13 @@ public abstract class EjbCommonMethods {
     }
 
     /**
-     * Checks whether the given String supposed to represent an Expense Category
+     * Checks whether given String supposed to represent an Expense Category
      * type is valid and the value is one of the types pre-specified in the
      * application.
      * 
      * @param type String Expense type to be checked.
-     * @return true in case if the type is one of the pre-specified types,
-     *         false otherwise.
+     * @return true in case if the type is one of the pre-specified types, false 
+     * otherwise.
      */
     public final boolean inputCheckType(String type) {
         if (type == null || type.trim().isEmpty() || type.length() > 255) {
@@ -110,9 +108,9 @@ public abstract class EjbCommonMethods {
      * Freqency is valid and the value is one of the frequencies pre-specified 
      * in the application.
      * 
-     * @param frequency value to be checked
+     * @param frequency value to be checked.
      * @return true in case if the type is one of the pre-specified frequencies,
-     *         false otherwise.
+     * false otherwise.
      */
     public final boolean inputCheckFrequency(String frequency) {
         if (frequency == null || frequency.trim().isEmpty() 
@@ -149,7 +147,7 @@ public abstract class EjbCommonMethods {
      * 
      * @param param String to be checked.
      * @return true if the length of the given String does not exceed 255
-     *         symbols, false otherwise.
+     * symbols, false otherwise.
      */
     public boolean inputCheckLength(String param) {
         if (param != null) {
@@ -158,6 +156,13 @@ public abstract class EjbCommonMethods {
         return true;
     }
     
+    /**
+     * Converts int Month value (from 1 to 12) into String representation of
+     * the Month in "MMM" format.
+     * 
+     * @param monthN int Month value (must be from 1 to 12).
+     * @return String representation of the Month in "MMM" format.
+     */
     public String getMonth(int monthN) {
         if (monthN < 1 || monthN > 12) {
             return null;
@@ -178,6 +183,13 @@ public abstract class EjbCommonMethods {
         return map.get(monthN);
     }
 
+    /**
+     * Converts int Day of Week (from 1 to 7 where 1 is Sunday) into it's String
+     * representation in "DDD" format.
+     * 
+     * @param dayNumber int Day of Week (must be from 1 to 7 where 1 is Sunday).
+     * @return String representation of the Day of Week in "DDD" format.
+     */
     public String getDay(int dayNumber) {
         if (dayNumber < 1 || dayNumber > 7) {
             return null;
@@ -193,10 +205,14 @@ public abstract class EjbCommonMethods {
         return map.get(dayNumber);
     }
 
+    /**
+     * Converts int Week of Year into it's String representation in "WKxx" 
+     * format.
+     * 
+     * @param week int Week of Year.
+     * @return Week of Year representation in "WKxx" format.
+     */
     public String getWeek(int week) {
-        if (week < 1 || week > 52) {
-            return null;
-        }
         if (week < 10) {
             return "WK" + "0" + String.valueOf(week);
         } else {

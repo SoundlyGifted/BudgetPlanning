@@ -1,3 +1,5 @@
+-- resources.sql.expensesStructure --
+-- update.sql --
 update EXPENSES_STRUCTURE 
 set "NAME" = ?,
     ACCOUNT_ID = ?,

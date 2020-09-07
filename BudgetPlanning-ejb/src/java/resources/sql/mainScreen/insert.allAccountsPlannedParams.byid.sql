@@ -1,3 +1,5 @@
+-- resources.sql.mainScreen --
+-- insert.allAccountsPlannedParams.byid.sql --
 insert into PLANNED_ACCOUNTS_VALUES (
 "DATE",
 WEEK,

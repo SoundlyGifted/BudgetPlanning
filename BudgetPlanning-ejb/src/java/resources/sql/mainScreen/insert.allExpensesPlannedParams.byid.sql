@@ -1,3 +1,5 @@
+-- resources.sql.mainScreen --
+-- insert.allExpensesPlannedParams.byid.sql --
 insert into PLANNED_VARIABLE_PARAMS (
 "DATE",
 WEEK,

@@ -15,8 +15,8 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB TimePeriodsHandler class is used to perform operations on attributes of 
+ * application planning time periods.
  */
 @Singleton
 @Startup
@@ -29,6 +29,13 @@ public class TimePeriodsHandler extends EjbCommonMethods
     @EJB
     private PlanningPeriodsConfigSQLLocal planningPeriodsConfig;    
     
+    /**
+     * Updates the value of {@link TimePeriods#currentPeriodDate} based on the
+     * current database value of the current planning time period date.
+     * 
+     * @param connection database Connection.
+     * @return "true" in case of success of the operation and "false" otherwise.
+     */
     private boolean updateCurrentPeriodDate(Connection connection) {
         String newCurrentPeriodDate = plannedParams
                 .getCurrentPeriodDate(connection);
@@ -45,6 +52,15 @@ public class TimePeriodsHandler extends EjbCommonMethods
         return false;
     }
     
+    /**
+     * Updates the value of {@link TimePeriods#planningPeriodsHorizon} based on 
+     * the current database value of the current planning time periods horizon.
+     * 
+     * @param connection database Connection.
+     * @param planningPeriodsFrequency frequency of the planning time 
+     * periods.
+     * @return "true" in case of success of the operation and "false" otherwise.
+     */
     private boolean updatePlanningPeriodsHorizon(Connection connection,
             String planningPeriodsFrequency) {
         Integer newPlanningPeriodsHorizon = planningPeriodsConfig
@@ -63,6 +79,9 @@ public class TimePeriodsHandler extends EjbCommonMethods
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TreeSet<String> calculateTimePeriodDates(Connection 
             connection, String inputPlanningPeriodsFrequency) {
@@ -138,7 +157,10 @@ public class TimePeriodsHandler extends EjbCommonMethods
         TimePeriods.timePeriodDates = result;
         return result;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public String getNextPeriodDate(Connection connection,
             String inputPlanningPeriodsFrequency) {
@@ -175,7 +197,10 @@ public class TimePeriodsHandler extends EjbCommonMethods
         }
         return fmt.format(c.getTime());
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public String getPreviousPeriodDate(Connection connection,
             String inputPlanningPeriodsFrequency) {

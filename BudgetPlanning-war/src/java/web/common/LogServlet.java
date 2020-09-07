@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- *
- * @author SoundlyGifted
+ * LogServlet Servlet processes commands that come from user form of the
+ * Application Log on each page of the application.
  */
 @WebServlet(name = "LogServlet", urlPatterns = {"/LogServlet"})
 public class LogServlet extends HttpServlet {
@@ -32,12 +32,14 @@ public class LogServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, 
+            HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(Calendar.getInstance().getTime());
+        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
+                .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
         

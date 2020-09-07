@@ -10,13 +10,16 @@ import java.sql.SQLException;
 import javax.ejb.Stateless;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB PlanningPeriodsConfigSQL is used to change planning periods horizon in 
+ * the database planning periods configuration table.
  */
 @Stateless
 public class PlanningPeriodsConfigSQL extends SQLAbstract 
         implements PlanningPeriodsConfigSQLLocal {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Integer getPlanningPeriodsHorizon(Connection 
             connection, String planningPeriodsFrequency) {
@@ -53,7 +56,10 @@ public class PlanningPeriodsConfigSQL extends SQLAbstract
             clear(preparedStatement);
         }
     }    
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean setPlanningPeriodsHorizon(Connection 
             connection, String planningPeriodsFrequency, 

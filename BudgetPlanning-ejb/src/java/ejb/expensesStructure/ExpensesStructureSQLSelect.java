@@ -16,13 +16,16 @@ import java.util.LinkedList;
 import javax.ejb.Stateless;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB ExpensesStructureSQLSelect is used to perform select operations of 
+ * Expenses records in the database.
  */
 @Stateless
 public class ExpensesStructureSQLSelect extends SQLAbstract
         implements ExpensesStructureSQLSelectLocal {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ArrayList<EntityExpense> executeSelectAll(Connection connection) {
         PreparedStatement preparedStatement;
@@ -68,7 +71,10 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
             clear(preparedStatement);
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public EntityExpense executeSelectByName(Connection connection, 
             String name) {
@@ -122,7 +128,10 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
             clear(preparedStatement);
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public EntityExpense executeSelectById(Connection connection, Integer id) {
         if (id == null || id < 1) {
@@ -173,7 +182,10 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
             clear(preparedStatement);
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public HashMap<Integer, String> executeSelectAllTypes(Connection 
             connection) {
@@ -212,7 +224,10 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
             }
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public HashMap<Integer, HashMap<String, Double>> 
         executeSelectAllValues(Connection connection) {
@@ -262,7 +277,10 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
             }
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */        
     @Override      
     public HashMap<Integer, HashMap<String, Integer>> 
         executeSelectAllLinks(Connection connection) {
@@ -308,7 +326,10 @@ public class ExpensesStructureSQLSelect extends SQLAbstract
             }
         }
     }
-        
+
+    /**
+     * {@inheritDoc}
+     */        
     @Override    
     public Integer executeSelectIdByName (Connection connection, String name) {
         if (name == null || name.trim().isEmpty()) {

@@ -8,9 +8,11 @@
 <html>
     
 <!-- JSTL database connection -->
-<sql:setDataSource var = "outputDBConnection" driver = "org.apache.derby.jdbc.ClientDriver"
+<sql:setDataSource var = "outputDBConnection" 
+                   driver = "org.apache.derby.jdbc.ClientDriver"
                    url = "jdbc:derby://localhost:1527/BudgetPlanningAppDB"
-                   user = "app"  password = "app"/>    
+                   user = "app"  
+                   password = "app"/>    
 
 <!-- JSTL sql query to select all records from EXPENSES_STRUCTURE table -->
 <sql:query dataSource = "${outputDBConnection}" var = "expensesStructureOutput">
@@ -26,7 +28,8 @@
 </sql:query>       
 
 <!-- JSTL sql query to select ID and NAME from ACCOUNTS_STRUCTURE table -->
-<sql:query dataSource = "${outputDBConnection}" var = "accountsStructureResultSet">
+<sql:query dataSource = "${outputDBConnection}" 
+           var = "accountsStructureResultSet">
     SELECT ID, NAME FROM ACCOUNTS_STRUCTURE
 </sql:query>      
     
@@ -43,9 +46,15 @@
         <div class="fixed_top_navigation_bar">
             <ul class="menu">
                 <li><a href="index.jsp">Main Screen</a></li>
-                <li><a href="ExpensesStructurePage.jsp">Expenses Structure</a></li>
-                <li><a href="ActualExpensesPage.jsp">Actual Expenses</a></li>
-                <li><a href="AccountsStructurePage.jsp">Accounts Structure</a></li>
+                <li>
+                    <a href="ExpensesStructurePage.jsp">Expenses Structure</a>
+                </li>
+                <li>
+                    <a href="ActualExpensesPage.jsp">Actual Expenses</a>
+                </li>
+                <li>
+                    <a href="AccountsStructurePage.jsp">Accounts Structure</a>
+                </li>
             </ul>
             <div class="App_Title_Nav_Bar1">Expenses Structure Module</div>
             <div class="App_Title_Nav_Bar2">Budget Planning Application</div>
@@ -53,8 +62,11 @@
         
         <div class="inputBlock1">
             <!-- System Message Log text area -->
-            <textarea id="systemMessageLog_id" class="systemMessageLogTextArea" rows="2" readonly title="System Message Log">${operationResult}</textarea>
-            <!-- Keeping System Message Log scroll at the bottom after form request sent. -->
+            <textarea id="systemMessageLog_id" class="systemMessageLogTextArea" 
+                      rows="2" readonly 
+                      title="System Message Log">${operationResult}</textarea>
+            <!-- Keeping System Message Log scroll at the bottom after form 
+            request sent. -->
             <script>
                 var textarea = document.getElementById('systemMessageLog_id');
                 textarea.scrollTop = textarea.scrollHeight;
@@ -65,48 +77,69 @@
                    String pageName = uri.substring(uri.lastIndexOf("/")+1);
                 %>
                 <input type="hidden" name="pageName" value=<%= pageName %>>
-                <input type="submit" class="button" value="Refresh" name="refresh"/>
-                <input type="submit" class="button" value="Clear Log" name="clearLog"/>
+                <input type="submit" class="button" value="Refresh" 
+                       name="refresh"/>
+                <input type="submit" class="button" value="Clear Log" 
+                       name="clearLog"/>
             </form>            
             
             <!-- User form -->
             <form action="ExpensesStructureServlet">               
                 <h5>Add Expense Category</h5>
                 <select name="inputType" class="inputTextBox">
-                    <option value="" selected disabled hidden>Choose Expense Type</option>
+                    <option value="" selected disabled hidden>
+                        Choose Expense Type
+                    </option>
                     <option value="SIMPLE_EXPENSES">SIMPLE_EXPENSES</option>
                     <option value="COMPLEX_EXPENSES">COMPLEX_EXPENSES</option>
                     <option value="GOODS">GOODS</option>
                 </select>
-                <input type="text" class="inputTextBox" value="" size="30" name="inputName" placeholder="Expense Name" maxlength="255"/>
+                <input type="text" class="inputTextBox" value="" size="30" 
+                       name="inputName" placeholder="Expense Name" 
+                       maxlength="255"/>
 
                 <!--Account selection dropdown list.-->              
-                <select name="accountIDSelected" class="inputTextBox" style="width:200px">
-                    <option value="" selected disabled hidden>Choose Account</option>
-                    <c:forEach var="row" items="${accountsStructureResultSet.rows}">
+                <select name="accountIDSelected" class="inputTextBox" 
+                        style="width:200px">
+                    <option value="" selected disabled hidden>
+                        Choose Account
+                    </option>
+                    <c:forEach var="row" 
+                               items="${accountsStructureResultSet.rows}">
                         <option value="${row.ID}">
                             ${row.NAME}
                         </option>
                     </c:forEach>
                 </select>                
 
-                <input type="text" class="inputTextBox" value="" size="15" name="inputPrice" placeholder="Price [GOODS only]"/>
-                <input type="text" class="inputTextBox" value="" size="15" name="inputSafetyStockPcs" placeholder="Safety Stock [GOODS only]"/>
-                <input type="text" class="inputTextBox" value="" size="15" name="inputOrderQtyPcs" placeholder="Order QTY [GOODS only]"/>
-                <input type="submit" class="button" value="Create" name="executeInsert"/>
+                <input type="text" class="inputTextBox" value="" size="15" 
+                       name="inputPrice" placeholder="Price [GOODS only]"/>
+                <input type="text" class="inputTextBox" value="" size="15" 
+                       name="inputSafetyStockPcs" 
+                       placeholder="Safety Stock [GOODS only]"/>
+                <input type="text" class="inputTextBox" value="" size="15" 
+                       name="inputOrderQtyPcs" 
+                       placeholder="Order QTY [GOODS only]"/>
+                <input type="submit" class="button" value="Create" 
+                       name="executeInsert"/>
                 
                 <h5>Update / Delete Expense Category</h5>
                 <!--Expense selection dropdown list.-->              
                 <select name="updateExpenseUserSelected" class="inputTextBox">
-                    <option value="" selected disabled hidden>Choose Expense</option>
-                    <c:forEach var="row" items="${expensesStructureOutput.rows}">
+                    <option value="" selected disabled hidden>
+                        Choose Expense
+                    </option>
+                    <c:forEach var="row" 
+                               items="${expensesStructureOutput.rows}">
                         <option value="${row.ID}">
                             ${row.TYPE}: ${row.NAME}
                         </option>
                     </c:forEach>
                 </select>
-                <input type="submit" class="button" value="Update" name="selectForUpdate"/>
-                <input type="submit" class="button" value="Delete" name="delete"/>
+                <input type="submit" class="button" value="Update" 
+                       name="selectForUpdate"/>
+                <input type="submit" class="button" value="Delete" 
+                       name="delete"/>
             </form>
         </div>
 
@@ -132,20 +165,31 @@
                     <th>pcs</th> 
                     <th>cur</th> 
                 </tr>
-                <c:forEach var = "row" items = "${expensesStructureOutput.rows}">
+                <c:forEach var = "row" 
+                           items = "${expensesStructureOutput.rows}">
                     <tr>
                         <td> <c:out value = "${row.ID}"/></td>
                         <td> <c:out value = "${row.TYPE}"/></td>
                         <td> <c:out value = "${row.NAME}"/></td>
                         <td> <c:out value = "${row.ACCOUNT_LINKED}"/></td>
-                        <td> <c:out value = "${row.COMPLEX_EXP_NAME_ASSIGNED}"/></td>
+                        <td> 
+                            <c:out value = "${row.COMPLEX_EXP_NAME_ASSIGNED}"/>
+                        </td>
                         <c:choose>
                             <c:when test="${row.TYPE == 'GOODS'}">
                                 <td> <c:out value = "${row.PRICE}"/></td>
-                                <td> <c:out value = "${row.SAFETY_STOCK_PCS}"/></td>
-                                <td> <c:out value = "${row.SAFETY_STOCK_CUR}"/></td>
-                                <td> <c:out value = "${row.ORDER_QTY_PCS}"/></td>
-                                <td> <c:out value = "${row.ORDER_QTY_CUR}"/></td>                                
+                                <td> 
+                                    <c:out value = "${row.SAFETY_STOCK_PCS}"/>
+                                </td>
+                                <td> 
+                                    <c:out value = "${row.SAFETY_STOCK_CUR}"/>
+                                </td>
+                                <td>
+                                    <c:out value = "${row.ORDER_QTY_PCS}"/>
+                                </td>
+                                <td> 
+                                    <c:out value = "${row.ORDER_QTY_CUR}"/>
+                                </td>                                
                             </c:when>
                             <c:otherwise>
                                 <td></td>

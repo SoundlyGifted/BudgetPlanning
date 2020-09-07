@@ -16,8 +16,8 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB ActualExpensesSQL is used to perform operations on Actual Expenses 
+ * records in the database.
  */
 @Stateless
 public class ActualExpensesSQL extends SQLAbstract 
@@ -26,6 +26,9 @@ public class ActualExpensesSQL extends SQLAbstract
     @EJB
     private ExpensesStructureSQLSelectLocal select;
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean executeInsert(Connection connection, String date, 
             String expenseName, String expenseTitle, String shopName, 
@@ -127,6 +130,9 @@ public class ActualExpensesSQL extends SQLAbstract
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean executeUpdate(Connection connection, String idForUpdate, 
             String date, String expenseName, String expenseTitle, String shopName, 
@@ -231,6 +237,9 @@ public class ActualExpensesSQL extends SQLAbstract
         return true;        
     }
 
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean executeDelete(Connection connection, String id) {
         if (stringToInt(id) == null) {
@@ -263,7 +272,10 @@ public class ActualExpensesSQL extends SQLAbstract
         }
         return true;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public TreeMap<String, Double> calculateActualExpenses(Connection 
             connection, TreeSet<String> timePeriodDates, 
@@ -389,7 +401,10 @@ public class ActualExpensesSQL extends SQLAbstract
         }
         return result;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean setExpenseToDeleted (Connection connection, String id) {
         if (stringToInt(id) == null) {
@@ -422,7 +437,10 @@ public class ActualExpensesSQL extends SQLAbstract
         }
         return true;        
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean recoverDeletedExpenseId (Connection connection, 
             Integer expenseId, String expenseName) {

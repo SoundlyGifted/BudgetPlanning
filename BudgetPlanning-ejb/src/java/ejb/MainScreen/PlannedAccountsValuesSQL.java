@@ -20,8 +20,8 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB PlannedAccountsValuesSQL is used to perform operations on planned and
+ * calculated parameters data of the Accounts in the database.
  */
 @Stateless
 public class PlannedAccountsValuesSQL extends SQLAbstract 
@@ -33,6 +33,9 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
     @EJB
     private TimePeriodsHandlerLocal timePeriods;
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean executeUpdate(Connection connection, String accountId, 
             String paramName, Map<String, String> updatedValues) {
@@ -99,6 +102,9 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
         return true;
     }
     
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public TreeMap<String, Double> selectPlannedAccountsValuesById(Connection 
             connection, Integer id, String paramName) {
@@ -142,7 +148,10 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
         }
         return accountParamValues;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean executeUpdateAll(Connection connection,
             String inputPlanningPeriodsFrequency) {
@@ -241,7 +250,8 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
 
                         Double plannedRemainderCurVal = (double) 0;
                         if (plannedRemainderCur != null) {
-                            plannedRemainderCurVal = plannedRemainderCur.get(date);
+                            plannedRemainderCurVal = plannedRemainderCur
+                                    .get(date);
                             if (plannedRemainderCurVal == null) {
                                 plannedRemainderCurVal = (double) 0;
                             }
@@ -293,7 +303,10 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
         }
         return true;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public boolean setCurrentPeriodDate(Connection connection, String date) {
         

@@ -16,8 +16,8 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
 /**
- *
- * @author SoundlyGifted
+ * EJB AccountsHandler is used to perform operations on EntityAccount objects 
+ * in the EntityAccountList collection.
  */
 @Singleton
 @Startup
@@ -36,16 +36,10 @@ public class AccountsHandler implements AccountsHandlerLocal {
     private PlannedAccountsValuesSQLLocal plannedAccounts;
     
     @EJB
-    private ExpensesHandlerLocal eHandler;
-    
-    @EJB
     private TimePeriodsHandlerLocal timePeriods;
     
     /**
-     * Method to remove an EntityAccount element from the EntityAccountList
-     * collection
-     * 
-     * @param entity EntityAccount element to be removed.
+     * {@inheritDoc}
      */
     @Override
     public void removeFromEntityAccountList(EntityAccount entity) {
@@ -53,10 +47,7 @@ public class AccountsHandler implements AccountsHandlerLocal {
     }
     
     /**
-     * Gets collection of EntityAccount elements (EntityAccountList) for 
-     * further usage (calculation of parameters).
-     * 
-     * @return EntityAccountList collection.
+     * {@inheritDoc}
      */
     @Override
     public ArrayList<EntityAccount> getEntityAccountList() {
@@ -77,11 +68,7 @@ public class AccountsHandler implements AccountsHandlerLocal {
     }
     
     /**
-     * Actualizes EntityAccountList (replaces it with the list obtained from
-     * the database).
-     * 
-     * @param connection database connection.
-     * @return EntityAccountList obtained based on the database records.
+     * {@inheritDoc}
      */
     @Override
     public ArrayList<EntityAccount> actualizeEntityAccountList(Connection 
@@ -92,6 +79,9 @@ public class AccountsHandler implements AccountsHandlerLocal {
         return accountListDB;
     }
 
+    /**
+     * {@inheritDoc}
+     */    
     @Override
     public EntityAccount prepareEntityAccountByExpenseId(Connection connection,
             String inputPlanningPeriodsFrequency, Integer inputExpenseId) {
@@ -172,7 +162,10 @@ public class AccountsHandler implements AccountsHandlerLocal {
             return null;
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */     
     @Override
     public EntityAccount prepareEntityAccountById(Connection connection,
             String inputPlanningPeriodsFrequency, Integer id) {
@@ -223,7 +216,15 @@ public class AccountsHandler implements AccountsHandlerLocal {
         list.add(account);
         return account;
     }
-    
+
+    /**
+     * Obtains changeable parameter values from the database into a given
+     * EntityAccount object.
+     * 
+     * @param connection database Connection
+     * @param account EntityAccount object the changeable parameter values to be
+     * obtained into.
+     */
     private void 
         obtainChangeableVarParamsForEntityAccount(Connection connection, 
                 EntityAccount account) {
@@ -245,7 +246,10 @@ public class AccountsHandler implements AccountsHandlerLocal {
         account.setPlannedSumCur(plannedSumCur);
         account.setIncomeCur(incomeCurValues);
     }    
-    
+
+    /**
+     * {@inheritDoc}
+     */         
     @Override
     public boolean
             calculateAllCurrentRemainderCurForNextPeriod(Connection 
@@ -319,7 +323,10 @@ public class AccountsHandler implements AccountsHandlerLocal {
         }
         return allCurrentRemainderCurUpdated;
     }   
-        
+
+    /**
+     * {@inheritDoc}
+     */            
     @Override
     public boolean
             calculateAllCurrentRemainderCurForPreviousPeriod(Connection 

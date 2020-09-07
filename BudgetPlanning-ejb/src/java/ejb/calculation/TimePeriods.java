@@ -4,11 +4,14 @@ package ejb.calculation;
 import java.util.TreeSet;
 
 /**
- *
- * @author SoundlyGifted
+ * TimePeriods class is used to contain static attributes of application
+ * planning time periods.
  */
 public class TimePeriods {
 
+    /**
+     * TimePeriods class private constructor.
+     */
     private TimePeriods() {}
 
     static String currentPeriodDate;

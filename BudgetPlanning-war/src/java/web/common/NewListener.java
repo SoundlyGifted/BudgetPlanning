@@ -11,11 +11,10 @@ import javax.servlet.http.HttpSessionListener;
 
 /**
  * Web application lifecycle listener.
- *
- * @author SoundlyGifted
  */
 @WebListener
-public class NewListener implements HttpSessionListener, HttpSessionAttributeListener {
+public class NewListener implements HttpSessionListener, 
+        HttpSessionAttributeListener {
 
     @EJB
     private DBConnectionLocal connector;
@@ -23,17 +22,18 @@ public class NewListener implements HttpSessionListener, HttpSessionAttributeLis
     @Override
     public void sessionCreated(HttpSessionEvent se) {
         HttpSession s = se.getSession();
-        System.out.println("*** A new session created : " + s.getId() + ", " + s.hashCode());
-        
         /* Setting initial System Message Log message. */
-        s.setAttribute("operationResult", "Awaiting for initial user command...");
+        s.setAttribute("operationResult", 
+                "Awaiting for initial user command...");
     }
 
     @Override
     public void sessionDestroyed(HttpSessionEvent se) {
         HttpSession s = se.getSession();
         connector.closeConnection(s, "expensesStructureDBConnection");
-        System.out.println("*** Session destroyed : " + s.getId() + ", " + s.hashCode());
+        connector.closeConnection(s, "accountsStructureDBConnection");
+        connector.closeConnection(s, "actualExpensesDBConnection");
+        connector.closeConnection(s, "mainScreenDBConnection");
     }
 
     @Override

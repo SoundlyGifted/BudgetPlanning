@@ -1,3 +1,5 @@
+-- resources.sql.mainScreen --
+-- select.consumptionPcs.byExpenseId.sql --
 select T1.*, T2."TYPE"
 from
 (select EXPENSE_ID, "DATE", CONSUMPTION_PCS

@@ -2,10 +2,14 @@
 package ejb.expensesStructure;
 
 /**
- *
- * @author SoundlyGifted
+ * ExpensesTypes interface contains enumeration of possible Expenses types 
+ * pre-specified in the application.
  */
 public interface ExpensesTypes {
+    
+    /**
+     * Enumeration of possible Expenses types pre-specified in the application.
+     */
     enum ExpenseType {
         
         SIMPLE_EXPENSES("SIMPLE_EXPENSES"),

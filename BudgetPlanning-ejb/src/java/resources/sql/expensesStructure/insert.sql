@@ -1,3 +1,5 @@
+-- resources.sql.expensesStructure --
+-- insert.sql --
 insert into EXPENSES_STRUCTURE (
 "TYPE", 
 "NAME", 
