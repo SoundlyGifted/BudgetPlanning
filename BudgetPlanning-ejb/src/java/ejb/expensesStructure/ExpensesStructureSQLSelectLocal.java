@@ -5,7 +5,7 @@ import ejb.calculation.EntityExpense;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 
 /**
  * EJB ExpensesStructureSQLSelect Local interface contains methods to perform

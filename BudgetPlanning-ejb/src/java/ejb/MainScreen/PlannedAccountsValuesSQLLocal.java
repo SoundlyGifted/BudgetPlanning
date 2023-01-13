@@ -4,7 +4,7 @@ package ejb.MainScreen;
 import java.sql.Connection;
 import java.util.Map;
 import java.util.TreeMap;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 
 /**
  * EJB PlannedAccountsValuesSQL Local interface contains methods to perform 

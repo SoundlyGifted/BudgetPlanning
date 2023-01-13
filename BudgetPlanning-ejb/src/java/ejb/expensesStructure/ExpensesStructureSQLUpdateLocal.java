@@ -2,7 +2,7 @@
 package ejb.expensesStructure;
 
 import java.sql.Connection;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 
 /**
  * EJB ExpensesStructureSQLUpdate Local interface contains methods to perform

@@ -2,7 +2,7 @@
 package ejb.planningPeriodsConfig;
 
 import java.sql.Connection;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 
 /**
  * EJB PlanningPeriodsConfigSQL Local interface contains methods to change 

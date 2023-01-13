@@ -7,7 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.ejb.Stateless;
+import jakarta.ejb.Stateless;
 
 /**
  * EJB PlanningPeriodsConfigSQL is used to change planning periods horizon in 

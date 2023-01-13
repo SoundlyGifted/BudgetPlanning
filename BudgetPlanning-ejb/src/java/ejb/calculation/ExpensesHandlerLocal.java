@@ -3,7 +3,7 @@ package ejb.calculation;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 
 /**
  * EJB ExpensesHandler Local interface contains methods to perform 

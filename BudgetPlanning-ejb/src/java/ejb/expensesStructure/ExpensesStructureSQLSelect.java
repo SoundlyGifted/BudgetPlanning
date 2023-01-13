@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import javax.ejb.Stateless;
+import jakarta.ejb.Stateless;
 
 /**
  * EJB ExpensesStructureSQLSelect is used to perform select operations of 

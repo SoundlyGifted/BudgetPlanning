@@ -3,7 +3,7 @@ package ejb.calculation;
 
 import java.sql.Connection;
 import java.util.TreeSet;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 
 /**
  * EJB TimePeriodsHandler Local interface contains methods to perform 

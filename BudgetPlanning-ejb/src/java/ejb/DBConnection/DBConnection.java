@@ -3,10 +3,10 @@ package ejb.DBConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import javax.ejb.DependsOn;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.servlet.http.HttpSession;
+import jakarta.ejb.DependsOn;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * EJB "DBConnection" is used to provide and close database Connection to

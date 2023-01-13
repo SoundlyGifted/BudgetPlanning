@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import javax.ejb.DependsOn;
-import javax.ejb.Singleton;
+import jakarta.ejb.DependsOn;
+import jakarta.ejb.Singleton;
 
 /**
  * EJB QueryProvider is used to provide SQL queries red from sql-files.

@@ -2,7 +2,7 @@
 package ejb.DBConnection;
 
 import java.io.IOException;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 
 /**
  * EJB QueryProvider Local interface contains method that reads SQL query 

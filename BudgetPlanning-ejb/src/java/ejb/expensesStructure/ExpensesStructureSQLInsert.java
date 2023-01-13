@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import javax.ejb.Stateless;
-import javax.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.EJB;
 
 /**
  * EJB ExpensesStructureSQLInsert is used to perform insert operations of 

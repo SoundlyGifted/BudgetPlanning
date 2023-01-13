@@ -4,7 +4,7 @@ package ejb.actualExpenses;
 import java.sql.Connection;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 
 /**
  * EJB ActualExpensesSQL Local interface contains methods to perform 

@@ -1,8 +1,8 @@
 
 package ejb.common;
 
-import javax.ejb.Stateless;
-import javax.servlet.http.HttpSession;
+import jakarta.ejb.Stateless;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * EJB OperationResultLog is used to to perform operations of Application Log.

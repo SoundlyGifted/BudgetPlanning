@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import javax.ejb.EJB;
+import jakarta.ejb.EJB;
 
 /**
  * SQLAbstract class is extended by Session Beans in EJB module that interact 

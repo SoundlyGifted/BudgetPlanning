@@ -10,9 +10,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.TreeSet;
-import javax.ejb.EJB;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * EJB TimePeriodsHandler class is used to perform operations on attributes of 
@@ -39,6 +41,15 @@ public class TimePeriodsHandler extends EjbCommonMethods
     private boolean updateCurrentPeriodDate(Connection connection) {
         String newCurrentPeriodDate = plannedParams
                 .getCurrentPeriodDate(connection);
+        
+        if (newCurrentPeriodDate == null) {
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate today = LocalDate.now();
+            int todaysDayOfWeek = today.getDayOfWeek().getValue();
+            newCurrentPeriodDate 
+                    = fmt.format(today.minusDays(todaysDayOfWeek - 1));
+        }
+        
         if (TimePeriods.currentPeriodDate == null || 
                 TimePeriods.currentPeriodDate.trim().isEmpty()) {
             TimePeriods.currentPeriodDate = newCurrentPeriodDate;

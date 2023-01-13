@@ -5,7 +5,7 @@ import ejb.calculation.EntityAccount;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 
 /**
  * EJB AccountsStructureSQL Local interface contains methods to perform 

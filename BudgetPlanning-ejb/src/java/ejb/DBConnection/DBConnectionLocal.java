@@ -2,8 +2,8 @@
 package ejb.DBConnection;
 
 import java.sql.Connection;
-import javax.ejb.Local;
-import javax.servlet.http.HttpSession;
+import jakarta.ejb.Local;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * EJB DBConnection Local interface contains methods to provide and close 

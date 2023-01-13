@@ -16,8 +16,8 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
 
 /**
  * EJB PlannedVariableParamsSQL is used to perform operations on planned and

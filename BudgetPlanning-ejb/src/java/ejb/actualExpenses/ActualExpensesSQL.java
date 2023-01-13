@@ -12,8 +12,8 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
 
 /**
  * EJB ActualExpensesSQL is used to perform operations on Actual Expenses 

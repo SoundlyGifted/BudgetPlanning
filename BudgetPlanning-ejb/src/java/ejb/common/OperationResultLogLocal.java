@@ -1,8 +1,8 @@
 
 package ejb.common;
 
-import javax.ejb.Local;
-import javax.servlet.http.HttpSession;
+import jakarta.ejb.Local;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * EJB OperationResultLog Local interface contains methods to perform operations

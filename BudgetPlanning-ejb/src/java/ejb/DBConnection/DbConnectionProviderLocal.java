@@ -3,7 +3,7 @@ package ejb.DBConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 
 /**
  * EJB DBConnectionProvider Local interface contains methods to create database
