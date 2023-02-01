@@ -1,5 +1,5 @@
 
-package com.ejb.accountsStructure;
+package com.ejb.accstructure;
 
 import com.ejb.calculation.EntityAccount;
 import java.sql.Connection;

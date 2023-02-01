@@ -1,5 +1,5 @@
 
-package com.ejb.DBConnection;
+package com.ejb.database;
 
 import java.io.BufferedReader;
 import java.io.IOException;

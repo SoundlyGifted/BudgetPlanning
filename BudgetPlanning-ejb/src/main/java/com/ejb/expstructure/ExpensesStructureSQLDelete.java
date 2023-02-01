@@ -1,9 +1,9 @@
 
-package com.ejb.expensesStructure;
+package com.ejb.expstructure;
 
-import com.ejb.MainScreen.PlannedAccountsValuesSQLLocal;
-import com.ejb.MainScreen.PlannedVariableParamsSQLLocal;
-import com.ejb.actualExpenses.ActualExpensesSQLLocal;
+import com.ejb.mainscreen.PlannedAccountsValuesSQLLocal;
+import com.ejb.mainscreen.PlannedVariableParamsSQLLocal;
+import com.ejb.actualexpenses.ActualExpensesSQLLocal;
 import com.ejb.calculation.AccountsHandlerLocal;
 import com.ejb.calculation.ExpensesHandlerLocal;
 import com.ejb.common.SQLAbstract;

@@ -1,8 +1,8 @@
 
-package com.ejb.expensesStructure;
+package com.ejb.expstructure;
 
-import com.ejb.accountsStructure.AccountsStructureSQLLocal;
-import com.ejb.actualExpenses.ActualExpensesSQLLocal;
+import com.ejb.accstructure.AccountsStructureSQLLocal;
+import com.ejb.actualexpenses.ActualExpensesSQLLocal;
 import com.ejb.common.SQLAbstract;
 import com.ejb.calculation.EntityAccount;
 import com.ejb.calculation.EntityExpense;

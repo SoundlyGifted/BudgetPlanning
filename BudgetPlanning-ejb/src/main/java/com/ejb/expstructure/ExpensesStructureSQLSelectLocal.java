@@ -1,5 +1,5 @@
 
-package com.ejb.expensesStructure;
+package com.ejb.expstructure;
 
 import com.ejb.calculation.EntityExpense;
 import java.sql.Connection;

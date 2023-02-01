@@ -1,10 +1,10 @@
 
 package com.ejb.calculation;
 
-import com.ejb.MainScreen.PlannedVariableParamsSQLLocal;
-import com.ejb.actualExpenses.ActualExpensesSQLLocal;
-import com.ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
-import com.ejb.expensesStructure.ExpensesStructureSQLUpdateLocal;
+import com.ejb.mainscreen.PlannedVariableParamsSQLLocal;
+import com.ejb.actualexpenses.ActualExpensesSQLLocal;
+import com.ejb.expstructure.ExpensesStructureSQLSelectLocal;
+import com.ejb.expstructure.ExpensesStructureSQLUpdateLocal;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;

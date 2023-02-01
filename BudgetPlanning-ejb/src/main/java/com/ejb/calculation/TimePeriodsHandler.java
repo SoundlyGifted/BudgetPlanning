@@ -1,9 +1,9 @@
 
 package com.ejb.calculation;
 
-import com.ejb.MainScreen.PlannedVariableParamsSQLLocal;
+import com.ejb.mainscreen.PlannedVariableParamsSQLLocal;
 import com.ejb.common.EjbCommonMethods;
-import com.ejb.planningPeriodsConfig.PlanningPeriodsConfigSQLLocal;
+import com.ejb.planningperiodsconfig.PlanningPeriodsConfigSQLLocal;
 import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

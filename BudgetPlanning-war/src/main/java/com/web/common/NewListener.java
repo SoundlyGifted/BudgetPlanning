@@ -1,7 +1,7 @@
 
 package com.web.common;
 
-import com.ejb.DBConnection.DBConnectionLocal;
+import com.ejb.database.DBConnectionLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.annotation.WebListener;
 import jakarta.servlet.http.HttpSession;

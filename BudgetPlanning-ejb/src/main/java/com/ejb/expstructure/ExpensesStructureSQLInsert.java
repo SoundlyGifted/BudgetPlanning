@@ -1,11 +1,11 @@
 
-package com.ejb.expensesStructure;
+package com.ejb.expstructure;
 
-import com.ejb.accountsStructure.AccountsStructureSQLLocal;
-import com.ejb.actualExpenses.ActualExpensesSQLLocal;
+import com.ejb.accstructure.AccountsStructureSQLLocal;
+import com.ejb.actualexpenses.ActualExpensesSQLLocal;
 import com.ejb.common.SQLAbstract;
 import com.ejb.calculation.EntityAccount;
-import com.ejb.expensesStructure.ExpensesTypes.ExpenseType;
+import com.ejb.expstructure.ExpensesTypes.ExpenseType;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

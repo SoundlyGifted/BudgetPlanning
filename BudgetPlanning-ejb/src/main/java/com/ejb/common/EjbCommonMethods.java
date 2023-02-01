@@ -2,7 +2,7 @@
 package com.ejb.common;
 
 import com.ejb.calculation.PlanningPeriodsFrequencies;
-import com.ejb.expensesStructure.ExpensesTypes;
+import com.ejb.expstructure.ExpensesTypes;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;

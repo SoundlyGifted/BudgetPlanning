@@ -1,15 +1,15 @@
 
-package com.web.expensesStructure;
+package com.web.expstructure;
 
-import com.ejb.DBConnection.DBConnectionLocal;
-import com.ejb.MainScreen.PlannedAccountsValuesSQLLocal;
-import com.ejb.MainScreen.PlannedVariableParamsSQLLocal;
+import com.ejb.database.DBConnectionLocal;
+import com.ejb.mainscreen.PlannedAccountsValuesSQLLocal;
+import com.ejb.mainscreen.PlannedVariableParamsSQLLocal;
 import com.ejb.calculation.AccountsHandlerLocal;
 import com.ejb.common.OperationResultLogLocal;
 import com.ejb.calculation.EntityExpense;
 import com.ejb.calculation.ExpensesHandlerLocal;
-import com.ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
-import com.ejb.expensesStructure.ExpensesStructureSQLUpdateLocal;
+import com.ejb.expstructure.ExpensesStructureSQLSelectLocal;
+import com.ejb.expstructure.ExpensesStructureSQLUpdateLocal;
 import java.io.IOException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;

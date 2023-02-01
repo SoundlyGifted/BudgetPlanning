@@ -1,7 +1,7 @@
 
 package com.ejb.common;
 
-import com.ejb.DBConnection.QueryProviderLocal;
+import com.ejb.database.QueryProviderLocal;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

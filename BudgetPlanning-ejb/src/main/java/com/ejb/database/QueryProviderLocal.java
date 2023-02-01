@@ -1,5 +1,5 @@
 
-package com.ejb.DBConnection;
+package com.ejb.database;
 
 import java.io.IOException;
 import jakarta.ejb.Local;

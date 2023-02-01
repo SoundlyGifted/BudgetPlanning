@@ -1,5 +1,5 @@
 
-package com.ejb.DBConnection;
+package com.ejb.database;
 
 import java.sql.Connection;
 import java.sql.SQLException;

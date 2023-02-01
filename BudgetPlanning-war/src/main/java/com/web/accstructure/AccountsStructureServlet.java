@@ -1,9 +1,9 @@
 
-package com.web.accountsStructure;
+package com.web.accstructure;
 
-import com.ejb.DBConnection.DBConnectionLocal;
-import com.ejb.MainScreen.PlannedAccountsValuesSQLLocal;
-import com.ejb.accountsStructure.AccountsStructureSQLLocal;
+import com.ejb.database.DBConnectionLocal;
+import com.ejb.mainscreen.PlannedAccountsValuesSQLLocal;
+import com.ejb.accstructure.AccountsStructureSQLLocal;
 import com.ejb.calculation.AccountsHandlerLocal;
 import com.ejb.common.OperationResultLogLocal;
 import java.io.IOException;

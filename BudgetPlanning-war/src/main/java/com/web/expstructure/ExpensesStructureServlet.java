@@ -1,11 +1,11 @@
 
-package com.web.expensesStructure;
+package com.web.expstructure;
 
-import com.ejb.DBConnection.DBConnectionLocal;
-import com.ejb.MainScreen.PlannedVariableParamsSQLLocal;
+import com.ejb.database.DBConnectionLocal;
+import com.ejb.mainscreen.PlannedVariableParamsSQLLocal;
 import com.ejb.common.OperationResultLogLocal;
 import com.ejb.calculation.EntityExpense;
-import com.ejb.expensesStructure.ExpensesStructureSQLInsertLocal;
+import com.ejb.expstructure.ExpensesStructureSQLInsertLocal;
 import java.io.IOException;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -13,8 +13,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import com.ejb.expensesStructure.ExpensesStructureSQLDeleteLocal;
-import com.ejb.expensesStructure.ExpensesStructureSQLSelectLocal;
+import com.ejb.expstructure.ExpensesStructureSQLDeleteLocal;
+import com.ejb.expstructure.ExpensesStructureSQLSelectLocal;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

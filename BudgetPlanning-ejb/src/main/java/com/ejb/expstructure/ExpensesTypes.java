@@ -1,5 +1,5 @@
 
-package com.ejb.expensesStructure;
+package com.ejb.expstructure;
 
 /**
  * ExpensesTypes interface contains enumeration of possible Expenses types 
