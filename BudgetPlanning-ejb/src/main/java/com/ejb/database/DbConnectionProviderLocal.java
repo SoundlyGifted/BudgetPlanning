@@ -6,26 +6,28 @@ import java.sql.SQLException;
 import jakarta.ejb.Local;
 
 /**
- * EJB DBConnectionProvider Local interface contains methods to create database
- * Connection.
+ * EJB DBConnectionProvider Local interface contains methods to create and close 
+ * database connection.
  */
 @Local
 public interface DbConnectionProviderLocal {
-    
-    /**
-     * Returns database Connection
-     * 
-     * @return database Connection
-     * @throws SQLException 
-     */
-    public Connection connection() throws SQLException;
     
     /**
      * Creates databaes connection based on config.properties (driver, host, 
      * port, database name, user name, user password).
      * 
      * @return database Connection.
-     * @throws SQLException 
+     * @throws SQLException if some error occured while establishing the 
+     * database connection.
      */
-    public Connection getConnection() throws SQLException;
+    public Connection getDBConnection() throws SQLException;
+    
+    /**
+     * Closes database Connection.
+     * 
+     * @param connection database Connection
+     * @throws java.sql.SQLException if some error occured while closing the 
+     * database connection.
+     */
+    public void closeDBConnection(Connection connection) throws SQLException;    
 }

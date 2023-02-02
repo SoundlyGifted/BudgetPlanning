@@ -12,63 +12,92 @@ import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 
 /**
- * EJB DbConnectionProvider is used to create database Connection.
+ * EJB DbConnectionProvider is used to create and close database Connection.
  */
 @Singleton
 @Startup
 public class DbConnectionProvider implements DbConnectionProviderLocal {
     
-    private static final String CONFIGS = "resources/config.properties";
+    private static final String CONFIGS = "/resources/config.properties";
     private final Properties configs = new Properties();
     
-    private Connection connection;
+    private String dbURL;
+    private String dbUser;
+    private String dbPass;    
+
+
+    /**
+     * {@inheritDoc}
+     */    
+    @Override
+    public Connection getDBConnection() throws SQLException {
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(dbURL, dbUser, dbPass);
+        } catch (SQLException sqlex) {
+            throw new SQLException("[DBConnectionHandler] could not connect to "
+                    + "the database using URL '" + dbURL + "', user '" + dbUser 
+                    + "', password '" + dbPass + "; " + sqlex.getMessage());
+        }
+        return connection;
+    }
+    
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public Connection connection() {
-        return connection;
+    public void closeDBConnection(Connection connection) throws SQLException {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        } catch (SQLException sqlex) {
+            throw new SQLException("[DBConnectionHandler] DBConnection closing "
+                    + "error :" + sqlex.getMessage());
+        }
     }
     
+    
+    private void setDBConnectionParameters() {
+        dbURL = configs.getProperty("database.driver") + "://"
+                + configs.getProperty("database.host") + ":"
+                + configs.getProperty("database.port") + "/"
+                + configs.getProperty("database.name");
+        dbUser = configs.getProperty("database.user");
+        dbPass = configs.getProperty("database.password");
+    }
+    
+    
+    private void setDefaultDBConfigs() {
+        String defaultDatabaseName = "BudgetPlanningAppDB";
+        String defaultUser = "app";
+        String defaultPass = "app";   
+        
+        configs.setProperty("database.driver", "jdbc:derby");
+        configs.setProperty("database.host", "localhost");
+        configs.setProperty("database.port", "1527");
+        configs.setProperty("database.name", defaultDatabaseName);
+        configs.setProperty("database.name", defaultUser);
+        configs.setProperty("database.password", defaultPass);
+    }
+    
+    
     @PostConstruct
-    public void init() {
+    public void postConstruct() {
         ClassLoader classLoader = this.getClass().getClassLoader();
         try (InputStream stream = classLoader.getResourceAsStream(CONFIGS)) {
             configs.load(stream);
+            setDBConnectionParameters();
         } catch (IOException ioex) {
-            System.out.println("*** DbConnectionProvider: Input stream or "
-                    + "connection Properties loading failure: "
-                    + ioex.getMessage() + " ***");
+            System.out.println("[DBConnectionHandler]: Database connection "
+                    + "Properties file loading failure for the configuration "
+                    + "file '" + CONFIGS + "': " + ioex.getMessage());
+            System.out.println("[DBConnectionHandler]: Default Apache Derby "
+                    + "database configuration will be used instead.");
+            
+            setDefaultDBConfigs();
+            setDBConnectionParameters();
         }
-        try {
-            connection = getConnection();
-        } catch (SQLException sqlex) {
-            System.out.println("*** DbConnectionProvider: connection "
-                    + "establishing failure: "
-                    + sqlex.getMessage() + " ***");                
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */    
-    private String getUrl() {
-        return configs.getProperty("database.driver") + "://" +
-               configs.getProperty("database.host") + ":" +
-               configs.getProperty("database.port") + "/" +
-               configs.getProperty("database.name");
-    }
-
-    /**
-     * {@inheritDoc}
-     */    
-    @Override
-    public Connection getConnection() throws SQLException {
-        String username = configs.getProperty("database.user");
-        String password = configs.getProperty("database.password");
-        String url = getUrl();
-        connection = DriverManager.getConnection(url, username, password);
-        return connection;
     }
 }

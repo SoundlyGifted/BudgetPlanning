@@ -29,7 +29,7 @@ public class DBConnection implements DBConnectionLocal {
                 = (Connection) session.getAttribute(sessionAttributeName);
         try {
             if (DBConnection == null || DBConnection.isClosed()) {
-                DBConnection = connectionProvider.getConnection();
+                DBConnection = connectionProvider.getDBConnection();
                 session.setAttribute(sessionAttributeName, DBConnection);
             }
         } catch (SQLException ex) {
@@ -41,12 +41,12 @@ public class DBConnection implements DBConnectionLocal {
 
     /**
      * {@inheritDoc}
-     */    
+     */
     @Override
     public Connection connection() {
         Connection DBconnection = null;
         try {
-            DBconnection = connectionProvider.getConnection();
+            DBconnection = connectionProvider.getDBConnection();
         } catch (SQLException ex) {
             System.out.println("*** DBConnection establishing error : "
                     + ex.getMessage());
@@ -63,12 +63,8 @@ public class DBConnection implements DBConnectionLocal {
         Connection DBConnection
                 = (Connection) session.getAttribute(sessionAttributeName);
         try {
-            if (DBConnection == null || DBConnection.isClosed()) {
-            } else {
-                session.removeAttribute(sessionAttributeName);
-                DBConnection.close();
-                DBConnection = null;
-            }
+            connectionProvider.closeDBConnection(DBConnection);
+            session.removeAttribute(sessionAttributeName);
         } catch (SQLException ex) {
             System.out.println("*** DBConnection closing error : "
                     + ex.getMessage());
@@ -81,11 +77,7 @@ public class DBConnection implements DBConnectionLocal {
     @Override
     public void closeConnection(Connection connection) {
         try {
-            if (connection == null || connection.isClosed()) {
-            } else {
-                connection.close();
-                connection = null;
-            }
+            connectionProvider.closeDBConnection(connection);
         } catch (SQLException ex) {
             System.out.println("*** DBConnection closing error : "
                     + ex.getMessage());

@@ -35,7 +35,8 @@ public interface DBConnectionLocal {
     public Connection connection();
     
     /**
-     * Closes database Connection and removes it from session attribute.
+     * Closes database Connection using {@link DbConnectionProviderLocal#closeDBConnection(Connection connection)} 
+     * and removes it from session attribute.
      * 
      * @param session HttpSession to remove the database Connection attribute.
      * @param sessionAttributeName session attribute name.
@@ -44,7 +45,7 @@ public interface DBConnectionLocal {
             String sessionAttributeName);
     
     /**
-     * Closes database Connection.
+     * Closes database Connection using {@link DbConnectionProviderLocal#closeDBConnection(Connection connection)}.
      * 
      * @param connection database Connection to be closed.
      */
