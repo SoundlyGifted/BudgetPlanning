@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpSession;
 public class DBConnection implements DBConnectionLocal {
 
     @EJB
-    private DbConnectionProviderLocal connectionProvider;
+    private DBConnectionProviderLocal connectionProvider;
 
     /**
      * {@inheritDoc}
