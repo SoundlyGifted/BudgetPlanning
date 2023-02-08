@@ -1,6 +1,8 @@
 
 package com.ejb.calculation;
 
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.util.ArrayList;
 import jakarta.ejb.Local;
@@ -32,9 +34,15 @@ public interface AccountsHandlerLocal {
      * 
      * @param connection database Connection.
      * @return EntityAccountList obtained based on the database records.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public ArrayList<EntityAccount> 
-        actualizeEntityAccountList(Connection connection);
+        actualizeEntityAccountList(Connection connection) 
+                throws GenericDBOperationException, GenericDBException;
 
     /**
      * Prepares the corresponding EntityAccount object (calculates values of 
@@ -48,9 +56,15 @@ public interface AccountsHandlerLocal {
      * Account and making corresponding EntityAccount object preparation.
      * @return prepared EntityAccount object (with calculated parameters) if
      * Expense with given ID has any linked Account, or null otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public EntityAccount prepareEntityAccountByExpenseId(Connection connection,
-            String inputPlanningPeriodsFrequency, Integer inputExpenseId);
+            String inputPlanningPeriodsFrequency, Integer inputExpenseId) 
+            throws GenericDBOperationException, GenericDBException;
 
     /**
      * Prepares EntityAccount object (calculates values of it's parameters 
@@ -62,9 +76,15 @@ public interface AccountsHandlerLocal {
      * periods.
      * @param id database Account ID.
      * @return prepared EntityAccount object (with calculated parameters).
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public EntityAccount prepareEntityAccountById(Connection connection,
-            String inputPlanningPeriodsFrequency, Integer id); 
+            String inputPlanningPeriodsFrequency, Integer id) 
+            throws GenericDBOperationException, GenericDBException; 
 
     /**
      * Method is applied to operation of shifting of Current Planning Period
@@ -73,10 +93,14 @@ public interface AccountsHandlerLocal {
      * in the database based on domain specific formula.
      * 
      * @param connection database Connection.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean calculateAllCurrentRemainderCurForNextPeriod(Connection 
-            connection);
+    public void calculateAllCurrentRemainderCurForNextPeriod(Connection 
+            connection) throws GenericDBOperationException, GenericDBException;
     
     /**
      * Method is applied to operation of shifting of Current Planning Period
@@ -85,9 +109,12 @@ public interface AccountsHandlerLocal {
      * in the database based on domain specific formula.
      * 
      * @param connection database Connection.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean
-            calculateAllCurrentRemainderCurForPreviousPeriod(Connection 
-                    connection);
+    public void calculateAllCurrentRemainderCurForPreviousPeriod(Connection connection) 
+            throws GenericDBOperationException, GenericDBException;
 }

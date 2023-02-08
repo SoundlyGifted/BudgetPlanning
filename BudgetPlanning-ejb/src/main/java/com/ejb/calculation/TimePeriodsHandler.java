@@ -3,6 +3,8 @@ package com.ejb.calculation;
 
 import com.ejb.mainscreen.PlannedVariableParamsSQLLocal;
 import com.ejb.common.EjbCommonMethods;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import com.ejb.planningperiodsconfig.PlanningPeriodsConfigSQLLocal;
 import java.sql.Connection;
 import java.text.ParseException;
@@ -38,7 +40,8 @@ public class TimePeriodsHandler extends EjbCommonMethods
      * @param connection database Connection.
      * @return "true" in case of success of the operation and "false" otherwise.
      */
-    private boolean updateCurrentPeriodDate(Connection connection) {
+    private boolean updateCurrentPeriodDate(Connection connection) 
+            throws GenericDBOperationException, GenericDBException {
         String newCurrentPeriodDate = plannedParams
                 .getCurrentPeriodDate(connection);
         
@@ -73,7 +76,8 @@ public class TimePeriodsHandler extends EjbCommonMethods
      * @return "true" in case of success of the operation and "false" otherwise.
      */
     private boolean updatePlanningPeriodsHorizon(Connection connection,
-            String planningPeriodsFrequency) {
+            String planningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException {
         Integer newPlanningPeriodsHorizon = planningPeriodsConfig
                 .getPlanningPeriodsHorizon(connection, 
                         planningPeriodsFrequency);
@@ -95,7 +99,8 @@ public class TimePeriodsHandler extends EjbCommonMethods
      */
     @Override
     public TreeSet<String> calculateTimePeriodDates(Connection 
-            connection, String inputPlanningPeriodsFrequency) {
+            connection, String inputPlanningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException {
 
         boolean freqencyUpdated;
         boolean currentPeriodDateUpdated;
@@ -174,9 +179,11 @@ public class TimePeriodsHandler extends EjbCommonMethods
      */    
     @Override
     public String getNextPeriodDate(Connection connection,
-            String inputPlanningPeriodsFrequency) {
+            String inputPlanningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException {
         if (!inputCheckFrequency(inputPlanningPeriodsFrequency)) {
-            return null;
+            throw new GenericDBOperationException("Provided Planning Periods "
+                    + "Freqency is invalid.");
         }
         
         String currentPeriodDate = plannedParams
@@ -214,7 +221,8 @@ public class TimePeriodsHandler extends EjbCommonMethods
      */    
     @Override
     public String getPreviousPeriodDate(Connection connection,
-            String inputPlanningPeriodsFrequency) {
+            String inputPlanningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException {
         if (!inputCheckFrequency(inputPlanningPeriodsFrequency)) {
             return null;
         }

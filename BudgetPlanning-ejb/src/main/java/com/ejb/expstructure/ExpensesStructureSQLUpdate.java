@@ -6,7 +6,8 @@ import com.ejb.actualexpenses.ActualExpensesSQLLocal;
 import com.ejb.common.SQLAbstract;
 import com.ejb.calculation.EntityAccount;
 import com.ejb.calculation.EntityExpense;
-import java.io.IOException;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -35,16 +36,19 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
      * {@inheritDoc}
      */
     @Override
-    public boolean execute(Connection connection, String name, String newName, 
+    public void execute(Connection connection, String name, String newName, 
             String accountId, String linkedToComplexId, String price,
-            String currentStockPcs, String safetyStockPcs, String orderQtyPcs) {
+            String currentStockPcs, String safetyStockPcs, String orderQtyPcs) 
+            throws GenericDBOperationException, GenericDBException {
         /* If no expense name provided for the update operation then cancelling
-        this method. Also checking lengths of String variables. */
+         * this method. Also checking lengths of String variables. 
+         */
         if (!inputCheckNullBlank(name) || !inputCheckLength(name)) {
-            return false;
+            throw new GenericDBOperationException("Empty current Expense name "
+                    + "provided, or the length exceeds the limit.");
         }
         
-        /* Checking accountId. */
+        // Checking accountId.
         Integer accountIdInt = stringToInt(accountId);
         if (accountIdInt == null) {
             accountIdInt = 0;
@@ -53,58 +57,63 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
                 .executeSelectById(connection, accountIdInt);
         String accountName = accountSelected.getName();
 
-        /* entityExpense selected from database for the update operation. */
+        // Expense selected from database for the update operation.
         EntityExpense entityExpenseFromDB
                 = select.executeSelectByName(connection, name);
         if (entityExpenseFromDB == null) {
-            return false;
-        } else {
-            /* If Link to Complex Expense already set and Link to Account 
-            operation requested then return false 
-            (unable to handle such request).*/
-            if (entityExpenseFromDB.getLinkedToComplexId() != 0) {
-                if (accountIdInt != 0) {
-                    return false;
-                }
-            }
+            throw new GenericDBOperationException("Unable to find Expense '" 
+                    + name + "' in the database Expenses structure table.");
+        }
+        
+        /* If Link to Complex Expense already set and Link to Account 
+         * operation requested then return false 
+         * (unable to handle such request).
+         */
+        int idOfComplexExpense = entityExpenseFromDB.getLinkedToComplexId();
+        if (idOfComplexExpense != 0 && accountIdInt != 0) {
+            String NameOfComplexExpense
+                    = select.executeSelectById(connection, accountIdInt)
+                            .getName();
+            throw new GenericDBOperationException("Unable to set "
+                    + "Account for the '" + name + "' Expense. "
+                    + "This Expense is a part of a Complex "
+                    + "Expense '" + NameOfComplexExpense + "'.");
         }
 
+
         /* For SIMPLE_EXPENSES and COMPLEX_EXPENSES the following fields 
-        should not be filled: price, safetyStockPcs, orderQtyPcs*/
-        if (entityExpenseFromDB.getType()
+         * should not be filled: price, safetyStockPcs, orderQtyPcs
+         */
+        String entityExpenseFromDBType = entityExpenseFromDB.getType();
+        if (entityExpenseFromDBType
                 .equals(ExpensesTypes.ExpenseType.COMPLEX_EXPENSES.getType())
-                || entityExpenseFromDB.getType()
+                || entityExpenseFromDBType
                         .equals(ExpensesTypes.ExpenseType.SIMPLE_EXPENSES
                                 .getType())) {
             if ((price != null && !price.trim().isEmpty()) 
                     || (safetyStockPcs != null && !safetyStockPcs.trim()
                             .isEmpty()) 
                     || (orderQtyPcs != null && !orderQtyPcs.trim().isEmpty())) {
-                return false;
+                throw new GenericDBOperationException("Unable to set "
+                        + "Price/Safety Stock/Order QTY for the '" + name
+                        + "' Expense of type '" + entityExpenseFromDBType + "'. "
+                        + "These parameters are not applicable for Simple or "
+                        + "Complex Expense types.");
             }
         }
         
-        PreparedStatement preparedStatement;
-        PreparedStatement psUpdateActualExpensesName;
-        try {
-            preparedStatement = createPreparedStatement(connection, 
-                    "expensesStructure/update");
-            psUpdateActualExpensesName 
-                    = createPreparedStatement(connection, 
-                            "actualExpenses/update.actualExpensesName");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ExpensesStructureSQLUpdate: "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, "expensesStructure/update");
+        PreparedStatement psUpdateActualExpensesName
+                = createPreparedStatement(connection,
+                        "actualExpenses/update.actualExpensesName");
 
-        /* Processing assigning to the Complex Expense. */
+        // Processing assigning to the Complex Expense.
         int linkedToComplexIdInt;
         if (inputCheckNullBlank(linkedToComplexId)) {
             linkedToComplexIdInt = stringToInt(linkedToComplexId);
             if (entityExpenseFromDB.getId() == stringToInt(linkedToComplexId)) {
-                /* Complex expense Category cannot be linked to itself. */
+                // Complex expense Category cannot be linked to itself.
                 linkedToComplexId = "";
             } else {
                 if (linkedToComplexIdInt != 0) {
@@ -116,9 +125,10 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         }
 
         /* 1) If some input parameter not entered (is null or blank) then 
-           leaving the same value as before the update operation. 
-           2) If all input parameters not entered (are null or blank) then
-           cancelling update operation (nothing to update). */
+         * leaving the same value as before the update operation. 
+         * 2) If all input parameters not entered (are null or blank) then
+         * cancelling update operation (nothing to update). 
+         */
         boolean allInputParamsNullOrBlank = true;
         
         String[] enteredParams = new String[] {newName, accountId, accountName,
@@ -143,7 +153,8 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             }
         }
         if (allInputParamsNullOrBlank) {
-            return false;
+            throw new GenericDBOperationException("Unable to handle the update "
+                    + "operation, no parameters were entered.");
         }
 
         newName = enteredParams[0];
@@ -210,69 +221,60 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             psUpdateActualExpensesName.setString(2, name);
             psUpdateActualExpensesName.executeUpdate();
             
-        } catch (SQLException ex) {
-            System.out.println("***ExpensesStructureSQLUpdate: Error while "
-                    + "setting query parameters or executing Update Query: "
-                    + ex.getMessage() + "***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
+            clear(psUpdateActualExpensesName);
         }
-        return true;
     }
 
     /**
      * {@inheritDoc}
      */    
     @Override
-    public boolean clearAssignmentToComplexExpense(Connection connection, 
-            String name) {
+    public void clearAssignmentToComplexExpense(Connection connection, 
+            String name) throws GenericDBOperationException, GenericDBException {
         /* If no expense name provided for the update operation then cancelling
-        this method. */
+         * this method. 
+         */
         if (!inputCheckNullBlank(name) || !inputCheckLength(name)) {
-            return false;
+            throw new GenericDBOperationException("Empty current Expense name "
+                    + "provided, or the length exceeds the limit.");
         }
 
-        /* Check if corresponding record is in the database. */
+        // Check if corresponding record is in the database.
         if (select.executeSelectByName(connection, name) == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to find Expense '" 
+                    + name + "' in the database Expenses structure table.");
         }
 
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection, 
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
                     "expensesStructure/update.clearComplexExpLink");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ExpensesStructureSQLUpdate: "
-                    + "clearAssignmentToComplexExpense() "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
 
         try {
             preparedStatement.setString(1, name);
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("***ExpensesStructureSQLUpdate: "
-                    + "clearAssignmentToComplexExpense() Error while "
-                    + "setting query parameters or executing Update Query: "
-                    + ex.getMessage() + "***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
-        return true;
     }
 
     /**
      * {@inheritDoc}
-     */    
+     */
     @Override
-    public boolean updateCurrentStockById(Connection connection, Integer id, 
-            Double newCurrentStockPcs) {
+    public void updateCurrentStockById(Connection connection, Integer id, 
+            Double newCurrentStockPcs) 
+            throws GenericDBOperationException, GenericDBException {
         if (id == null || id <= 0 || newCurrentStockPcs == null) {
-            return false;
+            throw new GenericDBOperationException("Empty or wrong current "
+                    + "Expense id provided, or new Stock value is null.");
         }
 
         HashMap<Integer, HashMap<String, Double>> allValues = 
@@ -283,17 +285,9 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
         Double newCurrentStockWscPcs = newCurrentStockPcs - safetyStock;
         Double newCurrentStockWscCur = round(newCurrentStockWscPcs * price, 2);
 
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection, 
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
                     "expensesStructure/update.currentStock.byid");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ExpensesStructureSQLUpdate: "
-                    + "updateCurrentStockById() "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
 
         try {
             preparedStatement.setDouble(1, newCurrentStockPcs);
@@ -303,15 +297,11 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
             preparedStatement.setInt(5, id);
 
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("***ExpensesStructureSQLUpdate: "
-                    + "updateCurrentStockById() Error while "
-                    + "setting query parameters or executing Update Query: "
-                    + ex.getMessage() + "***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
-        return true;
     }
 }

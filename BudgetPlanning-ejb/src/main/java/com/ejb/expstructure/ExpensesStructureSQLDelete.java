@@ -8,7 +8,8 @@ import com.ejb.calculation.AccountsHandlerLocal;
 import com.ejb.calculation.ExpensesHandlerLocal;
 import com.ejb.common.SQLAbstract;
 import com.ejb.calculation.EntityExpense;
-import java.io.IOException;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -50,25 +51,19 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
      * {@inheritDoc}
      */
     @Override
-    public boolean executeDeleteById(Connection connection, String id) {
+    public void executeDeleteById(Connection connection, String id) 
+            throws GenericDBException, GenericDBOperationException {
         Integer idInt = stringToInt(id);
         if (!inputCheckNullBlank(id) || idInt == null || idInt < 1) {
-            return false;
+            throw new GenericDBOperationException("Wrong database Expense ID "
+                    + "provided (null or < 1).");
         }
 
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "expensesStructure/delete.byid");
+        try (PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "expensesStructure/delete.byid")) {
             preparedStatement.setInt(1, idInt);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ExpensesStructureSQLDelete: "
-                    + "executeDeleteById() SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
-        
-        try {
+            
             /* If COMPLEX_EXPENSES expense is being removed then setting to 0 
             all LINKED_TO_COMPLEX_ID fields that had that complex expense id.
             Removing the Expense from EntityExpenseList (regardless of type).*/
@@ -124,14 +119,9 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
             
             preparedStatement.executeUpdate();
             
-        } catch (SQLException ex) {
-            System.out.println("***ExpensesStructureSQLDelete: "
-                    + "executeDeleteById() Error while executing Delete Query: "
-                    + ex.getMessage() + "***");
-            return false;
-        } finally {
-            clear(preparedStatement);
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
-        return true;
     }
 }

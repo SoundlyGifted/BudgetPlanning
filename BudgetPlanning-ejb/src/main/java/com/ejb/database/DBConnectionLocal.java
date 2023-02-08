@@ -1,6 +1,7 @@
 
 package com.ejb.database;
 
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import jakarta.ejb.Local;
 import jakarta.servlet.http.HttpSession;
@@ -22,17 +23,21 @@ public interface DBConnectionLocal {
      * @param sessionAttributeName session attribute name for Connection 
      * assignment.
      * @return database Connection.
+     * @throws com.ejb.database.exceptions.GenericDBException in case of 
+     * database connection establishing error.
      */
     public Connection connection(HttpSession session,
-            String sessionAttributeName);
+            String sessionAttributeName) throws GenericDBException;
     
     /**
      * Creates and returns database Connection with the use of 
      * {@link DbConnectionProviderLocal#getConnection()}.
      * 
      * @return database Connection.
+     * @throws com.ejb.database.exceptions.GenericDBException in case of 
+     * database connection establishing error.
      */
-    public Connection connection();
+    public Connection connection() throws GenericDBException;
     
     /**
      * Closes database Connection using {@link DbConnectionProviderLocal#closeDBConnection(Connection connection)} 
@@ -40,14 +45,18 @@ public interface DBConnectionLocal {
      * 
      * @param session HttpSession to remove the database Connection attribute.
      * @param sessionAttributeName session attribute name.
+     * @throws com.ejb.database.exceptions.GenericDBException in case of 
+     * database connection establishing error.
      */
     public void closeConnection(HttpSession session, 
-            String sessionAttributeName);
+            String sessionAttributeName) throws GenericDBException;
     
     /**
      * Closes database Connection using {@link DbConnectionProviderLocal#closeDBConnection(Connection connection)}.
      * 
      * @param connection database Connection to be closed.
+     * @throws com.ejb.database.exceptions.GenericDBException in case of 
+     * database connection establishing error.
      */
-    public void closeConnection(Connection connection);
+    public void closeConnection(Connection connection) throws GenericDBException;
 }

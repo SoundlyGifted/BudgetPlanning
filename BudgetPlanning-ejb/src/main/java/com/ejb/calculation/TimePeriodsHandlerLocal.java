@@ -1,6 +1,8 @@
 
 package com.ejb.calculation;
 
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.util.TreeSet;
 import jakarta.ejb.Local;
@@ -23,9 +25,15 @@ public interface TimePeriodsHandlerLocal {
      * periods.
      * @return set of time period dates that starts with the current period
      * date specified in {@link TimePeriods#currentPeriodDate}
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public TreeSet<String> calculateTimePeriodDates(Connection 
-            connection, String inputPlanningPeriodsFrequency);
+            connection, String inputPlanningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException;
     
     /**
      * Gets the date of next planning time period based on the value of
@@ -37,9 +45,15 @@ public interface TimePeriodsHandlerLocal {
      * periods.
      * @return date of next planning time period (relative to the current 
      * period date).
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public String getNextPeriodDate(Connection connection,
-            String inputPlanningPeriodsFrequency);
+            String inputPlanningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException;
     
     /**
      * Gets the date of previous planning time period based on the value of
@@ -51,7 +65,13 @@ public interface TimePeriodsHandlerLocal {
      * periods.
      * @return date of previous planning time period (relative to the current 
      * period date).
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public String getPreviousPeriodDate(Connection connection,
-            String inputPlanningPeriodsFrequency);
+            String inputPlanningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException;
 }

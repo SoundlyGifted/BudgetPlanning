@@ -1,6 +1,7 @@
 
 package com.ejb.database;
 
+import com.ejb.database.exceptions.GenericDBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -30,14 +31,16 @@ public class DBConnectionProvider implements DBConnectionProviderLocal {
      * {@inheritDoc}
      */    
     @Override
-    public Connection getDBConnection() throws SQLException {
+    public Connection getDBConnection() throws GenericDBException {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(dbURL, dbUser, dbPass);
-        } catch (SQLException sqlex) {
-            throw new SQLException("[DBConnectionHandler] could not connect to "
-                    + "the database using URL '" + dbURL + "', user '" + dbUser 
-                    + "', password '" + dbPass + "; " + sqlex.getMessage());
+        } catch (SQLException sqlex) {          
+            throw new GenericDBException("Could not "
+                    + "connect to the database using URL '" + dbURL 
+                    + "', user '" + dbUser + "', password '" + dbPass 
+                    + "; " + (sqlex.getMessage() == null ? "" : sqlex.getMessage()), 
+                    sqlex);
         }
         return connection;
     }
@@ -47,14 +50,15 @@ public class DBConnectionProvider implements DBConnectionProviderLocal {
      * {@inheritDoc}
      */
     @Override
-    public void closeDBConnection(Connection connection) throws SQLException {
+    public void closeDBConnection(Connection connection) 
+            throws GenericDBException {
         try {
             if (connection != null && !connection.isClosed()) {
                 connection.close();
             }
         } catch (SQLException sqlex) {
-            throw new SQLException("[DBConnectionHandler] DBConnection closing "
-                    + "error :" + sqlex.getMessage());
+            throw new GenericDBException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
     }
     

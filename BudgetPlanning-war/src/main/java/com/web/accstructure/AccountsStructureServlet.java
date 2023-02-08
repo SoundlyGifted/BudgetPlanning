@@ -6,6 +6,8 @@ import com.ejb.mainscreen.PlannedAccountsValuesSQLLocal;
 import com.ejb.accstructure.AccountsStructureSQLLocal;
 import com.ejb.calculation.AccountsHandlerLocal;
 import com.ejb.common.OperationResultLogLocal;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
@@ -66,34 +68,40 @@ public class AccountsStructureServlet extends HttpServlet {
                 .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
-        Connection DBConnection = connector.connection(session, 
-                "accountsStructureDBConnection");
+        
+        Connection DBConnection = null;
+        try {
+            DBConnection = connector.connection(session,
+                    "accountsStructureDBConnection");      
+        } catch (GenericDBException ex) {
+            log.add(session, currentDateTime + " " + ex.getMessage());
+        }
         
         ArrayList<Integer> accountsIdList = commonMethods
                 .getIdList(DBConnection, "ACCOUNTS_STRUCTURE");
                      
-         /* Processing Add operation. */
+         // Processing Add operation.
         if (request.getParameter("addAccount") != null) {
             String inputName = request.getParameter("inputName");
             String inputCurrentRemainder = request
                     .getParameter("inputCurrentRemainder");
-            
-            boolean added = sql.executeInsert(DBConnection, inputName, 
-                    inputCurrentRemainder);
-            if (added) {
-                log.add(session, currentDateTime + " [Add Account "
-                        + "command entered] : Account added");
-            } else {
-                log.add(session, currentDateTime + " [Add Account "
-                        + "command entered] : Command declined");
+            try {
+                sql.executeInsert(DBConnection, inputName, inputCurrentRemainder);
+                log.add(session, currentDateTime 
+                        + " [Add Account command entered] : Account added");                
+            } catch (GenericDBException | GenericDBOperationException ex) {
+                log.add(session, currentDateTime
+                        + " [Add Account command entered] "
+                        + ex.getMessage());
             }
             request.getRequestDispatcher("AccountsStructurePage.jsp")
                     .forward(request, response);
-        }       
+        }
         
-        /* Processing Update operation. */
-        /* Defining ID of row which was selected for update and passing it 
-        as request attribute. */
+        // Processing Update operation.
+        /* Defining ID of row which was selected for update and passing it as 
+         * request attribute.
+         */
         for (Integer id : accountsIdList) {
             if (request.getParameter("update_" + String.valueOf(id)) != null) {
                 request.setAttribute("rowSelectedForUpdate", id);
@@ -102,66 +110,70 @@ public class AccountsStructureServlet extends HttpServlet {
             }
         }
         /* Defining ID of row which was submitted for update and passing it 
-        to Bean for update operation. */
+         * to EJB for update operation.
+         */
         for (Integer id : accountsIdList) {
-            if (request.getParameter("submitUpdate_" 
+            if (request.getParameter("submitUpdate_"
                     + String.valueOf(id)) != null) {
-                String idToUpdate = String.valueOf(id);
-                
-                // Current value of currentRemainderCur. 
-                HashMap<Integer, HashMap<String, Double>> values 
-                        = sql.executeSelectAllValues(DBConnection);
-                String currentRemainderCur = String.valueOf(values.get(id)
-                        .get("CURRENT_REMAINDER_CUR"));
+                try {
+                    String idToUpdate = String.valueOf(id);
 
-                // Updated values. 
-                String updateName = request.getParameter("updateName");
-                String updateCurrentRemainder = request
-                        .getParameter("updateCurrentRemainder");
-                boolean updated = sql.executeUpdate(DBConnection, idToUpdate, 
-                        updateName, updateCurrentRemainder);
-                if (updated) {
+                    // Current value of currentRemainderCur. 
+                    HashMap<Integer, HashMap<String, Double>> values
+                            = sql.executeSelectAllValues(DBConnection);
+                    String currentRemainderCur = String.valueOf(values.get(id)
+                            .get("CURRENT_REMAINDER_CUR"));
+
+                    // Updated values. 
+                    String updateName = request.getParameter("updateName");
+                    String updateCurrentRemainder = request
+                            .getParameter("updateCurrentRemainder");
+
+                    sql.executeUpdate(DBConnection, idToUpdate, updateName,
+                            updateCurrentRemainder);
+
                     if (!currentRemainderCur.equals(updateCurrentRemainder)) {
                         // Calculating Account.
-                        aHandler.prepareEntityAccountById(DBConnection, 
-                                "W", id);
+                        aHandler.prepareEntityAccountById(DBConnection, "W", id);
                         // Updating Accounts Plan.
-                        plannedAccountsValues
-                                .executeUpdateAll(DBConnection, "W");                         
+                        plannedAccountsValues.executeUpdateAll(DBConnection, "W");
                     }
                     log.add(session, currentDateTime + " [Update Account "
-                            + "command entered] : Account updated");
-                } else {
-                    log.add(session, currentDateTime + " [Update Account "
-                            + "command entered] : Command declined");
+                            + "command entered] : Account updated");                   
+                } catch (GenericDBException | GenericDBOperationException ex) {
+                    log.add(session, currentDateTime
+                            + " [Update Account command entered] "
+                            + ex.getMessage());
                 }
                 request.getRequestDispatcher("AccountsStructurePage.jsp")
                         .forward(request, response);
             }
         }
         /* Defining ID of row which was cancelled for update and passing it 
-        as request attribute. */
+         * as request attribute.
+         */
         for (Integer id : accountsIdList) {
             if (request.getParameter("cancelUpdate_" 
                     + String.valueOf(id)) != null) {
                 request.getRequestDispatcher("AccountsStructurePage.jsp")
                         .forward(request, response);
             }
-        }        
+        }
         
-        /* Processing Delete operation. */
+        // Processing Delete operation.
         /* Defining ID of row which was selected for delete and passing it 
-        to Bean for delete operation. */
+         * to EJB for delete operation.
+         */
         for (Integer id : accountsIdList) {
             if (request.getParameter("delete_" + String.valueOf(id)) != null) {
-                boolean deleted = sql.executeDelete(DBConnection, 
-                        String.valueOf(id));
-                if (deleted) {
+                try {
+                    sql.executeDelete(DBConnection, String.valueOf(id));
                     log.add(session, currentDateTime + " [Delete Account "
-                            + "command entered] : Account deleted");
-                } else {
-                    log.add(session, currentDateTime + " [Delete Account "
-                            + "command entered] : Command declined");
+                            + "command entered] : Account deleted");                  
+                } catch (GenericDBException | GenericDBOperationException ex) {
+                    log.add(session, currentDateTime
+                            + " [Delete Account command entered] "
+                            + ex.getMessage());
                 }
                 request.getRequestDispatcher("AccountsStructurePage.jsp")
                         .forward(request, response);

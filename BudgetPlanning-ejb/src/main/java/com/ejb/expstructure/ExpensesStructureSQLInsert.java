@@ -5,8 +5,9 @@ import com.ejb.accstructure.AccountsStructureSQLLocal;
 import com.ejb.actualexpenses.ActualExpensesSQLLocal;
 import com.ejb.common.SQLAbstract;
 import com.ejb.calculation.EntityAccount;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import com.ejb.expstructure.ExpensesTypes.ExpenseType;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -34,75 +35,72 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
      * {@inheritDoc}
      */
     @Override
-    public boolean execute(Connection connection, String type, String name, 
+    public void execute(Connection connection, String type, String name, 
             String accountId, String price, String safetyStockPcs, 
-            String orderQtyPcs) {
+            String orderQtyPcs) 
+            throws GenericDBOperationException, GenericDBException {
         /* Checking of input values. */
-        if (!inputCheckType(type) || !inputCheckNullBlank(name) 
+        if (!inputCheckType(type) || !inputCheckNullBlank(name)
                 || !inputCheckLength(name)
-                || stringToDouble(price) == null 
+                || stringToDouble(price) == null
                 || stringToDouble(safetyStockPcs) == null
                 || stringToDouble(orderQtyPcs) == null) {
-            return false;
+            throw new GenericDBOperationException("Wrong Expense type or "
+                    + "Expense name provided.");
         }
-        /* For SIMPLE_EXPENSES and COMPLEX_EXPENSES the following fields 
-        should not be filled: price, safetyStock, orderQty*/
-        if (type.equals(ExpenseType.COMPLEX_EXPENSES.getType()) 
-                || type.equals(ExpenseType.SIMPLE_EXPENSES.getType())) {
-            price = "";
-            safetyStockPcs = "";
-            orderQtyPcs = "";
-        }
-        
-        /* Checking accountId. */
-        Integer accountIdInt = stringToInt(accountId);
-        if (accountIdInt == null) {
-            accountIdInt = 0;
-        }
-        EntityAccount accountSelected = 
-                accountsSQL.executeSelectById(connection, accountIdInt);
-        String accountName = accountSelected.getName();
-        
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection, 
-                    "expensesStructure/insert");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ExpensesStructureSQLInsert: "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
-        
-        double priceDouble;
-        double safetyStockPcsDouble;
-        double safetyStockCurDouble;
-        double orderQtyPcsDouble;
-        double orderQtyCurDouble;        
-        
-        if (price == null || price.trim().isEmpty()) {
-            priceDouble = (double) 0;
-        } else {
-            priceDouble = stringToDouble(price);
-        }
-        
-        if (safetyStockPcs == null || safetyStockPcs.trim().isEmpty()) {
-            safetyStockPcsDouble = (double) 0;
-        } else {
-            safetyStockPcsDouble = stringToDouble(safetyStockPcs);
-        }        
-        
-        if (orderQtyPcs == null || orderQtyPcs.trim().isEmpty()) {
-            orderQtyPcsDouble = (double) 0;
-        } else {
-            orderQtyPcsDouble = stringToDouble(orderQtyPcs);
-        }      
+       
+        try (PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "expensesStructure/insert")) {
+            
+            /* For SIMPLE_EXPENSES and COMPLEX_EXPENSES the following fields 
+             * should not be filled: price, safetyStock, orderQty
+             */
+            if (type.equals(ExpenseType.COMPLEX_EXPENSES.getType())
+                    || type.equals(ExpenseType.SIMPLE_EXPENSES.getType())) {
+                price = "";
+                safetyStockPcs = "";
+                orderQtyPcs = "";
+            }
 
-        safetyStockCurDouble = round(priceDouble * safetyStockPcsDouble, 2);
-        orderQtyCurDouble = round(priceDouble * orderQtyPcsDouble, 2);
-        
-        try {
-            //Setting Query Parameters and executing Query;
+            // Checking accountId.
+            Integer accountIdInt = stringToInt(accountId);
+            if (accountIdInt == null) {
+                accountIdInt = 0;
+            }
+
+            EntityAccount accountSelected
+                    = accountsSQL.executeSelectById(connection, accountIdInt);
+            String accountName = accountSelected.getName();
+
+            double priceDouble;
+            double safetyStockPcsDouble;
+            double safetyStockCurDouble;
+            double orderQtyPcsDouble;
+            double orderQtyCurDouble;
+
+            if (price == null || price.trim().isEmpty()) {
+                priceDouble = (double) 0;
+            } else {
+                priceDouble = stringToDouble(price);
+            }
+
+            if (safetyStockPcs == null || safetyStockPcs.trim().isEmpty()) {
+                safetyStockPcsDouble = (double) 0;
+            } else {
+                safetyStockPcsDouble = stringToDouble(safetyStockPcs);
+            }
+
+            if (orderQtyPcs == null || orderQtyPcs.trim().isEmpty()) {
+                orderQtyPcsDouble = (double) 0;
+            } else {
+                orderQtyPcsDouble = stringToDouble(orderQtyPcs);
+            }
+
+            safetyStockCurDouble = round(priceDouble * safetyStockPcsDouble, 2);
+            orderQtyCurDouble = round(priceDouble * orderQtyPcsDouble, 2);      
+
+            // Setting Query Parameters and executing Query;
             preparedStatement.setString(1, type);
             preparedStatement.setString(2, name);
             preparedStatement.setInt(3, accountIdInt);
@@ -114,34 +112,29 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             preparedStatement.setDouble(8, safetyStockCurDouble);
             preparedStatement.setDouble(9, orderQtyPcsDouble);
             preparedStatement.setDouble(10, orderQtyCurDouble);
-            /* Current Stock parameters are zero by default for new 
-            Expense Categories. */
+            /* Current Stock parameters are zero by default for new Expense 
+             * Categories. 
+             */
             preparedStatement.setDouble(11, 0); 
             preparedStatement.setDouble(12, 0);
             preparedStatement.setDouble(13, 0);
             preparedStatement.setDouble(14, 0);
             preparedStatement.executeUpdate();
             
-            
-            // Executing update of Expense ID in the Actual Expenses database
-            // table where it was previously set to "-1" (Expense removed 
-            // status).
-            // If the given name is the same as the name of Expense with 
-            // ID = -1 then assigning the proper ID value.
+            /* Executing update of Expense ID in the Actual Expenses database
+             * table where it was previously set to "-1" (Expense removed
+             * status).
+             * If the given name is the same as the name of Expense with 
+             * ID = -1 then assigning the proper ID value.
+             */
             Integer expenseId = select.executeSelectIdByName(connection, name);
             if (expenseId != null) {
                 actualExpensesSQL.recoverDeletedExpenseId(connection, 
                         expenseId, name);
-            }            
-            
-        } catch (SQLException ex) {
-            System.out.println("***ExpensesStructureSQLInsert: Error while "
-                    + "setting query parameters or executing Insert Query: "
-                    + ex.getMessage() + "***");
-            return false;
-        } finally {
-            clear(preparedStatement);
+            }
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
-        return true;
     }
 }

@@ -1,6 +1,8 @@
 
 package com.ejb.calculation;
 
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.util.ArrayList;
 import jakarta.ejb.Local;
@@ -37,9 +39,15 @@ public interface ExpensesHandlerLocal {
      * periods.
      * @param id database Expense ID.
      * @return prepared EntityExpense object (with calculated parameters).
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public EntityExpense prepareEntityExpenseById(Connection connection, 
-            String inputPlanningPeriodsFrequency, Integer id);
+            String inputPlanningPeriodsFrequency, Integer id) 
+            throws GenericDBOperationException, GenericDBException;
     
     /**
      * Actualizes EntityExpenseList (replaces it with the list obtained from
@@ -47,9 +55,14 @@ public interface ExpensesHandlerLocal {
      * 
      * @param connection database Connection.
      * @return EntityExpenseList obtained based on the database records.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public ArrayList<EntityExpense> actualizeEntityExpenseList(Connection 
-            connection);
+            connection) throws GenericDBOperationException, GenericDBException;
     
     /**
      * Method is applied to operation of shifting of Current Planning Period
@@ -58,10 +71,14 @@ public interface ExpensesHandlerLocal {
      * currently present in the database based on domain specific formula.
      * 
      * @param connection database Connection.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean 
-        calculateAllCurrentStockPcsForNextPeriod(Connection connection);
+    public void calculateAllCurrentStockPcsForNextPeriod(Connection connection) 
+            throws GenericDBOperationException, GenericDBException;
     
     /**
      * Method is applied to operation of shifting of Current Planning Period
@@ -70,8 +87,12 @@ public interface ExpensesHandlerLocal {
      * currently present in the database based on domain specific formula.
      * 
      * @param connection database Connection.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean 
-        calculateAllCurrentStockPcsForPreviousPeriod(Connection connection);        
+    public void calculateAllCurrentStockPcsForPreviousPeriod(Connection connection) 
+            throws GenericDBOperationException, GenericDBException;        
 }

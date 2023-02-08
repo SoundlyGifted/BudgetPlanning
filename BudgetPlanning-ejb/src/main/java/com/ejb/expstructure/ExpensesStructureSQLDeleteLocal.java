@@ -1,6 +1,8 @@
 
 package com.ejb.expstructure;
 
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import jakarta.ejb.Local;
 
@@ -16,7 +18,12 @@ public interface ExpensesStructureSQLDeleteLocal {
      * 
      * @param connection database Connection.
      * @param id database Expense ID.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean executeDeleteById(Connection connection, String id);
+    public void executeDeleteById(Connection connection, String id) 
+            throws GenericDBException, GenericDBOperationException;
 }

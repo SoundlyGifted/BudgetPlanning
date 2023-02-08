@@ -1,8 +1,8 @@
 
 package com.ejb.database;
 
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import jakarta.ejb.Local;
 
 /**
@@ -17,17 +17,17 @@ public interface DBConnectionProviderLocal {
      * port, database name, user name, user password).
      * 
      * @return database Connection.
-     * @throws SQLException if some error occured while establishing the 
-     * database connection.
+     * @throws com.ejb.database.exceptions.GenericDBException if some error 
+     * occured while establishing the database connection.
      */
-    public Connection getDBConnection() throws SQLException;
+    public Connection getDBConnection() throws GenericDBException;
     
     /**
      * Closes database Connection.
      * 
      * @param connection database Connection
-     * @throws java.sql.SQLException if some error occured while closing the 
-     * database connection.
+     * @throws com.ejb.database.exceptions.GenericDBException if some error 
+     * occured while closing the database connection.
      */
-    public void closeDBConnection(Connection connection) throws SQLException;    
+    public void closeDBConnection(Connection connection) throws GenericDBException;    
 }

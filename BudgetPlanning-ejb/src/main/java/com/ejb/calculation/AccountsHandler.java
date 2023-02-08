@@ -4,6 +4,8 @@ package com.ejb.calculation;
 import com.ejb.mainscreen.PlannedAccountsValuesSQLLocal;
 import com.ejb.mainscreen.PlannedVariableParamsSQLLocal;
 import com.ejb.accstructure.AccountsStructureSQLLocal;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import com.ejb.expstructure.ExpensesStructureSQLSelectLocal;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -72,7 +74,7 @@ public class AccountsHandler implements AccountsHandlerLocal {
      */
     @Override
     public ArrayList<EntityAccount> actualizeEntityAccountList(Connection 
-            connection) {
+            connection) throws GenericDBOperationException, GenericDBException {
         ArrayList<EntityAccount> accountListDB = 
                 accountsStructureSQL.executeSelectAll(connection);
         replaceEntityAccountList(accountListDB);
@@ -84,60 +86,68 @@ public class AccountsHandler implements AccountsHandlerLocal {
      */    
     @Override
     public EntityAccount prepareEntityAccountByExpenseId(Connection connection,
-            String inputPlanningPeriodsFrequency, Integer inputExpenseId) {
+            String inputPlanningPeriodsFrequency, Integer inputExpenseId) 
+            throws GenericDBOperationException, GenericDBException {
         if (inputExpenseId == null || inputExpenseId < 1) {
             return null;
         }
 
-        /* Time Period Dates. */
-        // calculates or returns timePeriodDates from TimePeriods class.
+        // Time Period Dates.
+        // Calculates or returns timePeriodDates from TimePeriods class.
         TreeSet<String> timePeriodDates = timePeriods
                 .calculateTimePeriodDates(connection, 
                         inputPlanningPeriodsFrequency); 
         
-        //EntityAccountList (where calculation objects stored).
+        // EntityAccountList (where calculation objects stored).
         ArrayList<EntityAccount> list = EntityAccountList
                 .getEntityAccountList();
 
-        //Map with complete list of Account IDs and Maps of fixed
-        //planning parameters and their values from DB.
+        /* Map with complete list of Account IDs and Maps of fixed planning 
+         * parameters and their values from DB.
+         */
         HashMap<Integer, HashMap<String, Double>> valuesMap =
                 accountsStructureSQL.executeSelectAllValues(connection);        
         
-        // Selecting all links of all Expenses 
-        // (links to Complex Expenses and links to Accounts).
+        /* Selecting all links of all Expenses (links to Complex Expenses and 
+         * links to Accounts).
+         */
         HashMap<Integer, HashMap<String, Integer>> allLinks 
                 = expensesStructureSQLSelect.executeSelectAllLinks(connection);
         // Links of input Expense (expense id).
         HashMap<String, Integer> links = allLinks.get(inputExpenseId);
 
         int linkedAccountId = links.get("ACCOUNT_ID");
-        // Checking if this Expense is not linked to any Account.
-        // In such case checking if the Expense is linked to any Complex Expense
-        // and checking it's links to any Acccount respectively.
+        /* Checking if this Expense is not linked to any Account.
+         * In such case checking if the Expense is linked to any Complex Expense
+         * and checking it's links to any Acccount respectively.
+         */
         if (linkedAccountId == 0) {
             int linkedComplexExpenseId = links.get("LINKED_TO_COMPLEX_ID");
             if (linkedComplexExpenseId == 0) {
                 // There is no Account linked to this Expense.
                 return null;
             }
-            // Attempt to find linked Account for any of 
-            // including Complex Expenses.
+            /* Attempt to find linked Account for any of 
+             * including Complex Expenses.
+             */
             prepareEntityAccountByExpenseId(connection,
                     inputPlanningPeriodsFrequency, linkedComplexExpenseId);
         }
 
-        // Additional check of linked Account id for not-equality to zero to 
-        // complete the current recursion branch.
+        /* Additional check of linked Account id for not-equality to zero to 
+         * complete the current recursion branch.
+         */
         if (linkedAccountId != 0) {
-            // Checking if EntityAccount with this linked account id exists in
-            // EntityAccountList.
+            /* Checking if EntityAccount with this linked account id exists in
+             * EntityAccountList.
+             */
             for (EntityAccount a : list) {
                 if (linkedAccountId == a.getId()) {
-                    // Such EntityAccount exists in EntityAccountList.
-                    // No need to create object again, just getting it from 
-                    // there.
-                    // Preparing Account for calculation.
+                    /* Such EntityAccount exists in EntityAccountList.
+                     * No need to create object again, just getting it from 
+                     * there.
+                     * Preparing Account for calculation.
+                     */
                     a.setCurrentRemainderCur(valuesMap.get(linkedAccountId)
                             .get("CURRENT_REMAINDER_CUR"));
                     obtainChangeableVarParamsForEntityAccount(connection, a);
@@ -145,9 +155,10 @@ public class AccountsHandler implements AccountsHandlerLocal {
                     return a;
                 }
             }
-            // EntityAccount with such id does not exist in the 
-            // EntityExpenseList so adding EntityAccount with this id to 
-            // the EntityExpenseList based on the database record.
+            /* EntityAccount with such id does not exist in the 
+             * EntityExpenseList so adding EntityAccount with this id to 
+             * the EntityExpenseList based on the database record.
+             */
             EntityAccount account = accountsStructureSQL
                     .executeSelectById(connection, linkedAccountId);
             // Preparing Account for calculation.
@@ -168,34 +179,36 @@ public class AccountsHandler implements AccountsHandlerLocal {
      */     
     @Override
     public EntityAccount prepareEntityAccountById(Connection connection,
-            String inputPlanningPeriodsFrequency, Integer id) {
+            String inputPlanningPeriodsFrequency, Integer id) 
+            throws GenericDBOperationException, GenericDBException {
         if (id == null || id < 1) {
             return null;
         }
 
-        //EntityAccountList (where calculation objects stored).
+        // EntityAccountList (where calculation objects stored).
         ArrayList<EntityAccount> list = EntityAccountList
                 .getEntityAccountList();        
  
-        /* Time Period Dates. */
-        // calculates or returns timePeriodDates from TimePeriods class.
+        // Time Period Dates.
+        // Calculates or returns timePeriodDates from TimePeriods class.
         TreeSet<String> timePeriodDates = timePeriods
                 .calculateTimePeriodDates(connection, 
                         inputPlanningPeriodsFrequency);         
         
-        //Map with complete list of Account IDs and Maps of fixed
-        //planning parameters and their values from DB.
+        /* Map with complete list of Account IDs and Maps of fixed planning 
+         * parameters and their values from DB.
+         */
         HashMap<Integer, HashMap<String, Double>> valuesMap =
                 accountsStructureSQL.executeSelectAllValues(connection);        
         
-        // Checking if EntityAccount with given id exists in
-        // EntityAccountList.
+        // Checking if EntityAccount with given id exists in EntityAccountList.
         for (EntityAccount a : list) {
             if (id == a.getId()) {
-                // Such EntityAccount exists in EntityAccountList.
-                // No need to create object again, just getting it from 
-                // there.
-                // Preparing Account for calculation.
+                /* Such EntityAccount exists in EntityAccountList.
+                 * No need to create object again, just getting it from 
+                 * there.
+                 * Preparing Account for calculation.
+                 */
                 a.setCurrentRemainderCur(valuesMap.get(id)
                         .get("CURRENT_REMAINDER_CUR"));
                 obtainChangeableVarParamsForEntityAccount(connection, a);
@@ -203,9 +216,10 @@ public class AccountsHandler implements AccountsHandlerLocal {
                 return a;
             }
         }
-        // EntityAccount with such id does not exist in the 
-        // EntityExpenseList so adding EntityAccount with this id to 
-        // the EntityExpenseList based on the database record.
+        /* EntityAccount with such id does not exist in the 
+         * EntityExpenseList so adding EntityAccount with this id to 
+         * the EntityExpenseList based on the database record.
+         */
         EntityAccount account = accountsStructureSQL
                 .executeSelectById(connection, id);
         // Preparing Account for calculation.
@@ -227,12 +241,14 @@ public class AccountsHandler implements AccountsHandlerLocal {
      */
     private void 
         obtainChangeableVarParamsForEntityAccount(Connection connection, 
-                EntityAccount account) {
-      
+                EntityAccount account) 
+                throws GenericDBOperationException, GenericDBException {
+            
         int id = account.getId();
         
-        // Getting Sum of Planned Expenses values (CUR) of all Expenses that are
-        // linked to the given Account.
+        /* Getting Sum of Planned Expenses values (CUR) of all Expenses that 
+         * are linked to the given Account.
+         */
         TreeMap<String, Double> plannedSumCur = plannedExpenses
                 .selectPlannedExpCurSumByAcctId(connection, id);
         
@@ -241,19 +257,19 @@ public class AccountsHandler implements AccountsHandlerLocal {
                 .selectPlannedAccountsValuesById(connection, id, 
                         "PLANNED_INCOME_CUR");
         
-        // Setting Planned parameters to the object 
-        // of Account calculation class.
+        /* Setting Planned parameters to the object of Account calculation 
+         * class.
+         */
         account.setPlannedSumCur(plannedSumCur);
         account.setIncomeCur(incomeCurValues);
-    }    
+    }
 
     /**
      * {@inheritDoc}
      */         
     @Override
-    public boolean
-            calculateAllCurrentRemainderCurForNextPeriod(Connection 
-                    connection) {  
+    public void calculateAllCurrentRemainderCurForNextPeriod(Connection connection) 
+            throws GenericDBOperationException, GenericDBException {  
         // The date of Current Period from the database.
         String currentPeriodDate = plannedExpenses
                 .getCurrentPeriodDate(connection);
@@ -272,10 +288,6 @@ public class AccountsHandler implements AccountsHandlerLocal {
         Double incomeCurVal;
         Double plannedCurSum;
         Double differenceCurSum;
-
-        // Flag to indicate that Accounts current remainders were recalculated
-        // and updated in the database.
-        boolean allCurrentRemainderCurUpdated = true;
         
         for (Map.Entry<Integer, HashMap<String, Double>> entryAccount
                 : accountsAllValues.entrySet()) {
@@ -308,29 +320,24 @@ public class AccountsHandler implements AccountsHandlerLocal {
                         .get("DIFFERENCE_CUR");                
             }
             
-            // Recalculating Current Remainder value for the Next 
-            // Planning Period.   
+            /* Recalculating Current Remainder value for the Next Planning 
+             * Period.
+             */
             currentRemainderCur = currentRemainderCur - plannedCurSum 
                     + incomeCurVal - differenceCurSum;
             
             // Now write to the database.
-            boolean updated = accountsStructureSQL
-                    .updateCurrentRemainderById(connection, accountId, 
-                            currentRemainderCur);
-            if (!updated) {
-                allCurrentRemainderCurUpdated = false;
-            }
+            accountsStructureSQL.updateCurrentRemainderById(connection, 
+                    accountId, currentRemainderCur);
         }
-        return allCurrentRemainderCurUpdated;
     }   
 
     /**
      * {@inheritDoc}
      */            
     @Override
-    public boolean
-            calculateAllCurrentRemainderCurForPreviousPeriod(Connection 
-                    connection) {
+    public void calculateAllCurrentRemainderCurForPreviousPeriod(Connection connection) 
+            throws GenericDBOperationException, GenericDBException {
         // The date of Current Period from the database.
         String currentPeriodDate = plannedExpenses
                 .getCurrentPeriodDate(connection);
@@ -349,10 +356,6 @@ public class AccountsHandler implements AccountsHandlerLocal {
         Double incomeCurVal;
         Double plannedCurSum;
         Double differenceCurSum;
-
-        // Flag to indicate that Accounts current remainders were recalculated
-        // and updated in the database.
-        boolean allCurrentRemainderCurUpdated = true;
         
         for (Map.Entry<Integer, HashMap<String, Double>> entryAccount
                 : accountsAllValues.entrySet()) {
@@ -385,19 +388,15 @@ public class AccountsHandler implements AccountsHandlerLocal {
                         .get("DIFFERENCE_CUR");                
             }
 
-            // Recalculating Current Remainder value for the Previous 
-            // Planning Period.            
+            /* Recalculating Current Remainder value for the Previous Planning 
+             * Period.
+             */
             currentRemainderCur = currentRemainderCur + plannedCurSum 
                     - incomeCurVal + differenceCurSum;
             
             // Now write to the database.
-            boolean updated = accountsStructureSQL
-                    .updateCurrentRemainderById(connection, accountId, 
-                            currentRemainderCur);
-            if (!updated) {
-                allCurrentRemainderCurUpdated = false;
-            }
+            accountsStructureSQL.updateCurrentRemainderById(connection, 
+                    accountId, currentRemainderCur);
         }
-        return allCurrentRemainderCurUpdated;
     }
 }

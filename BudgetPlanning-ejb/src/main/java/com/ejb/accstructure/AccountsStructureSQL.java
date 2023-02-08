@@ -4,7 +4,8 @@ package com.ejb.accstructure;
 import com.ejb.calculation.AccountsHandlerLocal;
 import com.ejb.common.SQLAbstract;
 import com.ejb.calculation.EntityAccount;
-import java.io.IOException;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,76 +33,60 @@ public class AccountsStructureSQL extends SQLAbstract
      * {@inheritDoc}
      */
     @Override
-    public boolean executeInsert(Connection connection, String name,
-            String currentRemainder) {
-        /* Checking of input values. */
+    public void executeInsert(Connection connection, String name,
+            String currentRemainder) 
+            throws GenericDBOperationException, GenericDBException {
+        // Checking of input values.
         if (!inputCheckNullBlank(name) || !inputCheckLength(name)
                 || stringToDouble(currentRemainder) == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to add the Account, "
+                    + "empty or wrong parameters provided.");
         }
-
+        
         double CurrentRemainderDouble = stringToDouble(currentRemainder);
-
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "accountsStructure/insert");        
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** AccountsStructureSQL - executeInsert(): "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
+        
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, "accountsStructure/insert");        
 
         try {
-            //Setting Query Parameters and executing Query;
+            // Setting Query Parameters and executing Query.
             preparedStatement.setString(1, name);
             preparedStatement.setDouble(2, CurrentRemainderDouble);
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("*** AccountsStructureSQL - executeInsert(): "
-                    + "Error while setting query parameters or executing "
-                    + "Insert Query: " + ex.getMessage() + " ***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
-        return true;
     }
 
     /**
      * {@inheritDoc}
-     */    
+     */
     @Override
-    public boolean executeUpdate(Connection connection, String idForUpdate,
-            String name, String currentRemainder) {
-        /* Checking of input values. */
+    public void executeUpdate(Connection connection, String idForUpdate,
+            String name, String currentRemainder) 
+            throws GenericDBOperationException, GenericDBException {
+        // Checking of input values.
         if (stringToInt(idForUpdate) == null || !inputCheckNullBlank(name)
                 || !inputCheckLength(name)
                 || stringToDouble(currentRemainder) == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to update the "
+                    + "Account, empty or wrong parameters provided.");
         }
 
         int idForUpdateInt = stringToInt(idForUpdate);
         double CurrentRemainderDouble = stringToDouble(currentRemainder);
 
-        PreparedStatement preparedStatement;
-        PreparedStatement preparedStatementExpenseLinkToAccount;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "accountsStructure/update");
-            preparedStatementExpenseLinkToAccount 
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, "accountsStructure/update");
+        PreparedStatement preparedStatementExpenseLinkToAccount 
                     = createPreparedStatement(connection,
                         "expensesStructure/update.expenseLinkToAccount");            
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** AccountsStructureSQL - executeUpdate(): "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
 
         try {
-            //Setting Query Parameters and executing Query;
+            // Setting Query Parameters and executing Query.
             preparedStatement.setString(1, name);
             preparedStatement.setDouble(2, CurrentRemainderDouble);
             preparedStatement.setInt(3, idForUpdateInt);
@@ -111,41 +96,32 @@ public class AccountsStructureSQL extends SQLAbstract
             preparedStatementExpenseLinkToAccount.setString(2, name);
             preparedStatementExpenseLinkToAccount.setInt(3, idForUpdateInt);
             preparedStatementExpenseLinkToAccount.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("*** AccountsStructureSQL - executeUpdate(): "
-                    + "Error while setting query parameters or executing "
-                    + "Update Query: " + ex.getMessage() + " ***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
+            clear(preparedStatementExpenseLinkToAccount);
         }
-        return true;
     }
 
     /**
      * {@inheritDoc}
      */    
     @Override
-    public boolean executeDelete(Connection connection, String id) {
+    public void executeDelete(Connection connection, String id) 
+            throws GenericDBOperationException, GenericDBException {
         if (stringToInt(id) == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to delete the "
+                    + "Account, null Account ID value provided.");
         }
         int idInt = stringToInt(id);
 
-        PreparedStatement preparedStatement;
-        PreparedStatement preparedStatementExpenseLinkToAccount;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "accountsStructure/delete");
-            preparedStatementExpenseLinkToAccount 
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, "accountsStructure/delete");
+        PreparedStatement preparedStatementExpenseLinkToAccount 
                     = createPreparedStatement(connection,
                         "expensesStructure/update.expenseLinkToAccount");              
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** AccountsStructureSQL - executeDelete(): "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
 
         try {
             //Setting Query Parameters and executing Query;
@@ -162,33 +138,25 @@ public class AccountsStructureSQL extends SQLAbstract
             if (accountInList != null) {
                 aHandler.removeFromEntityAccountList(accountInList);
             }
-        } catch (SQLException ex) {
-            System.out.println("*** AccountsStructureSQL - executeDelete(): "
-                    + "Error while setting query parameters or executing "
-                    + "Delete Query: " + ex.getMessage() + " ***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
+            clear(preparedStatementExpenseLinkToAccount);
         }
-        return true;
     }
 
     /**
      * {@inheritDoc}
      */    
     @Override
-    public ArrayList<EntityAccount> executeSelectAll(Connection connection) {
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "accountsStructure/select.all");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** AccountsStructureSQL: "
-                    + "executeSelectAll() SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return null;
-        }
-        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+    public ArrayList<EntityAccount> executeSelectAll(Connection connection) 
+            throws GenericDBOperationException, GenericDBException {
+        try (PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "accountsStructure/select.all");
+                ResultSet resultSet = preparedStatement.executeQuery()) {
             Collection<EntityAccount> list = new LinkedList<>();
             while (resultSet.next()) {
                 list.add(new EntityAccount(resultSet.getInt("ID"),
@@ -196,38 +164,32 @@ public class AccountsStructureSQL extends SQLAbstract
                         resultSet.getDouble("CURRENT_REMAINDER_CUR")));
             }
             return new ArrayList<>(list);
-        } catch (SQLException ex) {
-            System.out.println("***AccountsStructureSQL: "
-                    + "executeSelectAll() Error while executing Select Query: "
-                    + ex.getMessage() + "***");
-            return null;
-        } finally {
-            clear(preparedStatement);
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
     }
 
     /**
      * {@inheritDoc}
-     */    
+     */
     @Override
     public EntityAccount executeSelectByName(Connection connection,
-            String name) {
+            String name) throws GenericDBOperationException, GenericDBException {
         if (name == null || name.trim().isEmpty()) {
-            return null;
+            throw new GenericDBOperationException("Empty Account name provided.");
         }
-
-        PreparedStatement preparedStatement;
+        
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "accountsStructure/select.byname");
         try {
-            preparedStatement = createPreparedStatement(connection,
-                    "accountsStructure/select.byname");
             preparedStatement.setString(1, name);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** AccountsStructureSQL: "
-                    + "executeSelectByName() "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
+        
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
             if (resultSet.next()) {
                 return new EntityAccount(resultSet.getInt("ID"),
@@ -236,11 +198,9 @@ public class AccountsStructureSQL extends SQLAbstract
             } else {
                 return null;
             }
-        } catch (SQLException ex) {
-            System.out.println("***AccountsStructureSQL: executeSelectByName() "
-                    + "Error while executing Select Query: "
-                    + ex.getMessage() + "***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
@@ -250,22 +210,23 @@ public class AccountsStructureSQL extends SQLAbstract
      * {@inheritDoc}
      */    
     @Override
-    public EntityAccount executeSelectById(Connection connection, Integer id) {
+    public EntityAccount executeSelectById(Connection connection, Integer id) 
+            throws GenericDBOperationException, GenericDBException {
         if (id == null || id < 0) {
-            return null;
+            throw new GenericDBOperationException("Unable to select the "
+                    + "Account, null or wrong Account ID value provided.");
         }
-
-        PreparedStatement preparedStatement;
+        
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "accountsStructure/select.byid");
         try {
-            preparedStatement = createPreparedStatement(connection,
-                    "accountsStructure/select.byid");
             preparedStatement.setInt(1, id);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** AccountsStructureSQL: executeSelectById()"
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
+        
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
             if (resultSet.next()) {
                 return new EntityAccount(resultSet.getInt("ID"),
@@ -274,11 +235,9 @@ public class AccountsStructureSQL extends SQLAbstract
             } else {
                 return null;
             }
-        } catch (SQLException ex) {
-            System.out.println("***AccountsStructureSQL: executeSelectById() "
-                    + "Error while executing Select Query: "
-                    + ex.getMessage() + "***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
@@ -289,24 +248,22 @@ public class AccountsStructureSQL extends SQLAbstract
      */    
     @Override
     public HashMap<Integer, HashMap<String, Double>> 
-        executeSelectAllValues(Connection connection) {
-
+        executeSelectAllValues(Connection connection) 
+                throws GenericDBOperationException {
         HashMap<Integer, HashMap<String, Double>> finalResult = new HashMap<>();
         int id;
         
         Statement statement = null;
         String query = "select ID, CURRENT_REMAINDER_CUR "
-                + "from ACCOUNTS_STRUCTURE";
+                + "from ACCOUNTS_STRUCTURE where ID > 0";
 
         try {
             statement = connection.createStatement();
-        } catch (SQLException ex) {
-            System.out.println("*** AccountsStructureSQL : "
-                    + "executeSelectAllValues() error while creating "
-                    + "statement: " + ex.getMessage());
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
-
+        
         try (ResultSet resultSet = statement.executeQuery(query)) {
             while (resultSet.next()) {
                 id = resultSet.getInt("ID");
@@ -316,19 +273,11 @@ public class AccountsStructureSQL extends SQLAbstract
                 finalResult.put(id, paramValues);
             }
             return finalResult;
-        } catch (SQLException ex) {
-            System.out.println("*** AccountsStructureSQL : "
-                    + "executeSelectAllValues() error while executing '" + query
-                    + "' query: " + ex.getMessage());
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
-            try {
-                statement.close();
-            } catch (SQLException ex) {
-                System.out.println("*** ExpensesStructureSQLSelect : "
-                        + "executeSelectAllValues() error while closing "
-                        + "statement: " + ex.getMessage());
-            }
+            clear(statement);
         }
     }
 
@@ -336,38 +285,29 @@ public class AccountsStructureSQL extends SQLAbstract
      * {@inheritDoc}
      */        
     @Override
-    public boolean updateCurrentRemainderById(Connection connection, Integer id,
-            Double newCurrentRemainderCur) {
+    public void updateCurrentRemainderById(Connection connection, Integer id,
+            Double newCurrentRemainderCur) 
+            throws GenericDBOperationException, GenericDBException {
         if (id == null || id <= 0 || newCurrentRemainderCur == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to update the "
+                    + "Account, null or wrong Account ID value or null "
+                    + "Remainder value provided.");
         }
 
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection,
                     "accountsStructure/update.currentRemainder.byid");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** AccountsStructureSQL: "
-                    + "updateCurrentRemainderById() "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
 
         try {
             preparedStatement.setDouble(1, newCurrentRemainderCur);
             preparedStatement.setInt(2, id);
 
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("***AccountsStructureSQL: "
-                    + "updateCurrentRemainderById() Error while "
-                    + "setting query parameters or executing Update Query: "
-                    + ex.getMessage() + "***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
-        return true;
     } 
 }

@@ -43,7 +43,7 @@ public class LogServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
         
-        /* Refreshing the page. */
+        // Refreshing the page.
         if (request.getParameter("refresh") != null) {
             log.add(session, currentDateTime + " Awaiting for user command...");
             String pageName = request.getParameter("pageName");
@@ -53,7 +53,7 @@ public class LogServlet extends HttpServlet {
             request.getRequestDispatcher(pageName).forward(request, response);
         }
         
-        /* Clearing System message log. */
+        // Clearing System message log.
         if (request.getParameter("clearLog") != null) {
             log.clear(session);
             log.add(session, "Awaiting for initial user command...");

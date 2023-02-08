@@ -1,6 +1,7 @@
 
 package com.ejb.database;
 
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import jakarta.ejb.DependsOn;
@@ -13,18 +14,18 @@ import jakarta.servlet.http.HttpSession;
  * necessary methods of EJB components.
  */
 @Stateless
-@DependsOn("DbConnectionProvider")
+@DependsOn("DBConnectionProvider")
 public class DBConnection implements DBConnectionLocal {
 
     @EJB
     private DBConnectionProviderLocal connectionProvider;
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public Connection connection(HttpSession session,
-            String sessionAttributeName) {
+            String sessionAttributeName) throws GenericDBException {
         Connection DBConnection
                 = (Connection) session.getAttribute(sessionAttributeName);
         try {
@@ -32,9 +33,9 @@ public class DBConnection implements DBConnectionLocal {
                 DBConnection = connectionProvider.getDBConnection();
                 session.setAttribute(sessionAttributeName, DBConnection);
             }
-        } catch (SQLException ex) {
-            System.out.println("*** DBConnection establishing error : "
-                    + ex.getMessage());
+        } catch (SQLException sqlex) {
+            throw new GenericDBException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
         return DBConnection;
     }
@@ -43,15 +44,8 @@ public class DBConnection implements DBConnectionLocal {
      * {@inheritDoc}
      */
     @Override
-    public Connection connection() {
-        Connection DBconnection = null;
-        try {
-            DBconnection = connectionProvider.getDBConnection();
-        } catch (SQLException ex) {
-            System.out.println("*** DBConnection establishing error : "
-                    + ex.getMessage());
-        }
-        return DBconnection;
+    public Connection connection() throws GenericDBException {
+        return connectionProvider.getDBConnection();
     }
 
     /**
@@ -59,28 +53,19 @@ public class DBConnection implements DBConnectionLocal {
      */
     @Override
     public void closeConnection(HttpSession session,
-            String sessionAttributeName) {
+            String sessionAttributeName) throws GenericDBException {
         Connection DBConnection
                 = (Connection) session.getAttribute(sessionAttributeName);
-        try {
-            connectionProvider.closeDBConnection(DBConnection);
-            session.removeAttribute(sessionAttributeName);
-        } catch (SQLException ex) {
-            System.out.println("*** DBConnection closing error : "
-                    + ex.getMessage());
-        }
+        connectionProvider.closeDBConnection(DBConnection);
+        session.removeAttribute(sessionAttributeName);
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void closeConnection(Connection connection) {
-        try {
-            connectionProvider.closeDBConnection(connection);
-        } catch (SQLException ex) {
-            System.out.println("*** DBConnection closing error : "
-                    + ex.getMessage());
-        }
+    public void closeConnection(Connection connection)
+            throws GenericDBException {
+        connectionProvider.closeDBConnection(connection);
     }
 }

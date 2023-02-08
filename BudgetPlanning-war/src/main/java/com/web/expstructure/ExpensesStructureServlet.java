@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import jakarta.servlet.http.HttpSession;
 import com.ejb.calculation.ExpensesHandlerLocal;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.util.HashMap;
 
 /**
@@ -70,65 +72,77 @@ public class ExpensesStructureServlet extends HttpServlet {
                 .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
-        Connection DBConnection = connector
-                .connection(session, "expensesStructureDBConnection");
+        
+        Connection DBConnection = null;
+        try {
+            DBConnection = connector.connection(session, 
+                    "expensesStructureDBConnection");
+        } catch (GenericDBException ex) {
+            log.add(session, currentDateTime + " " + ex.getMessage());
+        }
 
-        /* Handling dropdown "NAME" expense category list for Update 
-        operation. */
+        // Handling dropdown "NAME" expense category list for Update operation.
         if (request.getParameter("selectForUpdate") != null) {
-            /* Getting ID of the selected expense from the form. */
+            // Getting ID of the selected expense from the form.
             String updateExpenseUserSelected = request
                     .getParameter("updateExpenseUserSelected");
             if (updateExpenseUserSelected != null && !updateExpenseUserSelected
                     .trim().isEmpty()) {
-                   
-                /* EntityExpense Selected by User for the Update operation.*/
-                EntityExpense expenseSelected = select
-                        .executeSelectById(DBConnection, Integer
-                                .parseInt(updateExpenseUserSelected));
+                try {
+                    // EntityExpense Selected by User for the Update operation.
+                    EntityExpense expenseSelected = select
+                            .executeSelectById(DBConnection, Integer
+                                    .valueOf(updateExpenseUserSelected));
 
-                /* Setting selected expense as an Attribute to pass to another 
-                Servlet. */
-                session.setAttribute("ExpensesStructure_ExpenseSelected", 
-                        expenseSelected);
-                session.setAttribute("ExpensesStructure_ExpenseSelectedType", 
-                        expenseSelected.getType());
+                    /* Setting selected expense as an Attribute to pass to another 
+                     * Servlet.
+                     */
+                    session.setAttribute("ExpensesStructure_ExpenseSelected",
+                            expenseSelected);
+                    session.setAttribute("ExpensesStructure_ExpenseSelectedType",
+                            expenseSelected.getType());
 
-                String currentName = expenseSelected.getName();
-                int currentAccountId = expenseSelected.getAccountId();
-                String currentAccount = expenseSelected.getAccountLinked();
-                int linkedToComplexId = expenseSelected.getLinkedToComplexId();
-                double currentPrice = expenseSelected.getPrice();
-                double currentSafetyStockPcs = expenseSelected
-                        .getSafetyStockPcs();
-                double currentOrderQtyPcs = expenseSelected.getOrderQtyPcs();
+                    String currentName = expenseSelected.getName();
+                    int currentAccountId = expenseSelected.getAccountId();
+                    String currentAccount = expenseSelected.getAccountLinked();
+                    int linkedToComplexId = expenseSelected.getLinkedToComplexId();
+                    double currentPrice = expenseSelected.getPrice();
+                    double currentSafetyStockPcs = expenseSelected
+                            .getSafetyStockPcs();
+                    double currentOrderQtyPcs = expenseSelected.getOrderQtyPcs();
 
-                /* Setting Selected EntityExpense fields as reqeust attributes 
-                for passing to the jsp-page. */
-                request.setAttribute("currentName", currentName);
-                request.setAttribute("currentAccountId", Integer
-                        .toString(currentAccountId));
-                request.setAttribute("currentAccount", currentAccount);
-                request.setAttribute("currentComplexExpenseId", Integer
-                        .toString(linkedToComplexId));
-                if (linkedToComplexId == 0) {
-                    request.setAttribute("currentLinkedToComplExpName", 
-                            "NOT SET");
-                } else {
-                String currentLinkedToComplExpName
-                        = select.executeSelectById(DBConnection, 
-                                linkedToComplexId).getName();
-                    request.setAttribute("currentLinkedToComplExpName",
-                            currentLinkedToComplExpName);
+                    /* Setting Selected EntityExpense fields as reqeust attributes 
+                     * for passing to the jsp-page. 
+                     */
+                    request.setAttribute("currentName", currentName);
+                    request.setAttribute("currentAccountId", Integer
+                            .toString(currentAccountId));
+                    request.setAttribute("currentAccount", currentAccount);
+                    request.setAttribute("currentComplexExpenseId", Integer
+                            .toString(linkedToComplexId));
+                    if (linkedToComplexId == 0) {
+                        request.setAttribute("currentLinkedToComplExpName",
+                                "NOT SET");
+                    } else {
+                        String currentLinkedToComplExpName
+                                = select.executeSelectById(DBConnection,
+                                        linkedToComplexId).getName();
+                        request.setAttribute("currentLinkedToComplExpName",
+                                currentLinkedToComplExpName);
+                    }
+                    request.setAttribute("currentPrice", Double
+                            .toString(currentPrice));
+                    request.setAttribute("currentSafetyStockPcs", Double
+                            .toString(currentSafetyStockPcs));
+                    request.setAttribute("currentOrderQtyPcs", Double
+                            .toString(currentOrderQtyPcs));
+                    request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp")
+                            .forward(request, response);
+                } catch (GenericDBException | GenericDBOperationException ex) {
+                    log.add(session, currentDateTime 
+                            + " [Select Expense command entered] " 
+                            + ex.getMessage());
                 }
-                request.setAttribute("currentPrice", Double
-                        .toString(currentPrice));
-                request.setAttribute("currentSafetyStockPcs", Double
-                        .toString(currentSafetyStockPcs));
-                request.setAttribute("currentOrderQtyPcs", Double
-                        .toString(currentOrderQtyPcs));
-                request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp")
-                        .forward(request, response);
             } else {
                 log.add(session, currentDateTime 
                         + " [Select Expense command entered] : Expense select "
@@ -138,53 +152,51 @@ public class ExpensesStructureServlet extends HttpServlet {
             }
         }
         
-        /* Processing Delete user command. */
+        // Processing Delete user command.
         if (request.getParameter("delete") != null) {
-            /* Getting ID of the selected expense from the form. */
+            // Getting ID of the selected expense from the form.
             String updateExpenseUserSelected = request
                     .getParameter("updateExpenseUserSelected");
-            boolean deleted = false;
             if (updateExpenseUserSelected != null && 
                     !updateExpenseUserSelected.trim().isEmpty()) {
-                // Getting ID of Complex Expense that is the Expense being 
-                // deleted is linked to.
-                HashMap<Integer, HashMap<String, Integer>> allLinks = select
-                        .executeSelectAllLinks(DBConnection);
-                Integer linkedComplexId = allLinks.get(Integer
-                        .parseInt(updateExpenseUserSelected))
-                        .get("LINKED_TO_COMPLEX_ID");             
-                deleted = delete.executeDeleteById(DBConnection, 
-                        updateExpenseUserSelected);
-                // If there is any Complex Expense that the Expense being 
-                // deleted is linked to then recalculating its Plan and updating 
-                // database.
-                if (linkedComplexId != 0) {
+                try {
+                    /* Getting ID of Complex Expense that is the Expense being 
+                     * deleted is linked to.
+                     */
+                    HashMap<Integer, HashMap<String, Integer>> allLinks = select
+                            .executeSelectAllLinks(DBConnection);
+                    Integer linkedComplexId = allLinks.get(Integer
+                            .valueOf(updateExpenseUserSelected))
+                            .get("LINKED_TO_COMPLEX_ID");
+                    delete.executeDeleteById(DBConnection, 
+                            updateExpenseUserSelected);
+                    /* If there is any Complex Expense that the Expense being 
+                     * deleted is linked to then recalculating its Plan and updating 
+                     * database.
+                     */
+                    if (linkedComplexId != 0) {
                         // Calculating Expense. 
-                        handler.prepareEntityExpenseById(DBConnection, "W", 
+                        handler.prepareEntityExpenseById(DBConnection, "W",
                                 linkedComplexId);
                         // Updating Expenses Plan.
-                        plannedParams.executeUpdateAll(DBConnection, "W");                    
-                }                
+                        plannedParams.executeUpdateAll(DBConnection, "W");
+                    }
+                    log.add(session, currentDateTime
+                            + " [Delete Expense command entered] : Expense "
+                            + "deleted");                 
+                } catch (GenericDBException | GenericDBOperationException ex) {
+                    log.add(session, currentDateTime 
+                            + " [Delete Expense command entered] " 
+                            + ex.getMessage());
+                }
             }
-            if (deleted) {
-                log.add(session, currentDateTime 
-                        + " [Delete Expense command entered] : Expense "
-                                + "deleted");                 
-                request.getRequestDispatcher("ExpensesStructurePage.jsp")
-                        .forward(request, response);                  
-            } else {
-                log.add(session, currentDateTime 
-                        + " [Delete Expense command entered] : Command "
-                                + "declined");                     
-                request.getRequestDispatcher("ExpensesStructurePage.jsp")
-                        .forward(request, response);                 
-            }
+            request.getRequestDispatcher("ExpensesStructurePage.jsp")
+                    .forward(request, response);
         }
 
-        /* Processing Insert user command. */
+        // Processing Insert user command.
         if (request.getParameter("executeInsert") != null) {
-
-            /* Getting values for input to the system. */
+            // Getting values for input to the system.
             String inputType = request.getParameter("inputType");
             String inputName = request.getParameter("inputName");
             String inputAccountId = request.getParameter("accountIDSelected");
@@ -192,16 +204,17 @@ public class ExpensesStructureServlet extends HttpServlet {
             String inputSafetyStockPcs = request
                     .getParameter("inputSafetyStockPcs");
             String inputOrderQtyPcs = request.getParameter("inputOrderQtyPcs");
-
-            boolean inserted = insert.execute(DBConnection, inputType, 
-                    inputName, inputAccountId, inputPrice, inputSafetyStockPcs,
-                    inputOrderQtyPcs);
-            if (inserted) {
-                log.add(session, currentDateTime 
-                        + " [Add Expense command entered] : Expense added");
-            } else {
-                log.add(session, currentDateTime 
-                        + " [Add Expense command entered] : Command declined");
+            
+            try {
+                insert.execute(DBConnection, inputType,
+                        inputName, inputAccountId, inputPrice, inputSafetyStockPcs,
+                        inputOrderQtyPcs);
+                log.add(session, currentDateTime
+                        + " [Add Expense command entered] : Expense added");             
+            } catch (GenericDBException | GenericDBOperationException ex) {
+                log.add(session, currentDateTime
+                        + " [Add Expense command entered] "
+                        + ex.getMessage());
             }
             request.getRequestDispatcher("ExpensesStructurePage.jsp")
                     .forward(request, response);

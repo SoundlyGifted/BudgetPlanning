@@ -1,6 +1,8 @@
 
 package com.ejb.expstructure;
 
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import jakarta.ejb.Local;
 
@@ -25,21 +27,30 @@ public interface ExpensesStructureSQLUpdateLocal {
      * @param currentStockPcs Expense Current Stock (PCS) attribute value.
      * @param safetyStockPcs Expense Safety Stock (PCS) attribute value.
      * @param orderQtyPcs Expense Order Quantity (PCS) attribute value.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean execute(Connection connection, String name, String newName, 
+    public void execute(Connection connection, String name, String newName, 
             String accountId, String linkedToComplexId, String price,
-            String currentStockPcs, String safetyStockPcs, String orderQtyPcs);
+            String currentStockPcs, String safetyStockPcs, String orderQtyPcs) 
+            throws GenericDBOperationException, GenericDBException;
     
     /**
      * Clears assignment to Complex Expense for the given Expense.
      * 
      * @param connection database Connection.
      * @param name Expense name.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean clearAssignmentToComplexExpense(Connection connection, 
-            String name);
+    public void clearAssignmentToComplexExpense(Connection connection, 
+            String name) throws GenericDBOperationException, GenericDBException;
     
     /**
      * Updates Current Stock (PCS) attribute of Expense with given database ID
@@ -48,8 +59,12 @@ public interface ExpensesStructureSQLUpdateLocal {
      * @param connection database Connection.
      * @param id database Expense ID.
      * @param newCurrentStockPcs new value of Current Stock (PCS) attribute.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean updateCurrentStockById(Connection connection, Integer id, 
-            Double newCurrentStockPcs);
+    public void updateCurrentStockById(Connection connection, Integer id, 
+            Double newCurrentStockPcs) throws GenericDBOperationException, GenericDBException;
 }

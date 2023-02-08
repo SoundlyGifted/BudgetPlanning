@@ -1,6 +1,7 @@
 
 package com.ejb.database;
 
+import com.ejb.database.exceptions.GenericDBException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,16 +14,17 @@ import jakarta.ejb.Singleton;
  * EJB QueryProvider is used to provide SQL queries red from sql-files.
  */
 @Singleton
-@DependsOn("DbConnectionProvider")
+@DependsOn("DBConnectionProvider")
 public class QueryProvider implements QueryProviderLocal {
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getQuery(String path) throws IOException {
+    public String getQuery(String path) throws GenericDBException {
         path = "resources/sql/" + path + ".sql";
         ClassLoader classLoader = this.getClass().getClassLoader();
+        String query = "";
         try (InputStream stream = classLoader.getResourceAsStream(path)) {
             try(Reader reader = new InputStreamReader(stream)) {
                 try(BufferedReader in = new BufferedReader(reader)) {
@@ -31,9 +33,13 @@ public class QueryProvider implements QueryProviderLocal {
                     while ((line = in.readLine()) != null) {
                         builder.append(line).append(System.lineSeparator());
                     }
-                    return builder.toString();
+                    query = builder.toString();
                 }
             }
+        } catch (IOException ioex) {
+            throw new GenericDBException(ioex.getMessage() == null 
+                    ? "" : ioex.getMessage(), ioex);
         }
+        return query;
     }
 }

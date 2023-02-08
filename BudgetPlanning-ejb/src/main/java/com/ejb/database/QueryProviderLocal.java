@@ -1,7 +1,7 @@
 
 package com.ejb.database;
 
-import java.io.IOException;
+import com.ejb.database.exceptions.GenericDBException;
 import jakarta.ejb.Local;
 
 /**
@@ -16,7 +16,8 @@ public interface QueryProviderLocal {
      * 
      * @param path path to the sql-file
      * @return SQL query (String).
-     * @throws IOException 
+     * @throws com.ejb.database.exceptions.GenericDBException in case if an 
+     * error happens while reading SQL query. 
      */
-    public String getQuery(String path) throws IOException;
+    public String getQuery(String path) throws GenericDBException;
 }

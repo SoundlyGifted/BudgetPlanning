@@ -2,6 +2,7 @@
 package com.web.common;
 
 import com.ejb.database.DBConnectionLocal;
+import com.ejb.database.exceptions.GenericDBException;
 import jakarta.ejb.EJB;
 import jakarta.servlet.annotation.WebListener;
 import jakarta.servlet.http.HttpSession;
@@ -31,10 +32,12 @@ public class NewListener implements HttpSessionListener,
     @Override
     public void sessionDestroyed(HttpSessionEvent se) {
         HttpSession s = se.getSession();
-        connector.closeConnection(s, "expensesStructureDBConnection");
-        connector.closeConnection(s, "accountsStructureDBConnection");
-        connector.closeConnection(s, "actualExpensesDBConnection");
-        connector.closeConnection(s, "mainScreenDBConnection");
+        try {
+            connector.closeConnection(s, "expensesStructureDBConnection");
+            connector.closeConnection(s, "accountsStructureDBConnection");
+            connector.closeConnection(s, "actualExpensesDBConnection");
+            connector.closeConnection(s, "mainScreenDBConnection");        
+        } catch (GenericDBException ex) { }
     }
 
     @Override

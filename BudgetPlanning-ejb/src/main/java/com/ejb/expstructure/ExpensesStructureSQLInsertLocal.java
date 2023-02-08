@@ -1,6 +1,8 @@
 
 package com.ejb.expstructure;
 
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import jakarta.ejb.Local;
 
@@ -21,9 +23,14 @@ public interface ExpensesStructureSQLInsertLocal {
      * @param price Expense planning price (price for planning purpose).
      * @param safetyStockPcs Expense Safety Stock (PCS) attribute value.
      * @param orderQtyPcs Expense Order Quantity (PCS) attribute value.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean execute(Connection connection, String type, String name, 
+    public void execute(Connection connection, String type, String name, 
             String accountId, String price, String safetyStockPcs, 
-            String orderQtyPcs);
+            String orderQtyPcs) 
+            throws GenericDBOperationException, GenericDBException;
 }

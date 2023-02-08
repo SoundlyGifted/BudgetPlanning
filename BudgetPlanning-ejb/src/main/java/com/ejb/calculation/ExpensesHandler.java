@@ -3,8 +3,11 @@ package com.ejb.calculation;
 
 import com.ejb.mainscreen.PlannedVariableParamsSQLLocal;
 import com.ejb.actualexpenses.ActualExpensesSQLLocal;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import com.ejb.expstructure.ExpensesStructureSQLSelectLocal;
 import com.ejb.expstructure.ExpensesStructureSQLUpdateLocal;
+import com.ejb.expstructure.ExpensesTypes;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,36 +76,42 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
      */
     @Override
     public EntityExpense prepareEntityExpenseById(Connection connection,
-            String inputPlanningPeriodsFrequency, Integer id) {
+            String inputPlanningPeriodsFrequency, Integer id) 
+            throws GenericDBOperationException, GenericDBException {
         if (id == null || id < 1) {
             return null;
         }
-        //Complete list of Expense IDs and mapped Types from DB.
+        // Complete list of Expense IDs and mapped Types from DB.
         HashMap<Integer, String> typesMap = 
                 select.executeSelectAllTypes(connection);
         if (typesMap.containsKey(id) == false) {
-            return null;
+            throw new GenericDBOperationException("The database Expenses "
+                    + "Structure table does not contain Expense with ID '" 
+                    + id + "'.");
         }
-        //Complete list of Expense IDs and mapped Maps of fixed
-        //planning parameters and their values from DB.
+        /* Complete list of Expense IDs and mapped Maps of fixed planning 
+         * parameters and their values from DB.
+         */
         HashMap<Integer, HashMap<String, Double>> valuesMap =
                 select.executeSelectAllValues(connection);
-        //Complete list of Expense IDs and mapped Maps of linkage
-        //parameter names and their values from DB.
+        /* Complete list of Expense IDs and mapped Maps of linkage parameter 
+         * names and their values from DB.
+         */
         HashMap<Integer, HashMap<String, Integer>> linksMap =
                 select.executeSelectAllLinks(connection);        
         
-        /* Time Period Dates. */
-        // calculates or returns timePeriodDates from TimePeriods class.
+        // Time Period Dates.
+        // Calculates or returns timePeriodDates from TimePeriods class.
         TreeSet<String> timePeriodDates = timePeriods
                 .calculateTimePeriodDates(connection, 
                         inputPlanningPeriodsFrequency);        
 
-        /* EntityExpenseList (where calculation objects stored). */
+        // EntityExpenseList (where calculation objects stored).
         ArrayList<EntityExpense> list = getEntityExpenseList();
 
-        // Checking if there is a Complex Expense to which Expense with given
-        // id is linked.
+        /* Checking if there is a Complex Expense to which Expense with given 
+         * id is linked.
+         */
         int complexIdLinked = linksMap.get(id).get("LINKED_TO_COMPLEX_ID");
         if (complexIdLinked != 0) {
             prepareByIdWOComplexExpenseLinkCheck (connection, 
@@ -110,12 +119,14 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
                             complexIdLinked);
         }
 
-        // Checking if Expense with given id is a Complex Expense itself,
-        // then getting the list of Expense IDs that are linked to this
-        // Complex Expense, and performing calculations for each of the linked 
-        // Expense using method without checking if they are linked to any
-        // Complex ID.
-        if (typesMap.get(id).equals("COMPLEX_EXPENSES")) {
+        /* Checking if Expense with given id is a Complex Expense itself,
+         * then getting the list of Expense IDs that are linked to this
+         * Complex Expense, and performing calculations for each of the linked 
+         * Expense using method without checking if they are linked to any
+         * Complex ID.
+         */
+        if (typesMap.get(id).equals(ExpensesTypes.ExpenseType.COMPLEX_EXPENSES
+                .getType())) {
             ArrayList<Integer> linkedIdList = new ArrayList<>();
             for (Map.Entry<Integer, HashMap<String, Integer>> entry 
                     : linksMap.entrySet()) {
@@ -131,14 +142,15 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
                             linkedId);
                 }
             }
-        }        
+        }
 
         for (EntityExpense e : list) {
             if (id == e.getId()) {
                 /* EntityExpense with given id exists in the EntityExpense list 
-                   - Updating it's parameters based on the database record. */
+                 * - Updating it's parameters based on the database record. 
+                 */
                 String type = typesMap.get(id);
-                if (type.equals("GOODS")) {
+                if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
                     e.setPrice(valuesMap.get(id).get("PRICE"));
                     e.setSafetyStockPcs(valuesMap.get(id)
                             .get("SAFETY_STOCK_PCS"));
@@ -154,11 +166,12 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
             }
         }
         /* EntityExpnese with given id does not exist in the EntityExpenseList
-           - adding EntityExpense with given id to this collection based on
-           the database record. */
+         * - adding EntityExpense with given id to this collection based on
+         * the database record.
+         */
         EntityExpense expenseDB = select.executeSelectById(connection, id);
         String type = expenseDB.getType();
-        if (type.equals("GOODS")) {
+        if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
             expenseDB.calculateFixedParameters();
         }
         obtainChangeableVarParamsForEntityExpense(connection,
@@ -183,34 +196,41 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
      */
     private void prepareByIdWOComplexExpenseLinkCheck (Connection connection,
             String inputPlanningPeriodsFrequency, 
-            TreeSet<String> timePeriodDates, Integer id) {
+            TreeSet<String> timePeriodDates, Integer id) 
+            throws GenericDBOperationException, GenericDBException {
         if (id == null || id < 1) {
             return;
         }
-        //Map with complete list of Expense IDs and Types from DB.
+        // Map with complete list of Expense IDs and Types from DB.
         HashMap<Integer, String> typesMap = 
                 select.executeSelectAllTypes(connection);
         if (typesMap.containsKey(id) == false) {
-            return;
+            throw new GenericDBOperationException("The database Expenses "
+                    + "Structure table does not contain Expense with ID '" 
+                    + id + "'.");
         }
-        //Map with complete list of Expense IDs and Maps of fixed
-        //planning parameters and their values from DB.
+        /* Map with complete list of Expense IDs and Maps of fixed planning 
+         * parameters and their values from DB.
+         */
         HashMap<Integer, HashMap<String, Double>> valuesMap =
                 select.executeSelectAllValues(connection);
-        //Map with complete list of Expense IDs and Maps of linkage
-        //parameter names and their values from DB.
+        /* Map with complete list of Expense IDs and Maps of linkage parameter 
+         * names and their values from DB.
+         */
         HashMap<Integer, HashMap<String, Integer>> linksMap =
                 select.executeSelectAllLinks(connection);        
         
-        /* EntityExpenseList (where calculation objects stored). */
+        // EntityExpenseList (where calculation objects stored).
         ArrayList<EntityExpense> list = getEntityExpenseList();
 
-        // Checking if Expense with given id is a Complex Expense itself,
-        // then getting the list of Expense IDs that are linked to this
-        // Complex Expense, and performing calculations for each of the linked 
-        // Expense using method without checking if they are linked to any
-        // Complex ID.
-        if (typesMap.get(id).equals("COMPLEX_EXPENSES")) {
+        /* Checking if Expense with given id is a Complex Expense itself,
+         * then getting the list of Expense IDs that are linked to this
+         * Complex Expense, and performing calculations for each of the linked 
+         * Expense using method without checking if they are linked to any
+         * Complex ID.
+         */
+        if (typesMap.get(id).equals(ExpensesTypes.ExpenseType.COMPLEX_EXPENSES
+                .getType())) {
             ArrayList<Integer> linkedIdList = new ArrayList<>();
             for (Map.Entry<Integer, HashMap<String, Integer>> entry 
                     : linksMap.entrySet()) {
@@ -231,9 +251,10 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         for (EntityExpense e : list) {
             if (id == e.getId()) {
                 /* EntityExpense with given id exists in the EntityExpense list 
-                   - Updating it's parameters based on the database record. */
+                 * - Updating it's parameters based on the database record. 
+                 */
                 String type = typesMap.get(id);
-                if (type.equals("GOODS")) {
+                if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
                     e.setPrice(valuesMap.get(id).get("PRICE"));
                     e.setSafetyStockPcs(valuesMap.get(id)
                             .get("SAFETY_STOCK_PCS"));
@@ -249,17 +270,18 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
             }
         }
         /* EntityExpnese with given id does not exist in the EntityExpenseList
-           - adding EntityExpense with given id to this collection based on
-           the database record. */
+         * - adding EntityExpense with given id to this collection based on
+         * the database record. 
+         */
         EntityExpense expenseDB = select.executeSelectById(connection, id);
         String type = expenseDB.getType();
-        if (type.equals("GOODS")) {
+        if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
             expenseDB.calculateFixedParameters();
         }
         obtainChangeableVarParamsForEntityExpense(connection,
                 inputPlanningPeriodsFrequency, timePeriodDates, expenseDB);
         expenseDB.calculateVariableParameters(timePeriodDates);
-        list.add(expenseDB);   
+        list.add(expenseDB);
     }
     
     /**
@@ -274,7 +296,8 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
      */
     private void obtainChangeableVarParamsForEntityExpense(Connection 
             connection, String inputPlanningPeriodsFrequency, 
-            TreeSet<String> timePeriodDates, EntityExpense expense) {
+            TreeSet<String> timePeriodDates, EntityExpense expense) 
+            throws GenericDBOperationException, GenericDBException {
         int id = expense.getId();
         String type = expense.getType();
         
@@ -282,7 +305,8 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         TreeMap<String, Double> plannedExpensesPcsOrCur;
         TreeMap<String, Double> consumptionPcs;
         
-        if (type.equals("SIMPLE_EXPENSES") || type.equals("GOODS")) {
+        if (type.equals(ExpensesTypes.ExpenseType.SIMPLE_EXPENSES.getType()) 
+                || type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
                     
             actualExpensesPcsOrCur = actualExpenses
                     .calculateActualExpenses(connection, 
@@ -291,12 +315,12 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
             plannedExpensesPcsOrCur = plannedParams
                     .selectPlannedExpensesById(connection, id);
             
-            if (type.equals("SIMPLE_EXPENSES")) {
+            if (type.equals(ExpensesTypes.ExpenseType.SIMPLE_EXPENSES.getType())) {
                 
                 expense.setActualCur(actualExpensesPcsOrCur);
                 expense.setPlannedCur(plannedExpensesPcsOrCur);    
                 
-            } else if (type.equals("GOODS")) {
+            } else if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
                 
                 consumptionPcs = 
                     plannedParams.selectConsumptionPcsById(connection, id);
@@ -312,8 +336,8 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
      * {@inheritDoc}
      */
     @Override
-    public ArrayList<EntityExpense> actualizeEntityExpenseList(Connection 
-            connection) {
+    public ArrayList<EntityExpense> actualizeEntityExpenseList(Connection connection) 
+            throws GenericDBOperationException, GenericDBException {
         ArrayList<EntityExpense> expenseListDB = 
                 select.executeSelectAll(connection);
         replaceEntityExpenseList(expenseListDB);
@@ -324,8 +348,8 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
      * {@inheritDoc}
      */    
     @Override
-    public boolean 
-        calculateAllCurrentStockPcsForNextPeriod(Connection connection) {
+    public void calculateAllCurrentStockPcsForNextPeriod(Connection connection) 
+            throws GenericDBOperationException, GenericDBException {
         
         HashMap<Integer, String> allTypes 
                 = select.executeSelectAllTypes(connection);
@@ -345,12 +369,10 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         Double consumptionPcsVal;
         Double plannedPcsVal;
         Double differencePcsVal;
-        
-        boolean allCurrentStockPcsUpdated = true;
 
         for (Map.Entry<Integer, String> entry : allTypes.entrySet()) {
             String type = entry.getValue();
-            if (type.equals("GOODS")) {
+            if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
                 id = entry.getKey();
                 currentStock = allValues.get(id).get("CURRENT_STOCK_PCS");
                 
@@ -388,28 +410,25 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
                     }
                 }
                 
-                // Recalculating Current Stock value for the Next 
-                // Planning Period.
+                /* Recalculating Current Stock value for the Next Planning 
+                 * Period.
+                 */
                 currentStock = currentStock - consumptionPcsVal + plannedPcsVal 
                         + differencePcsVal /*+ safetyStock*/;
-                // Updating the value of Current Stock for this Expense Id
-                // in the database.
-                boolean updated = update
-                        .updateCurrentStockById(connection, id, currentStock);
-                if (!updated) {
-                    allCurrentStockPcsUpdated = false;
-                }
+                /* Updating the value of Current Stock for this Expense Id in 
+                 * the database.
+                 */
+                update.updateCurrentStockById(connection, id, currentStock);
             }
-        }
-        return allCurrentStockPcsUpdated;     
+        }  
     }
 
     /**
      * {@inheritDoc}
      */        
     @Override
-    public boolean 
-        calculateAllCurrentStockPcsForPreviousPeriod(Connection connection) {
+    public void calculateAllCurrentStockPcsForPreviousPeriod(Connection connection) 
+            throws GenericDBOperationException, GenericDBException {
         
         HashMap<Integer, String> allTypes 
                 = select.executeSelectAllTypes(connection);
@@ -429,12 +448,10 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         Double consumptionPcsVal;
         Double plannedPcsVal;
         Double differencePcsVal;
-        
-        boolean allCurrentStockPcsUpdated = true;
 
         for (Map.Entry<Integer, String> entry : allTypes.entrySet()) {
             String type = entry.getValue();
-            if (type.equals("GOODS")) {
+            if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
                 id = entry.getKey();
                 currentStock = allValues.get(id).get("CURRENT_STOCK_PCS");
                 
@@ -472,19 +489,16 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
                     }
                 }
                 
-                // Recalculating Current Stock value for the Previous 
-                // Planning Period.
+                /* Recalculating Current Stock value for the Previous Planning 
+                 * Period.
+                 */
                 currentStock = currentStock + consumptionPcsVal - plannedPcsVal 
                         - differencePcsVal /*- safetyStock*/;
-                // Updating the value of Current Stock for this Expense Id
-                // in the database.
-                boolean updated = update
-                        .updateCurrentStockById(connection, id, currentStock);
-                if (!updated) {
-                    allCurrentStockPcsUpdated = false;
-                }
+                /* Updating the value of Current Stock for this Expense Id in 
+                 * the database.
+                 */
+                update.updateCurrentStockById(connection, id, currentStock);
             }
         }
-        return allCurrentStockPcsUpdated;
     } 
 }
