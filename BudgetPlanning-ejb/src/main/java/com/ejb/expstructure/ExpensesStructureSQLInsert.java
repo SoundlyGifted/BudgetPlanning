@@ -56,8 +56,8 @@ public class ExpensesStructureSQLInsert extends SQLAbstract
             /* For SIMPLE_EXPENSES and COMPLEX_EXPENSES the following fields 
              * should not be filled: price, safetyStock, orderQty
              */
-            if (type.equals(ExpenseType.COMPLEX_EXPENSES.getType())
-                    || type.equals(ExpenseType.SIMPLE_EXPENSES.getType())) {
+            if (type.equals(COMPLEX_EXPENSES_SUPPORTED_TYPE)
+                    || type.equals(SIMPLE_EXPENSES_SUPPORTED_TYPE)) {
                 price = "";
                 safetyStockPcs = "";
                 orderQtyPcs = "";

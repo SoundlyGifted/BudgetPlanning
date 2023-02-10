@@ -6,7 +6,6 @@ import com.ejb.calculation.EntityExpense;
 import com.ejb.common.exceptions.GenericDBOperationException;
 import com.ejb.database.exceptions.GenericDBException;
 import com.ejb.expstructure.ExpensesStructureSQLSelectLocal;
-import com.ejb.expstructure.ExpensesTypes;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -72,9 +71,8 @@ public class ActualExpensesSQL extends SQLAbstract
         } else {
             expenseIdInt = expenseGiven.getId();
             String type = expenseGiven.getType();
-            if (!ExpensesTypes.ExpenseType.SIMPLE_EXPENSES.getType()
-                    .equals(type) && !ExpensesTypes.ExpenseType.GOODS.getType()
-                            .equals(type)) {
+            if (!SIMPLE_EXPENSES_SUPPORTED_TYPE.equals(type) 
+                    && !GOODS_SUPPORTED_TYPE.equals(type)) {
                 throw new GenericDBOperationException("Unable to add the actual "
                         + "expense, the provided Expense '" + expenseName
                         + "' is not a Simple Expense or Good.");
@@ -173,9 +171,8 @@ public class ActualExpensesSQL extends SQLAbstract
         } else {
             expenseIdInt = expenseGiven.getId();
             String type = expenseGiven.getType();
-            if (!ExpensesTypes.ExpenseType.SIMPLE_EXPENSES.getType()
-                    .equals(type) && !ExpensesTypes.ExpenseType.GOODS.getType()
-                            .equals(type)) {
+            if (!SIMPLE_EXPENSES_SUPPORTED_TYPE.equals(type) 
+                    && !GOODS_SUPPORTED_TYPE.equals(type)) {
                 throw new GenericDBOperationException("Unable to add the actual "
                         + "expense, the provided Expense '" + expenseName
                         + "' is not a Simple Expense or Good.");
@@ -326,11 +323,9 @@ public class ActualExpensesSQL extends SQLAbstract
                      */
                     Double value = (double) 0;
                     String type = resultSet.getString("TYPE");
-                    if (type.equals(ExpensesTypes.ExpenseType.SIMPLE_EXPENSES
-                            .getType())) {
+                    if (type.equals(SIMPLE_EXPENSES_SUPPORTED_TYPE)) {
                         value = resultSet.getDouble("ACTUAL_CUR");
-                    } else if (type.equals(ExpensesTypes.ExpenseType.GOODS
-                            .getType())) {
+                    } else if (type.equals(GOODS_SUPPORTED_TYPE)) {
                         value = resultSet.getDouble("ACTUAL_PCS");
                     }
 

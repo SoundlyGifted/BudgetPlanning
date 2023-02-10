@@ -2,6 +2,7 @@
 package com.ejb.calculation;
 
 import com.ejb.common.EjbCommonMethods;
+import com.ejb.expstructure.ExpensesTypes;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -12,50 +13,51 @@ import java.util.TreeSet;
  * parameters of a certain Expense database representation and hold the 
  * calculated values until they are placed into the database.
  */
-public class EntityExpense extends EjbCommonMethods {
+public class EntityExpense extends EjbCommonMethods implements ExpensesTypes {
 
-    /* Constant parameters for each Expense Category. */
-    private final int id;      /* fixed */
-    private final String type; /* fixed */
+    // Constant parameters for each Expense Category.
+    private final int id;      // fixed
+    private final String type; // fixed
     
-    /* Common Fixed parameter variables for all Expense types. */    
-    private String name;            /* CHANGEABLE */
-    private int accountId;          /* CHANGEABLE */
-    private String accountLinked;   /* CHANGEABLE */
-    private int linkedToComplexId;  /* CHANGEABLE */
+    // Common Fixed parameter variables for all Expense types.
+    private String name;            // CHANGEABLE
+    private int accountId;          // CHANGEABLE
+    private String accountLinked;   // CHANGEABLE
+    private int linkedToComplexId;  // CHANGEABLE
     
-    /* Fixed parameter variables for 'GOODS' Expense type only. */
-    private double price = 0;               /* CHANGEABLE */
-    private double currentStockPcs = 0;     /* CHANGEABLE and calculated */
-    private double currentStockCur = 0;     /* calculated */
-    private double currentStockWscPcs = 0;  /* calculated */
-    private double currentStockWscCur = 0;  /* calculated */
-    private double safetyStockPcs = 0;      /* CHANGEABLE */
-    private double safetyStockCur = 0;      /* calculated */
-    private double orderQtyPcs = 1;         /* CHANGEABLE */
-    private double orderQtyCur = 0;         /* calculated */
+    // Fixed parameter variables for 'GOODS' Expense type only.
+    private double price = 0;               // CHANGEABLE
+    private double currentStockPcs = 0;     // CHANGEABLE and calculated
+    private double currentStockCur = 0;     // calculated
+    private double currentStockWscPcs = 0;  // calculated
+    private double currentStockWscCur = 0;  // calculated
+    private double safetyStockPcs = 0;      // CHANGEABLE
+    private double safetyStockCur = 0;      // calculated
+    private double orderQtyPcs = 1;         // CHANGEABLE
+    private double orderQtyCur = 0;         // calculated
     
-    /* Variable parameter variables (values depend on time period dates). */
-    /* Below apply to all Expense types. */
+    // Variable parameter variables (values depend on time period dates).
+    // Below apply to all Expense types.
     private TreeMap<String, Double> plannedCur;     /* CHANGEABLE 
-                                                 * (calculated for Expense type 
-                                                 * = 'GOODS') 
-                                                 */
-    private TreeMap<String, Double> actualCur;      /* CHANGEABLE */
-    private TreeMap<String, Double> differenceCur;  /* calculated */
-    /* Below apply to Expense type = 'GOODS' only. */
-    private TreeMap<String, Double> consumptionPcs; /* CHANGEABLE */
-    private TreeMap<String, Double> consumptionCur; /* calculated */
-    private TreeMap<String, Double> stockPcs;       /* calculated */
-    private TreeMap<String, Double> stockCur;       /* calculated */
-    private TreeMap<String, Double> requirementPcs; /* calculated */
-    private TreeMap<String, Double> requirementCur; /* calculated */
-    private TreeMap<String, Double> plannedPcs;     /* CHANGEABLE */
-    private TreeMap<String, Double> actualPcs;      /* CHANGEABLE */
-    private TreeMap<String, Double> differencePcs;  /* calculated */
+                                                     * (calculated for Expense  
+                                                     * type = 'GOODS') 
+                                                     */
+    private TreeMap<String, Double> actualCur;      // CHANGEABLE
+    private TreeMap<String, Double> differenceCur;  // calculated
+    // Below apply to Expense type = 'GOODS' only.
+    private TreeMap<String, Double> consumptionPcs; // CHANGEABLE
+    private TreeMap<String, Double> consumptionCur; // calculated
+    private TreeMap<String, Double> stockPcs;       // calculated
+    private TreeMap<String, Double> stockCur;       // calculated
+    private TreeMap<String, Double> requirementPcs; // calculated
+    private TreeMap<String, Double> requirementCur; // calculated
+    private TreeMap<String, Double> plannedPcs;     // CHANGEABLE
+    private TreeMap<String, Double> actualPcs;      // CHANGEABLE
+    private TreeMap<String, Double> differencePcs;  // calculated
 
-    // Flag to indicate if Expense contains performed variable parameters 
-    // calculations.
+    /* Flag to indicate if Expense contains performed variable parameters 
+     * calculations.
+     */
     private boolean calculated = false;
     
     // Constructors for the case of selection of Expense from database tables.
@@ -96,13 +98,13 @@ public class EntityExpense extends EjbCommonMethods {
         
         this.id = id;
         this.type = type;
-        
+
         this.name = name;
         this.accountId = accountId;
         this.accountLinked = accountLinked;
         this.linkedToComplexId = linkedToComplexId;
         
-        if (type.equals("GOODS")) {
+        if (type.equals(GOODS_SUPPORTED_TYPE)) {
             this.price = price;
             this.currentStockPcs = currentStockPcs;
             this.currentStockCur = currentStockCur;
@@ -151,7 +153,7 @@ public class EntityExpense extends EjbCommonMethods {
         this.accountLinked = accountLinked;
         this.linkedToComplexId = linkedToComplexId;
         
-        if (type.equals("GOODS")) {
+        if (type.equals(GOODS_SUPPORTED_TYPE)) {
             this.price = price;
             this.currentStockPcs = currentStockPcs;
             this.safetyStockPcs = safetyStockPcs;
@@ -168,7 +170,7 @@ public class EntityExpense extends EjbCommonMethods {
      * @return "true" in case of success of the operation and "false" otherwise.
      */
     public final boolean calculateFixedParameters() {
-        if (type.equals("GOODS")) {
+        if (type.equals(GOODS_SUPPORTED_TYPE)) {
             currentStockCur = round(price * currentStockPcs, 2);
             currentStockWscPcs = currentStockPcs - safetyStockPcs;
             currentStockWscCur = round(price * currentStockWscPcs, 2);
@@ -187,21 +189,15 @@ public class EntityExpense extends EjbCommonMethods {
      */
     public void calculateVariableParameters(TreeSet<String> 
             timePeriodDates) {
-        switch(type) {
-            case "SIMPLE_EXPENSES" : 
-                calculateVariableParametersForSimpleExpenses(timePeriodDates);
-                calculated = true;
-                break;
-            case "COMPLEX_EXPENSES" : 
-                calculateVariableParametersForComplexExpenses(timePeriodDates);
-                calculated = true;
-                break;
-            case "GOODS" : 
-                calculateVariableParametersForGoods(timePeriodDates);
-                calculated = true;
-                break;
-            default : 
-                break;
+        if (type.equals(SIMPLE_EXPENSES_SUPPORTED_TYPE)) {
+            calculateVariableParametersForSimpleExpenses(timePeriodDates);
+            calculated = true;
+        } else if (type.equals(COMPLEX_EXPENSES_SUPPORTED_TYPE)) {
+            calculateVariableParametersForComplexExpenses(timePeriodDates);
+            calculated = true;
+        } else if (type.equals(GOODS_SUPPORTED_TYPE)) {
+            calculateVariableParametersForGoods(timePeriodDates);
+            calculated = true;
         }
     }
  
@@ -412,7 +408,7 @@ public class EntityExpense extends EjbCommonMethods {
     
     @Override
     public String toString() {
-        if (type.equals("GOODS")) {
+        if (type.equals(GOODS_SUPPORTED_TYPE)) {
         return "EntityExpense{<br>Constant Parameters :<br>" 
                 + "id=" + id + ", type=" + type 
                 + "<br>Common Fixed Parameters :<br>"

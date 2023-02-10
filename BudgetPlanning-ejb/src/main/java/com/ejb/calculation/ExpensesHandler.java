@@ -25,7 +25,7 @@ import jakarta.ejb.Startup;
  */
 @Singleton
 @Startup
-public class ExpensesHandler implements ExpensesHandlerLocal {
+public class ExpensesHandler implements ExpensesHandlerLocal, ExpensesTypes {
 
     @EJB
     private ExpensesStructureSQLSelectLocal select;
@@ -125,8 +125,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
          * Expense using method without checking if they are linked to any
          * Complex ID.
          */
-        if (typesMap.get(id).equals(ExpensesTypes.ExpenseType.COMPLEX_EXPENSES
-                .getType())) {
+        if (typesMap.get(id).equals(COMPLEX_EXPENSES_SUPPORTED_TYPE)) {
             ArrayList<Integer> linkedIdList = new ArrayList<>();
             for (Map.Entry<Integer, HashMap<String, Integer>> entry 
                     : linksMap.entrySet()) {
@@ -150,7 +149,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
                  * - Updating it's parameters based on the database record. 
                  */
                 String type = typesMap.get(id);
-                if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
+                if (type.equals(GOODS_SUPPORTED_TYPE)) {
                     e.setPrice(valuesMap.get(id).get("PRICE"));
                     e.setSafetyStockPcs(valuesMap.get(id)
                             .get("SAFETY_STOCK_PCS"));
@@ -171,7 +170,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
          */
         EntityExpense expenseDB = select.executeSelectById(connection, id);
         String type = expenseDB.getType();
-        if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
+        if (type.equals(GOODS_SUPPORTED_TYPE)) {
             expenseDB.calculateFixedParameters();
         }
         obtainChangeableVarParamsForEntityExpense(connection,
@@ -229,8 +228,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
          * Expense using method without checking if they are linked to any
          * Complex ID.
          */
-        if (typesMap.get(id).equals(ExpensesTypes.ExpenseType.COMPLEX_EXPENSES
-                .getType())) {
+        if (typesMap.get(id).equals(COMPLEX_EXPENSES_SUPPORTED_TYPE)) {
             ArrayList<Integer> linkedIdList = new ArrayList<>();
             for (Map.Entry<Integer, HashMap<String, Integer>> entry 
                     : linksMap.entrySet()) {
@@ -254,7 +252,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
                  * - Updating it's parameters based on the database record. 
                  */
                 String type = typesMap.get(id);
-                if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
+                if (type.equals(GOODS_SUPPORTED_TYPE)) {
                     e.setPrice(valuesMap.get(id).get("PRICE"));
                     e.setSafetyStockPcs(valuesMap.get(id)
                             .get("SAFETY_STOCK_PCS"));
@@ -275,7 +273,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
          */
         EntityExpense expenseDB = select.executeSelectById(connection, id);
         String type = expenseDB.getType();
-        if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
+        if (type.equals(GOODS_SUPPORTED_TYPE)) {
             expenseDB.calculateFixedParameters();
         }
         obtainChangeableVarParamsForEntityExpense(connection,
@@ -305,8 +303,8 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
         TreeMap<String, Double> plannedExpensesPcsOrCur;
         TreeMap<String, Double> consumptionPcs;
         
-        if (type.equals(ExpensesTypes.ExpenseType.SIMPLE_EXPENSES.getType()) 
-                || type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
+        if (type.equals(SIMPLE_EXPENSES_SUPPORTED_TYPE) 
+                || type.equals(GOODS_SUPPORTED_TYPE)) {
                     
             actualExpensesPcsOrCur = actualExpenses
                     .calculateActualExpenses(connection, 
@@ -315,12 +313,12 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
             plannedExpensesPcsOrCur = plannedParams
                     .selectPlannedExpensesById(connection, id);
             
-            if (type.equals(ExpensesTypes.ExpenseType.SIMPLE_EXPENSES.getType())) {
+            if (type.equals(SIMPLE_EXPENSES_SUPPORTED_TYPE)) {
                 
                 expense.setActualCur(actualExpensesPcsOrCur);
                 expense.setPlannedCur(plannedExpensesPcsOrCur);    
                 
-            } else if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
+            } else if (type.equals(GOODS_SUPPORTED_TYPE)) {
                 
                 consumptionPcs = 
                     plannedParams.selectConsumptionPcsById(connection, id);
@@ -372,7 +370,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
 
         for (Map.Entry<Integer, String> entry : allTypes.entrySet()) {
             String type = entry.getValue();
-            if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
+            if (type.equals(GOODS_SUPPORTED_TYPE)) {
                 id = entry.getKey();
                 currentStock = allValues.get(id).get("CURRENT_STOCK_PCS");
                 
@@ -451,7 +449,7 @@ public class ExpensesHandler implements ExpensesHandlerLocal {
 
         for (Map.Entry<Integer, String> entry : allTypes.entrySet()) {
             String type = entry.getValue();
-            if (type.equals(ExpensesTypes.ExpenseType.GOODS.getType())) {
+            if (type.equals(GOODS_SUPPORTED_TYPE)) {
                 id = entry.getKey();
                 currentStock = allValues.get(id).get("CURRENT_STOCK_PCS");
                 

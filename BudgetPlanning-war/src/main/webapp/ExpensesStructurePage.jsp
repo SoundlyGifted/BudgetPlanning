@@ -1,5 +1,6 @@
 <%@page import="java.io.*, java.util.*, java.sql.*"%>
 <%@page import="com.ejb.calculation.EntityExpense"%>
+<%@page import="com.ejb.expstructure.ExpensesTypes"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix = "sql"%>
@@ -84,15 +85,15 @@
             </form>            
             
             <!-- User form -->
-            <form action="ExpensesStructureServlet">               
+            <form action="ExpensesStructureServlet">
                 <h5>Add Expense Category</h5>
                 <select name="inputType" class="inputTextBox">
                     <option value="" selected disabled hidden>
                         Choose Expense Type
                     </option>
-                    <option value="SIMPLE_EXPENSES">SIMPLE_EXPENSES</option>
-                    <option value="COMPLEX_EXPENSES">COMPLEX_EXPENSES</option>
-                    <option value="GOODS">GOODS</option>
+                    <option value=<%= ExpensesTypes.SIMPLE_EXPENSES_SUPPORTED_TYPE %>>SIMPLE_EXPENSES</option>
+                    <option value=<%= ExpensesTypes.COMPLEX_EXPENSES_SUPPORTED_TYPE %>>COMPLEX_EXPENSES</option>
+                    <option value=<%= ExpensesTypes.GOODS_SUPPORTED_TYPE %>>GOODS</option>
                 </select>
                 <input type="text" class="inputTextBox" value="" size="30" 
                        name="inputName" placeholder="Expense Name" 

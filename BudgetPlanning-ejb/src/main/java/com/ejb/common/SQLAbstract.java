@@ -4,6 +4,7 @@ package com.ejb.common;
 import com.ejb.common.exceptions.GenericDBOperationException;
 import com.ejb.database.QueryProviderLocal;
 import com.ejb.database.exceptions.GenericDBException;
+import com.ejb.expstructure.ExpensesTypes;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,14 +15,15 @@ import java.sql.Statement;
  * SQLAbstract class is extended by Session Beans in EJB module that interact 
  * with the database and contain common database operation methods.
  */
-public abstract class SQLAbstract extends EjbCommonMethods{
+public abstract class SQLAbstract 
+        extends EjbCommonMethods implements ExpensesTypes {
     
     /**
      * Link to the EJB component that retrieves SQL query from SQL file located 
      * in the given path.
      */
     @EJB
-    private QueryProviderLocal queryProvider;
+    private QueryProviderLocal queryProvider; 
     
     /**
      * Creates PreparedStatement based on the Connection and Path given.

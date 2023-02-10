@@ -68,7 +68,7 @@ public class ExpensesStructureSQLDelete extends SQLAbstract
             all LINKED_TO_COMPLEX_ID fields that had that complex expense id.
             Removing the Expense from EntityExpenseList (regardless of type).*/
             EntityExpense expense = select.executeSelectById(connection, idInt);
-            if (expense.getType().equals("COMPLEX_EXPENSES")) {
+            if (expense.getType().equals(COMPLEX_EXPENSES_SUPPORTED_TYPE)) {
                 ArrayList<EntityExpense> expenseList
                         = select.executeSelectAll(connection);
                 for (EntityExpense e : expenseList) {

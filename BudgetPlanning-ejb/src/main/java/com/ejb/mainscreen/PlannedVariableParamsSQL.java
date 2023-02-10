@@ -195,13 +195,10 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                  */
                 try(ResultSet rsSelectAllExpenses 
                         = psSelectAllFromExpensesStructure.executeQuery()) {
-                    String simpleExpenseType 
-                            = ExpenseType.SIMPLE_EXPENSES.getType();
-                    String goodsType = ExpenseType.GOODS.getType();
                     while (rsSelectAllExpenses.next()) {
                         String type = rsSelectAllExpenses.getString("TYPE");
-                        if (type.equals(simpleExpenseType) 
-                                || type.equals(goodsType)) {
+                        if (type.equals(SIMPLE_EXPENSES_SUPPORTED_TYPE) 
+                                || type.equals(GOODS_SUPPORTED_TYPE)) {
                             int id = rsSelectAllExpenses.getInt("ID");
                             String name = rsSelectAllExpenses.getString("NAME");
 
@@ -294,17 +291,14 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         TreeMap<String, Double> plannedExpense = new TreeMap<>();
         
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
-            String simpleExpenseType = ExpenseType.SIMPLE_EXPENSES.getType();
-            String goodsType = ExpenseType.GOODS.getType();
-            String complexExpenseType = ExpenseType.COMPLEX_EXPENSES.getType();
             while (resultSet.next()) {
                 String type = resultSet.getString("TYPE");
                 String key = resultSet.getString("DATE");
                 Double value = (double) 0;
-                if (type.equals(simpleExpenseType) 
-                        || type.equals(complexExpenseType)) {
+                if (type.equals(SIMPLE_EXPENSES_SUPPORTED_TYPE) 
+                        || type.equals(COMPLEX_EXPENSES_SUPPORTED_TYPE)) {
                     value = resultSet.getDouble("PLANNED_CUR");
-                } else if (type.equals(goodsType)) {
+                } else if (type.equals(GOODS_SUPPORTED_TYPE)) {
                     value = resultSet.getDouble("PLANNED_PCS");
                 }
                 plannedExpense.put(key, value);

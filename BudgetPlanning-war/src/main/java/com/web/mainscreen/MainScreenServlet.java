@@ -16,6 +16,7 @@ import com.ejb.common.exceptions.GenericDBOperationException;
 import com.ejb.database.exceptions.GenericDBException;
 import com.ejb.expstructure.ExpensesStructureSQLSelectLocal;
 import com.ejb.expstructure.ExpensesStructureSQLUpdateLocal;
+import com.ejb.expstructure.ExpensesTypes;
 import java.io.IOException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
@@ -38,7 +39,7 @@ import jakarta.servlet.http.HttpSession;
  * Main Screen page.
  */
 @WebServlet(name = "MainScreenServlet", urlPatterns = {"/MainScreenServlet"})
-public class MainScreenServlet extends HttpServlet {
+public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
 
     @EJB
     private DBConnectionLocal connector;
@@ -129,7 +130,8 @@ public class MainScreenServlet extends HttpServlet {
                 for (Map.Entry<Integer, String> entry : allTypes.entrySet()) {
                     expenseId = entry.getKey();
                     type = entry.getValue();
-                    if (type.equals("SIMPLE_EXPENSES") || type.equals("GOODS")) {
+                    if (type.equals(SIMPLE_EXPENSES_SUPPORTED_TYPE) 
+                            || type.equals(GOODS_SUPPORTED_TYPE)) {
                         handler.prepareEntityExpenseById(DBConnection, "W",
                                 expenseId);
                     }
@@ -187,7 +189,8 @@ public class MainScreenServlet extends HttpServlet {
                 for (Map.Entry<Integer, String> entry : allTypes.entrySet()) {
                     expenseId = entry.getKey();
                     type = entry.getValue();
-                    if (type.equals("SIMPLE_EXPENSES") || type.equals("GOODS")) {
+                    if (type.equals(SIMPLE_EXPENSES_SUPPORTED_TYPE) 
+                            || type.equals(GOODS_SUPPORTED_TYPE)) {
                         handler.prepareEntityExpenseById(DBConnection, "W",
                                 expenseId);
                     }

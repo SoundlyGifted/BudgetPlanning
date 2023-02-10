@@ -7,6 +7,14 @@ package com.ejb.expstructure;
  */
 public interface ExpensesTypes {
     
+    // Expense Types supported in the application.
+    public static final String SIMPLE_EXPENSES_SUPPORTED_TYPE 
+            = ExpenseType.SIMPLE_EXPENSES.getType();
+    public static final String GOODS_SUPPORTED_TYPE 
+            = ExpenseType.GOODS.getType();
+    public static final String COMPLEX_EXPENSES_SUPPORTED_TYPE 
+            = ExpenseType.COMPLEX_EXPENSES.getType();       
+    
     /**
      * Enumeration of possible Expenses types pre-specified in the application.
      */

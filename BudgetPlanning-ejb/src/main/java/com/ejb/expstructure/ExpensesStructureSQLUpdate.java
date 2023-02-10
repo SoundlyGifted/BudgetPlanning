@@ -85,11 +85,9 @@ public class ExpensesStructureSQLUpdate extends SQLAbstract
          * should not be filled: price, safetyStockPcs, orderQtyPcs
          */
         String entityExpenseFromDBType = entityExpenseFromDB.getType();
-        if (entityExpenseFromDBType
-                .equals(ExpensesTypes.ExpenseType.COMPLEX_EXPENSES.getType())
+        if (entityExpenseFromDBType.equals(COMPLEX_EXPENSES_SUPPORTED_TYPE)
                 || entityExpenseFromDBType
-                        .equals(ExpensesTypes.ExpenseType.SIMPLE_EXPENSES
-                                .getType())) {
+                        .equals(SIMPLE_EXPENSES_SUPPORTED_TYPE)) {
             if ((price != null && !price.trim().isEmpty()) 
                     || (safetyStockPcs != null && !safetyStockPcs.trim()
                             .isEmpty()) 
