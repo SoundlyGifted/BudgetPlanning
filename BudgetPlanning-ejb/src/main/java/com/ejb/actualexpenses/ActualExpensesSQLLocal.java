@@ -1,6 +1,8 @@
 
 package com.ejb.actualexpenses;
 
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -24,11 +26,16 @@ public interface ActualExpensesSQLLocal {
      * @param price price of actual purchase.
      * @param qty quantity purchased.
      * @param comment comment about Actual Expense.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean executeInsert(Connection connection, String date,
+    public void executeInsert(Connection connection, String date,
             String expenseName, String expenseTitle, String shopName,
-            String price, String qty, String comment);
+            String price, String qty, String comment) 
+            throws GenericDBOperationException, GenericDBException;
 
     /**
      * Updates record of Actual Expense in the database.
@@ -42,20 +49,30 @@ public interface ActualExpensesSQLLocal {
      * @param price price of actual purchase.
      * @param qty quantity purchased.
      * @param comment comment about Actual Expense.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean executeUpdate(Connection connection, String idForUpdate,
+    public void executeUpdate(Connection connection, String idForUpdate,
             String date, String expenseName, String expenseTitle,
-            String shopName, String price, String qty, String comment);
+            String shopName, String price, String qty, String comment) 
+            throws GenericDBOperationException, GenericDBException;
 
     /**
      * Deletes record of Actual Expense from the database.
      * 
      * @param connection database Connection.
      * @param id Actual Expense database record ID to be deleted.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean executeDelete(Connection connection, String id);
+    public void executeDelete(Connection connection, String id) 
+            throws GenericDBOperationException, GenericDBException;
 
     /**
      * For the given set of planning time periods calculates values of Actual 
@@ -68,10 +85,17 @@ public interface ActualExpensesSQLLocal {
      * @param expenseId database Expense ID to calculate Actual Expenses for.
      * @return values of Actual Expenses mapped to each of the planning time 
      * period date.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public TreeMap<String, Double> calculateActualExpenses(Connection connection,
             TreeSet<String> timePeriodDates, String planningPeriodsFrequency,
-            Integer expenseId);
+            Integer expenseId) 
+            throws GenericDBOperationException, GenericDBException;
+    
     /**
      * Sets Expense in the database to the "deleted" state (Expense ID becomes
      * equal "-1" which is a reserved database value of Expense ID for the 
@@ -79,9 +103,14 @@ public interface ActualExpensesSQLLocal {
      * 
      * @param connection database Connection.
      * @param id database Expense ID.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean setExpenseToDeleted (Connection connection, String id);
+    public void setExpenseToDeleted (Connection connection, String id) 
+            throws GenericDBOperationException, GenericDBException;
     
     /**
      * Recovers Actual Expense in the database from the "deleted" state by 
@@ -92,8 +121,13 @@ public interface ActualExpensesSQLLocal {
      * in the "deleted" state with given expenseName.
      * @param expenseName Expense name used to find necessary Actual Expense in
      * the "deleted" state in the database.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean recoverDeletedExpenseId (Connection connection, 
-            Integer expenseId, String expenseName);
+    public void recoverDeletedExpenseId (Connection connection, 
+            Integer expenseId, String expenseName) 
+            throws GenericDBOperationException, GenericDBException;
 }

@@ -1,11 +1,13 @@
 
-package com.web.actualexpenses;
+package com.web.actualExpenses;
 
 import com.ejb.database.DBConnectionLocal;
 import com.ejb.mainscreen.PlannedVariableParamsSQLLocal;
 import com.ejb.actualexpenses.ActualExpensesSQLLocal;
 import com.ejb.calculation.ExpensesHandlerLocal;
 import com.ejb.common.OperationResultLogLocal;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
@@ -66,15 +68,21 @@ public class ActualExpensesServlet extends HttpServlet {
                 .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
-        Connection DBConnection = connector
-                .connection(session, "actualExpensesDBConnection");
+        
+        Connection DBConnection = null;
+        try {
+            DBConnection = connector.connection(session, 
+                    "actualExpensesDBConnection");
+        } catch (GenericDBException ex) {
+            log.add(session, currentDateTime + " " + ex.getMessage());
+        }
         
         ArrayList<Integer> actualExpensesIdList = commonMethods
                 .getIdList(DBConnection, "ACTUAL_EXPENSES");        
         ArrayList<Integer> expensesIdList = commonMethods
                 .getIdList(DBConnection, "EXPENSES_STRUCTURE");   
         
-        /* Processing Add operation. */
+        // Processing Add operation.
         if (request.getParameter("addActualExpense") != null) {
             String inputDate = request.getParameter("inputDate");
 
@@ -89,30 +97,33 @@ public class ActualExpensesServlet extends HttpServlet {
             String inputPrice = request.getParameter("inputPrice");
             String inputQty = request.getParameter("inputQty");
             String inputComment = request.getParameter("inputComment");
-            boolean added = sql.executeInsert(DBConnection, inputDate,
-                    inputName, inputTitle, inputShop, inputPrice, inputQty,
-                    inputComment);
-            if (added) {
+            
+            try {
+                sql.executeInsert(DBConnection, inputDate, inputName, 
+                        inputTitle, inputShop, inputPrice, inputQty, 
+                        inputComment);
                 int inputIdint = Integer.parseInt(inputId);
                 // Calculating Expense. 
-                eHandler.prepareEntityExpenseById(DBConnection, "W", 
+                eHandler.prepareEntityExpenseById(DBConnection, "W",
                         inputIdint);
                 // Updating Expenses Plan.
                 plannedParams.executeUpdateAll(DBConnection, "W");
-
-                log.add(session, currentDateTime + " [Add Actual Expense "
-                        + "command entered] : Actual Expense added");
-            } else {
-                log.add(session, currentDateTime + " [Add Actual Expense "
-                        + "command entered] : Command declined");
+                log.add(session, currentDateTime
+                        + " [Add Actual Expense command entered] : "
+                        + "Actual Expense added");
+            } catch (GenericDBOperationException | GenericDBException ex) {
+                log.add(session, currentDateTime
+                        + " [Add Actual Expense command entered] "
+                        + ex.getMessage());
             }
             request.getRequestDispatcher("ActualExpensesPage.jsp")
                     .forward(request, response);
         }
 
-        /* Processing Update operation. */
+        // Processing Update operation.
         /* Defining ID of row which was selected for update and passing it 
-        as request attribute. */
+         * as request attribute. 
+         */
         for (Integer id : actualExpensesIdList) {
             if (request.getParameter("update_" + String.valueOf(id)) != null) {
                 request.setAttribute("rowSelectedForUpdate", id);
@@ -121,7 +132,8 @@ public class ActualExpensesServlet extends HttpServlet {
             }
         }
         /* Defining ID of row which was submitted for update and passing it 
-        to Bean for update operation. */
+         * to EJB for update operation.
+         */
         for (Integer id : actualExpensesIdList) {
             for (Integer expenseId : expensesIdList) {
                 if (request.getParameter("submitUpdate_" + String.valueOf(id) 
@@ -138,32 +150,32 @@ public class ActualExpensesServlet extends HttpServlet {
                     String updateQty = request.getParameter("updateQty");
                     String updateComment = request
                             .getParameter("updateComment");
-                    boolean updated = sql.executeUpdate(DBConnection, 
-                            idToUpdate, updateDate, updateName, updateTitle, 
-                            updateShop, updatePrice, updateQty, updateComment);
-                    if (updated) {
+                    try {
+                        sql.executeUpdate(DBConnection, idToUpdate, updateDate, 
+                                updateName, updateTitle, updateShop, 
+                                updatePrice, updateQty, updateComment);
                         int updateIdInt = Integer.parseInt(updateId);
                         // Calculating Expense. 
-                        eHandler.prepareEntityExpenseById(DBConnection, "W", 
+                        eHandler.prepareEntityExpenseById(DBConnection, "W",
                                 updateIdInt);
                         // Updating Expenses Plan.
-                        plannedParams.executeUpdateAll(DBConnection, "W");                    
-
-                        log.add(session, currentDateTime 
+                        plannedParams.executeUpdateAll(DBConnection, "W");
+                        log.add(session, currentDateTime
                                 + " [Update Actual Expense command entered] : "
-                                        + "Actual Expense updated");
-                    } else {
+                                + "Actual Expense updated");
+                    } catch (GenericDBOperationException | GenericDBException ex) {
                         log.add(session, currentDateTime 
-                                + " [Update Actual Expense command entered] : "
-                                        + "Command declined");
+                                + " [Update Actual Expense command entered] " 
+                                + ex.getMessage());
                     }
                     request.getRequestDispatcher("ActualExpensesPage.jsp")
                             .forward(request, response);
-                }                
+                }
             }
         }
         /* Defining ID of row which was cancelled for update and passing it 
-        as request attribute. */
+         * as request attribute.
+         */
         for (Integer id : actualExpensesIdList) {
             if (request.getParameter("cancelUpdate_" 
                     + String.valueOf(id)) != null) {
@@ -172,29 +184,28 @@ public class ActualExpensesServlet extends HttpServlet {
             }
         }
         
-        /* Processing Delete operation. */
+        // Processing Delete operation.
         /* Defining ID of row which was selected for delete and passing it 
-        to Bean for delete operation. */
+         * to EJB for delete operation. 
+         */
         for (Integer id : actualExpensesIdList) {
             for (Integer expenseId : expensesIdList) {
                 if (request.getParameter("delete_" + String.valueOf(id) 
                         + "_" + String.valueOf(expenseId)) != null) {
-                    boolean deleted = sql.executeDelete(DBConnection,
-                            String.valueOf(id));
-                    if (deleted) {
+                    try {
+                        sql.executeDelete(DBConnection, String.valueOf(id));
                         // Calculating Expense. 
-                        eHandler.prepareEntityExpenseById(DBConnection, "W", 
+                        eHandler.prepareEntityExpenseById(DBConnection, "W",
                                 expenseId);
                         // Updating Expenses Plan.
-                        plannedParams.executeUpdateAll(DBConnection, "W");    
-
-                        log.add(session, currentDateTime 
+                        plannedParams.executeUpdateAll(DBConnection, "W");
+                        log.add(session, currentDateTime
                                 + " [Delete Actual Expense command entered] : "
-                                        + "Actual Expense deleted");
-                    } else {
+                                + "Actual Expense deleted");
+                    } catch (GenericDBOperationException | GenericDBException ex) {
                         log.add(session, currentDateTime 
-                                + " [Delete Actual Expense command entered] : "
-                                        + "Command declined");
+                                + " [Delete Actual Expense command entered] " 
+                                + ex.getMessage());
                     }
                     request.getRequestDispatcher("ActualExpensesPage.jsp")
                             .forward(request, response);

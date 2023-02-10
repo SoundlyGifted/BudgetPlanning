@@ -5,7 +5,8 @@ import com.ejb.calculation.AccountsHandlerLocal;
 import com.ejb.calculation.EntityAccount;
 import com.ejb.calculation.TimePeriodsHandlerLocal;
 import com.ejb.common.SQLAbstract;
-import java.io.IOException;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,11 +38,14 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
      * {@inheritDoc}
      */
     @Override
-    public boolean executeUpdate(Connection connection, String accountId, 
-            String paramName, Map<String, String> updatedValues) {
-        /* Checking of input values. */
+    public void executeUpdate(Connection connection, String accountId, 
+            String paramName, Map<String, String> updatedValues) 
+            throws GenericDBOperationException, GenericDBException {
+        // Checking of input values.
         if (stringToInt(accountId) == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to update Account's "
+                    + "planned parameter data in the database, provided "
+                    + "Account ID '" + accountId + "' is invalid.");
         }
         Map<String, Double> updatedValuesDouble = new TreeMap<>();
         for (Map.Entry<String, String> entry : updatedValues.entrySet()) {
@@ -62,24 +66,19 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
         int accountIdInt = stringToInt(accountId);
         
         PreparedStatement preparedStatement;
-        try {
-            switch (paramName) {
-                case "PLANNED_INCOME_CUR" : 
-                    preparedStatement = createPreparedStatement(connection,
-                    "mainScreen/update.incomeCur");
-                    break;
-                default : 
-                    return false;
-            }
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedAccountsValuesSQL "
-                    + "- executeUpdate(): SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
+        switch (paramName) {
+            case "PLANNED_INCOME_CUR":
+                preparedStatement = createPreparedStatement(connection,
+                        "mainScreen/update.incomeCur");
+                break;
+            default:
+                throw new GenericDBOperationException("Wrong name '" + paramName
+                        + "' of the planned parameter of the Account provided. "
+                        + "'PLANNED_INCOME_CUR' is supported only.");
         }
         
         try {
-            //Setting Query Parameters and executing Query;
+            // Setting Query Parameters and executing Query.
             for (Map.Entry<String, Double> entry : 
                     updatedValuesDouble.entrySet()) {
                 String date = entry.getKey();
@@ -91,15 +90,12 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
                 preparedStatement.addBatch();
             }
             preparedStatement.executeBatch();
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedAccountsValuesSQL "
-                    + "- executeUpdate(): Error while setting query parameters "
-                    + "or executing Update Query: " + ex.getMessage() + " ***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
-        return true;
     }
     
     /**
@@ -107,23 +103,23 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
      */    
     @Override
     public TreeMap<String, Double> selectPlannedAccountsValuesById(Connection 
-            connection, Integer id, String paramName) {
+            connection, Integer id, String paramName) 
+            throws GenericDBOperationException, GenericDBException {
         if (id == null || id < 1) {
             return null;
         }
 
         TreeMap<String, Double> accountParamValues = new TreeMap<>();
         
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "mainScreen/select.accountPlannedVarParams.byid");
         try {
-            preparedStatement = createPreparedStatement(connection,
-                    "mainScreen/select.accountPlannedVarParams.byid");
             preparedStatement.setInt(1, id);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedAccountsValuesSQL: "
-                    + "selectPlannedVariableParamsById() SQL PreparedStatement "
-                    + "failure: " + ex.getMessage() + " ***");
-            return null;
+        } catch (SQLException sqlex) {
+            clear(preparedStatement);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
         
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -138,11 +134,9 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
                 }
                 accountParamValues.put(key, value);
             }
-        } catch (SQLException ex) {
-            System.out.println("***PlannedAccountsValuesSQL: "
-                    + "selectPlannedVariableParamsById() Error while executing "
-                    + "Select Query: " + ex.getMessage() + "***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
@@ -153,43 +147,34 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
      * {@inheritDoc}
      */    
     @Override
-    public boolean executeUpdateAll(Connection connection,
-            String inputPlanningPeriodsFrequency) {
-
-        // List of accounts with calculated variable parameters
-        // that need to be updated in the database.
-        // Only updating records for those accounts in the database that
-        // have parameters calculated. If parameters are null then doing
-        // nothing. Set all calculated parameters to null after the database 
-        // update.
+    public void executeUpdateAll(Connection connection,
+            String inputPlanningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException {
+        /* List of accounts with calculated variable parameters
+         * that need to be updated in the database.
+         * Only updating records for those accounts in the database that
+         * have parameters calculated. If parameters are null then doing
+         * nothing. Set all calculated parameters to null after the database 
+         * update.
+         */
         ArrayList<EntityAccount> list = accountsHandler.getEntityAccountList();
 
-        // Obtain current set of Time Period Dates.
-        // It won't be calculated again if the value for a given frequency 
-        // already exists in TimePeriods class.
+        /* Obtain current set of Time Period Dates.
+         * It won't be calculated again if the value for a given frequency 
+         * already exists in TimePeriods class.
+         */
         TreeSet<String> timePeriodDates = timePeriods
                 .calculateTimePeriodDates(connection,
                         inputPlanningPeriodsFrequency);
         String currentPeriodDate = timePeriodDates.first();
 
-        PreparedStatement preparedStatementDelete;
-        PreparedStatement preparedStatementInsert;
-        try {
-            preparedStatementDelete = createPreparedStatement(connection,
-                    "mainScreen/delete.allAccountsPlannedParams.byid");
-            preparedStatementInsert = createPreparedStatement(connection,
-                    "mainScreen/insert.allAccountsPlannedParams.byid");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedAccountsValuesSQL - "
-                    + "executeUpdateAll(): SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
-
-        // Performing old records delition for the Accounts that contain 
-        // calculated variable parameters.
-        try {
-            //Setting Query Parameters and executing Query;
+        /* Performing old records delition for the Accounts that contain 
+         * calculated variable parameters.
+         */
+        try (PreparedStatement preparedStatementDelete 
+                = createPreparedStatement(connection, 
+                        "mainScreen/delete.allAccountsPlannedParams.byid")) {
+            // Setting Query Parameters and executing Query.
             for (EntityAccount account : list) {
                 if (account.isCalculated()) {
                     int id = account.getId();
@@ -199,24 +184,23 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
                 }
             }
             preparedStatementDelete.executeBatch();
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedAccountsValuesSQL "
-                    + "- executeUpdateAll(): Error while setting query "
-                    + "parameters or executing Update Query: "
-                    + ex.getMessage() + " ***");
-            return false;
-        } finally {
-            clear(preparedStatementDelete);
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
 
-        // Performing new records insertion for the Accounts that contain
-        // calculated variable parameters.
-        try {
-            //Setting Query Parameters and executing Query;
+        /* Performing new records insertion for the Accounts that contain
+         * calculated variable parameters.
+         */
+        try (PreparedStatement preparedStatementInsert 
+                = createPreparedStatement(connection, 
+                        "mainScreen/insert.allAccountsPlannedParams.byid")) {
+            // Setting Query Parameters and executing Query.
             for (EntityAccount account : list) {
                 if (account.isCalculated()) {
-                    // Constant and Common Fixed Account parameters for the DB 
-                    // record.
+                    /* Constant and Common Fixed Account parameters for the DB 
+                     * record.
+                     */
                     int id = account.getId();
                     String name = account.getName();
                     // Variable Account parameters for the DB record.
@@ -284,79 +268,70 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
                 }
             }
             preparedStatementInsert.executeBatch();
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedAccountsValuesSQL "
-                    + "- executeUpdateAll(): Error while setting query "
-                    + "parameters or executing Update Query: "
-                    + ex.getMessage() + " ***");
-            return false;
-        } finally {
-            clear(preparedStatementInsert);
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
 
-        // Clearing variable parameters for the Accounts with calculated
-        // variable parameters.
+        /* Clearing variable parameters for the Accounts with calculated
+         * variable parameters.
+         */
         for (EntityAccount account : list) {
             if (account.isCalculated()) {
                 account.resetVariableParams();
             }
         }
-        return true;
     }
 
     /**
      * {@inheritDoc}
      */    
     @Override
-    public boolean setCurrentPeriodDate(Connection connection, String date) {
+    public void setCurrentPeriodDate(Connection connection, String date) 
+            throws GenericDBOperationException, GenericDBException {
         
-        Statement statementClearCurrentPeriodFlag = null;
+        Statement statementClearCurrentPeriodFlag;
+        PreparedStatement psSelectPlannedAccountsByDate
+                = createPreparedStatement(connection,
+                        "mainScreen/select.plannedAccounts.byDate");      
+        try {
+            statementClearCurrentPeriodFlag = connection.createStatement();
+            psSelectPlannedAccountsByDate.setString(1, date);      
+        } catch (SQLException sqlex) {
+            clear(psSelectPlannedAccountsByDate);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
+        }
         String clearCurrentPeriodFlag = "update PLANNED_ACCOUNTS_VALUES "
                 + "set CURPFL = ''";        
 
-        PreparedStatement psSelectPlannedAccountsByDate;
-        PreparedStatement psSelectAllFromAccountsStructure;
-        PreparedStatement psSetCurrentPeriodFlagByDate;
-        PreparedStatement psInsertRecordsForGivenDate;
-        try {
-            statementClearCurrentPeriodFlag = connection.createStatement();
-            
-            psSelectPlannedAccountsByDate = createPreparedStatement(connection, 
-                    "mainScreen/select.plannedAccounts.byDate");
-            psSelectPlannedAccountsByDate.setString(1, date);
-            
-            psSelectAllFromAccountsStructure 
-                    = createPreparedStatement(connection, 
-                            "accountsStructure/select.all");
-            
-            psSetCurrentPeriodFlagByDate = createPreparedStatement(connection, 
-                    "mainScreen/update.plannedAccounts.setCurrentPeriodFlag"
-                            + ".byDate");
-            
-            psInsertRecordsForGivenDate = createPreparedStatement(connection, 
-                    "mainScreen/insert.allAccountsPlannedParams.byid");
-            
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedAccountsValuesSQL : "
-                    + "setCurrentPeriodDate() error while creating statements: " 
-                    + ex.getMessage());
-            return false;
-        }
+        PreparedStatement psSelectAllFromAccountsStructure 
+                = createPreparedStatement(connection, 
+                        "accountsStructure/select.all");
+        PreparedStatement psSetCurrentPeriodFlagByDate 
+                = createPreparedStatement(connection, 
+                        "mainScreen/update.plannedAccounts.setCurrentPeriodFlag"
+                                + ".byDate");
+        PreparedStatement psInsertRecordsForGivenDate 
+                = createPreparedStatement(connection, 
+                        "mainScreen/insert.allAccountsPlannedParams.byid");
 
         try(ResultSet resultSet = psSelectPlannedAccountsByDate
                 .executeQuery()) {
             if (resultSet.next()) {
-                // Setting Current Period Flag for the given date if there is
-                // a planning data in the database for at least one Account
-                // for this date.
+                /* Setting Current Period Flag for the given date if there is
+                 * a planning data in the database for at least one Account
+                 * for this date.
+                 */
                 statementClearCurrentPeriodFlag
                         .execute(clearCurrentPeriodFlag);
                 psSetCurrentPeriodFlagByDate.setString(1, date);
                 psSetCurrentPeriodFlagByDate.executeUpdate();
             } else {
-                // If there is no planning data in the database for any of the
-                // Accounts then inserting zero-plan for each of the
-                // Account.
+                /* If there is no planning data in the database for any of the
+                 * Accounts then inserting zero-plan for each of the
+                 * Account.
+                 */
                 try(ResultSet rsSelectAllAccounts 
                         = psSelectAllFromAccountsStructure.executeQuery()) {
                     while (rsSelectAllAccounts.next()) {
@@ -401,17 +376,15 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
                     psInsertRecordsForGivenDate.executeBatch();
                 }
             }
-        } catch (SQLException ex) {
-            System.out.println("***PlannedAccountsValuesSQL: "
-                    + "setCurrentPeriodDate() Error while executing "
-                    + "Query: " + ex.getMessage() + "***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
+            clear(statementClearCurrentPeriodFlag);
             clear(psSelectPlannedAccountsByDate);
             clear(psSelectAllFromAccountsStructure);
             clear(psSetCurrentPeriodFlagByDate);
             clear(psInsertRecordsForGivenDate);
         }
-        return true;
     }
 }

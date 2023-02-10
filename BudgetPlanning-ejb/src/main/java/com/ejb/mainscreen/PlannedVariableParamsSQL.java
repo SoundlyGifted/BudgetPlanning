@@ -5,7 +5,9 @@ import com.ejb.calculation.EntityExpense;
 import com.ejb.calculation.ExpensesHandlerLocal;
 import com.ejb.calculation.TimePeriodsHandlerLocal;
 import com.ejb.common.SQLAbstract;
-import java.io.IOException;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
+import com.ejb.expstructure.ExpensesTypes.ExpenseType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,11 +39,14 @@ public class PlannedVariableParamsSQL extends SQLAbstract
      * {@inheritDoc} 
      */
     @Override
-    public boolean executeUpdate(Connection connection, String expenseId, 
-            String paramName, Map<String, String> updatedValues) {
-        /* Checking of input values. */
+    public void executeUpdate(Connection connection, String expenseId, 
+            String paramName, Map<String, String> updatedValues) 
+            throws GenericDBOperationException, GenericDBException {
+        // Checking of input values.
         if (stringToInt(expenseId) == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to update Expense's "
+                    + "planned parameter data in the database, provided "
+                    + "Expense ID '" + expenseId + "' is invalid.");
         }
         Map<String, Double> updatedValuesDouble = new TreeMap<>();
         for (Map.Entry<String, String> entry : updatedValues.entrySet()) {
@@ -62,32 +67,28 @@ public class PlannedVariableParamsSQL extends SQLAbstract
         int expenseIdInt = stringToInt(expenseId);
         
         PreparedStatement preparedStatement;
-        try {
-            switch (paramName) {
-                case "PLANNED_PCS" : 
-                    preparedStatement = createPreparedStatement(connection,
-                    "mainScreen/update.plannedPcs");
-                    break;
-                case "PLANNED_CUR" :
-                    preparedStatement = createPreparedStatement(connection,
-                    "mainScreen/update.plannedCur");
-                    break;
-                case "CONSUMPTION_PCS" :
-                    preparedStatement = createPreparedStatement(connection,
-                    "mainScreen/update.consumptionPcs");
-                    break;
-                default : 
-                    return false;
-            }
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL "
-                    + "- executeUpdate(): SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
+        switch (paramName) {
+            case "PLANNED_PCS":
+                preparedStatement = createPreparedStatement(connection,
+                        "mainScreen/update.plannedPcs");
+                break;
+            case "PLANNED_CUR":
+                preparedStatement = createPreparedStatement(connection,
+                        "mainScreen/update.plannedCur");
+                break;
+            case "CONSUMPTION_PCS":
+                preparedStatement = createPreparedStatement(connection,
+                        "mainScreen/update.consumptionPcs");
+                break;
+            default:
+                throw new GenericDBOperationException("Wrong name '" + paramName
+                        + "' of the planned parameter of the Expense provided. "
+                        + "'PLANNED_PCS', 'PLANNED_CUR', 'CONSUMPTION_PCS' are "
+                        + "supported only.");
         }
         
         try {
-            //Setting Query Parameters and executing Query;
+            // Setting Query Parameters and executing Query.
             for (Map.Entry<String, Double> entry : 
                     updatedValuesDouble.entrySet()) {
                 String date = entry.getKey();
@@ -99,22 +100,20 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                 preparedStatement.addBatch();
             }
             preparedStatement.executeBatch();
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedVariableParamsSQL "
-                    + "- executeUpdate(): Error while setting query parameters "
-                    + "or executing Update Query: " + ex.getMessage() + " ***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
-        return true;
     }
 
     /**
      * {@inheritDoc} 
      */    
     @Override
-    public String getCurrentPeriodDate(Connection connection) {
+    public String getCurrentPeriodDate(Connection connection) 
+            throws GenericDBOperationException {
         
         Statement statement = null;
         String query = "select distinct DATE from PLANNED_VARIABLE_PARAMS "
@@ -122,11 +121,9 @@ public class PlannedVariableParamsSQL extends SQLAbstract
 
         try {
             statement = connection.createStatement();
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedVariableParamsSQL : "
-                    + "getCurrentPeriodDate() error while creating statement: " 
-                    + ex.getMessage());
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
 
         try (ResultSet resultSet = statement.executeQuery(query)) {
@@ -135,19 +132,11 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                 currentPeriodDate = resultSet.getString("DATE");
             }
             return currentPeriodDate;
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedVariableParamsSQL : "
-                    + "getCurrentPeriodDate() error while executing '" + query 
-                    + "' query: " + ex.getMessage());
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
-            try {
-                statement.close();
-            } catch (SQLException ex) {
-                System.out.println("*** PlannedVariableParamsSQL : "
-                        + "getCurrentPeriodDate() error while closing "
-                        + "statement: " + ex.getMessage());
-            }
+            clear(statement);
         }
     }
  
@@ -155,60 +144,64 @@ public class PlannedVariableParamsSQL extends SQLAbstract
      * {@inheritDoc} 
      */    
     @Override
-    public boolean setCurrentPeriodDate(Connection connection, String date) {
+    public void setCurrentPeriodDate(Connection connection, String date) 
+            throws GenericDBOperationException, GenericDBException {
         
-        Statement statementClearCurrentPeriodFlag = null;
+        Statement statementClearCurrentPeriodFlag;
+        
+        PreparedStatement psSelectPlannedParamsByDate 
+                = createPreparedStatement(connection, 
+                        "mainScreen/select.plannedParams.byDate");
+        
+        try {
+            statementClearCurrentPeriodFlag = connection.createStatement();
+            psSelectPlannedParamsByDate.setString(1, date);
+        } catch (SQLException sqlex) {
+            clear(psSelectPlannedParamsByDate);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
+        }
+        
         String clearCurrentPeriodFlag = "update PLANNED_VARIABLE_PARAMS "
                 + "set CURPFL = ''";        
 
-        PreparedStatement psSelectPlannedParamsByDate;
-        PreparedStatement psSelectAllFromExpensesStructure;
-        PreparedStatement psSetCurrentPeriodFlagByDate;
-        PreparedStatement psInsertRecordsForGivenDate;
-        try {
-            statementClearCurrentPeriodFlag = connection.createStatement();
-            
-            psSelectPlannedParamsByDate = createPreparedStatement(connection, 
-                    "mainScreen/select.plannedParams.byDate");
-            psSelectPlannedParamsByDate.setString(1, date);
-            
-            psSelectAllFromExpensesStructure 
-                    = createPreparedStatement(connection, 
-                            "expensesStructure/select.all");
-            
-            psSetCurrentPeriodFlagByDate = createPreparedStatement(connection, 
-                    "mainScreen/update.plannedExpenses.setCurrentPeriodFlag"
-                            + ".byDate");
-            
-            psInsertRecordsForGivenDate = createPreparedStatement(connection, 
-                    "mainScreen/insert.allExpensesPlannedParams.byid");
-            
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL : "
-                    + "setCurrentPeriodDate() error while creating statements: " 
-                    + ex.getMessage());
-            return false;
-        }
+        PreparedStatement psSelectAllFromExpensesStructure 
+                = createPreparedStatement(connection, 
+                        "expensesStructure/select.all");
+
+        PreparedStatement psSetCurrentPeriodFlagByDate 
+                = createPreparedStatement(connection, 
+                        "mainScreen/update.plannedExpenses.setCurrentPeriodFlag"
+                                + ".byDate");
+
+        PreparedStatement psInsertRecordsForGivenDate 
+                = createPreparedStatement(connection, 
+                        "mainScreen/insert.allExpensesPlannedParams.byid");
 
         try(ResultSet resultSet = psSelectPlannedParamsByDate.executeQuery()) {
             if (resultSet.next()) {
-                // Setting Current Period Flag for the given date if there is
-                // a planning data in the database for at least one Expense
-                // Category for this date.
+                /* Setting Current Period Flag for the given date if there is
+                 * a planning data in the database for at least one Expense
+                 * Category for this date.
+                 */
                 statementClearCurrentPeriodFlag
                         .execute(clearCurrentPeriodFlag);
                 psSetCurrentPeriodFlagByDate.setString(1, date);
                 psSetCurrentPeriodFlagByDate.executeUpdate();
             } else {
-                // If there is no planning data in the database for any of the
-                // Expense Categories then inserting zero-plan for each of the
-                // Expense Categories of "SIMPLE_EXPENSES" and "GOODS" type.
+                /* If there is no planning data in the database for any of the
+                 * Expense Categories then inserting zero-plan for each of the
+                 * Expense Categories of "SIMPLE_EXPENSES" and "GOODS" type.
+                 */
                 try(ResultSet rsSelectAllExpenses 
                         = psSelectAllFromExpensesStructure.executeQuery()) {
+                    String simpleExpenseType 
+                            = ExpenseType.SIMPLE_EXPENSES.getType();
+                    String goodsType = ExpenseType.GOODS.getType();
                     while (rsSelectAllExpenses.next()) {
                         String type = rsSelectAllExpenses.getString("TYPE");
-                        if (type.equals("SIMPLE_EXPENSES") 
-                                || type.equals("GOODS")) {
+                        if (type.equals(simpleExpenseType) 
+                                || type.equals(goodsType)) {
                             int id = rsSelectAllExpenses.getInt("ID");
                             String name = rsSelectAllExpenses.getString("NAME");
 
@@ -261,18 +254,17 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                     psInsertRecordsForGivenDate.executeBatch();
                 }
             }
-        } catch (SQLException ex) {
-            System.out.println("***PlannedVariableParamsSQL: "
-                    + "setCurrentPeriodDate() Error while executing "
-                    + "Query: " + ex.getMessage() + "***");
-            return false;
+        } catch (SQLException sqlex) {
+            clear(psSelectPlannedParamsByDate);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
+            clear(statementClearCurrentPeriodFlag);
             clear(psSelectPlannedParamsByDate);
             clear(psSelectAllFromExpensesStructure);
             clear(psSetCurrentPeriodFlagByDate);
             clear(psInsertRecordsForGivenDate);
         }
-        return true;
     }
 
     /**
@@ -280,43 +272,46 @@ public class PlannedVariableParamsSQL extends SQLAbstract
      */    
     @Override
     public TreeMap<String, Double> selectPlannedExpensesById(Connection 
-            connection, Integer id) {
+            connection, Integer id) 
+            throws GenericDBOperationException, GenericDBException {
         if (id == null || id < 1) {
-            return null;
+            throw new GenericDBOperationException("Unable to select Planned "
+                    + "Expense parameter values from database, the Expense ID '"
+                    + id + "' is invalid.");
+        }
+        
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "mainScreen/select.plannedExpenses.byExpenseId");
+        try {
+            preparedStatement.setInt(1, id);
+        } catch (SQLException sqlex) {
+            clear(preparedStatement);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
 
         TreeMap<String, Double> plannedExpense = new TreeMap<>();
         
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "mainScreen/select.plannedExpenses.byExpenseId");
-            preparedStatement.setInt(1, id);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "selectPlannedExpensesById() SQL PreparedStatement "
-                    + "failure: " + ex.getMessage() + " ***");
-            return null;
-        }
-        
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            String simpleExpenseType = ExpenseType.SIMPLE_EXPENSES.getType();
+            String goodsType = ExpenseType.GOODS.getType();
+            String complexExpenseType = ExpenseType.COMPLEX_EXPENSES.getType();
             while (resultSet.next()) {
                 String type = resultSet.getString("TYPE");
                 String key = resultSet.getString("DATE");
                 Double value = (double) 0;
-                if (type.equals("SIMPLE_EXPENSES") 
-                        || type.equals("COMPLEX_EXPENSES")) {
+                if (type.equals(simpleExpenseType) 
+                        || type.equals(complexExpenseType)) {
                     value = resultSet.getDouble("PLANNED_CUR");
-                } else if (type.equals("GOODS")) {
+                } else if (type.equals(goodsType)) {
                     value = resultSet.getDouble("PLANNED_PCS");
                 }
                 plannedExpense.put(key, value);
             }
-        } catch (SQLException ex) {
-            System.out.println("***PlannedVariableParamsSQL: "
-                    + "selectPlannedExpensesById() Error while executing Select "
-                    + "Query: " + ex.getMessage() + "***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
@@ -328,24 +323,26 @@ public class PlannedVariableParamsSQL extends SQLAbstract
      */    
     @Override
     public TreeMap<String, Double> selectConsumptionPcsById(Connection 
-            connection, Integer id) {
+            connection, Integer id) 
+            throws GenericDBOperationException, GenericDBException {
         if (id == null || id < 1) {
-            return null;
+            throw new GenericDBOperationException("Unable to select Consumption"
+                    + " planned parameter values from database, the Expense ID"
+                    + " '" + id + "' is invalid.");
         }
 
-        TreeMap<String, Double> consumptionPcs = new TreeMap<>();
-        
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "mainScreen/select.consumptionPcs.byExpenseId");
         try {
-            preparedStatement = createPreparedStatement(connection,
-                    "mainScreen/select.consumptionPcs.byExpenseId");
             preparedStatement.setInt(1, id);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "selectConsumptionPcsById() SQL PreparedStatement "
-                    + "failure: " + ex.getMessage() + " ***");
-            return null;
+        } catch (SQLException sqlex) {
+            clear(preparedStatement);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
+        
+        TreeMap<String, Double> consumptionPcs = new TreeMap<>();
         
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
@@ -353,11 +350,9 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                 Double value = resultSet.getDouble("CONSUMPTION_PCS");
                 consumptionPcs.put(key, value);
             }
-        } catch (SQLException ex) {
-            System.out.println("***PlannedVariableParamsSQL: "
-                    + "selectConsumptionPcsById() Error while executing Select "
-                    + "Query: " + ex.getMessage() + "***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
@@ -369,24 +364,26 @@ public class PlannedVariableParamsSQL extends SQLAbstract
      */
     @Override
     public TreeMap<String, Double> selectDifferencePcsById(Connection 
-            connection, Integer id) {
+            connection, Integer id) 
+            throws GenericDBOperationException, GenericDBException {
         if (id == null || id < 1) {
-            return null;
+            throw new GenericDBOperationException("Unable to select 'Actual - "
+                    + "Planned' expense Difference planned parameter values "
+                    + "from database, the Expense ID '" + id + "' is invalid.");
         }
 
-        TreeMap<String, Double> consumptionPcs = new TreeMap<>();
-        
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "mainScreen/select.differencePcs.byExpenseId");
         try {
-            preparedStatement = createPreparedStatement(connection,
-                    "mainScreen/select.differencePcs.byExpenseId");
             preparedStatement.setInt(1, id);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "selectDifferencePcsById() SQL PreparedStatement "
-                    + "failure: " + ex.getMessage() + " ***");
-            return null;
+        } catch (SQLException sqlex) {
+            clear(preparedStatement);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
+        
+        TreeMap<String, Double> consumptionPcs = new TreeMap<>();
         
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
@@ -394,11 +391,9 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                 Double value = resultSet.getDouble("DIFFERENCE_PCS");
                 consumptionPcs.put(key, value);
             }
-        } catch (SQLException ex) {
-            System.out.println("***PlannedVariableParamsSQL: "
-                    + "selectDifferencePcsById() Error while executing Select "
-                    + "Query: " + ex.getMessage() + "***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
@@ -411,28 +406,31 @@ public class PlannedVariableParamsSQL extends SQLAbstract
     @Override
     public TreeMap<String, Double> 
         selectPlannedExpAndDiffCurSumByAcctIdAndDate(Connection connection, 
-                Integer accountId, String date) {
+                Integer accountId, String date) 
+                throws GenericDBOperationException, GenericDBException {
         if (accountId == null || accountId < 1 || !inputCheckNullBlank(date)) {
-            return null;
+            throw new GenericDBOperationException("Unable to select planned "
+                    + "Expenses and 'Actual - Planned' expense Difference "
+                    + "parameters summed up for the Expenses that are linked "
+                    + "to the Account with given ID for a given planning "
+                    + "Period date, invalid input parameter(s) provided");
         }
-
+        
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, "mainScreen/select"
+                        + ".plannedExpAndDiffCurSum.byAcctIdAndDate");
+        try {
+            preparedStatement.setInt(1, accountId);
+            preparedStatement.setString(2, date);
+        } catch (SQLException sqlex) {
+            clear(preparedStatement);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
+        }
+        
         TreeMap<String, Double> result = new TreeMap<>();
         Double plannedCurSum;
         Double differenceCurSum;
-        
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "mainScreen/select"
-                            + ".plannedExpAndDiffCurSum.byAcctIdAndDate");
-            preparedStatement.setInt(1, accountId);
-            preparedStatement.setString(2, date);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "selectPlannedExpAndDiffCurSumByAcctIdAndDate() SQL "
-                    + "PreparedStatement failure: " + ex.getMessage() + " ***");
-            return null;
-        }
         
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
@@ -441,44 +439,43 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                 result.put("PLANNED_CUR", plannedCurSum);
                 result.put("DIFFERENCE_CUR", differenceCurSum);
             }
-        } catch (SQLException ex) {
-            System.out.println("***PlannedVariableParamsSQL: "
-                    + "selectPlannedExpAndDiffCurSumByAcctIdAndDate() Error "
-                    + "while executing Select Query: " 
-                    + ex.getMessage() + "***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
-        return result;            
-    }    
-
+        return result;
+    }
+    
     /**
      * {@inheritDoc} 
      */        
     @Override
     public TreeMap<String, Double> 
-        selectPlannedExpCurSumByAcctId(Connection connection, 
-                Integer accountId) {
+        selectPlannedExpCurSumByAcctId(Connection connection, Integer accountId) 
+                throws GenericDBOperationException, GenericDBException {
         if (accountId == null || accountId < 1) {
-            return null;
+            throw new GenericDBOperationException("Unable to select planned "
+                    + "Expense parameter summed up for the Expenses that are "
+                    + "linked to the Account with given ID, the Account ID '" 
+                    + accountId + "' is invalid.");
         }
-
+        
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "mainScreen/select.plannedExpCurSum.byAcctId");
+        try {
+            preparedStatement.setInt(1, accountId);
+        } catch (SQLException sqlex) {
+            clear(preparedStatement);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
+        }
+        
         TreeMap<String, Double> result = new TreeMap<>();
         String date;
         Double plannedCurSumVal;
-        
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "mainScreen/select.plannedExpCurSum.byAcctId");
-            preparedStatement.setInt(1, accountId);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "selectPlannedExpCurSumByAcctId() SQL "
-                    + "PreparedStatement failure: " + ex.getMessage() + " ***");
-            return null;
-        }
         
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
@@ -486,12 +483,9 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                 plannedCurSumVal = resultSet.getDouble("PLANNED_CUR");
                 result.put(date, plannedCurSumVal);
             }
-        } catch (SQLException ex) {
-            System.out.println("***PlannedVariableParamsSQL: "
-                    + "selectPlannedExpCurSumByAcctId() Error "
-                    + "while executing Select Query: " 
-                    + ex.getMessage() + "***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
@@ -502,70 +496,61 @@ public class PlannedVariableParamsSQL extends SQLAbstract
      * {@inheritDoc} 
      */        
     @Override
-    public boolean executeUpdateAll(Connection connection,
-            String inputPlanningPeriodsFrequency) {
-
-        // List of expense categories with calculated variable parameters
-        // that need to be updated in the database.
-        // Only updating records for those expenses in the database that
-        // have parameters calculated. If parameters are null then doing
-        // nothing. Set all calculated parameters to null after the database 
-        // update.
+    public void executeUpdateAll(Connection connection,
+            String inputPlanningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException {
+        /* List of expense categories with calculated variable parameters
+         * that need to be updated in the database.
+         * Only updating records for those expenses in the database that
+         * have parameters calculated. If parameters are null then doing
+         * nothing. Set all calculated parameters to null after the database 
+         * update.
+         */
         ArrayList<EntityExpense> list = expensesHandler.getEntityExpenseList();
 
-        // Obtain current set of Time Period Dates.
-        // It won't be calculated again if the value for a given frequency 
-        // already exists in TimePeriods class.
-        TreeSet<String> timePeriodDates = timePeriods
-                .calculateTimePeriodDates(connection,
+        /* Obtain current set of Time Period Dates.
+         * It won't be calculated again if the value for a given frequency 
+         * already exists in TimePeriods class.
+         */
+        TreeSet<String> timePeriodDates 
+                = timePeriods.calculateTimePeriodDates(connection, 
                         inputPlanningPeriodsFrequency);
         String currentPeriodDate = timePeriodDates.first();
 
-        PreparedStatement preparedStatementDelete;
-        PreparedStatement preparedStatementInsert;
-        try {
-            preparedStatementDelete = createPreparedStatement(connection,
-                    "mainScreen/delete.allExpensesPlannedParams.byid");
-            preparedStatementInsert = createPreparedStatement(connection,
-                    "mainScreen/insert.allExpensesPlannedParams.byid");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL - "
-                    + "executeUpdateAll(): SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
-
-        // Performing old records delition for the Expenses that contain 
-        // calculated variable parameters.
-        try {
-            //Setting Query Parameters and executing Query;
+        /* Performing old records delition for the Expenses that contain 
+         * calculated variable parameters.
+         */
+        try (PreparedStatement preparedStatementDelete 
+                = createPreparedStatement(connection, 
+                        "mainScreen/delete.allExpensesPlannedParams.byid")) {
+            // Setting Query Parameters and executing Query.
+            int id;
             for (EntityExpense expense : list) {
                 if (expense.isCalculated()) {
-                    int id = expense.getId();
+                    id = expense.getId();
                     preparedStatementDelete.setInt(1, id);
                     preparedStatementDelete.setString(2, currentPeriodDate);
                     preparedStatementDelete.addBatch();
                 }
             }
             preparedStatementDelete.executeBatch();
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedVariableParamsSQL "
-                    + "- executeUpdateAll(): Error while setting query "
-                    + "parameters or executing Update Query: "
-                    + ex.getMessage() + " ***");
-            return false;
-        } finally {
-            clear(preparedStatementDelete);
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
 
-        // Performing new records insertion for the Expenses that contain
-        // calculated variable parameters.
-        try {
+        /* Performing new records insertion for the Expenses that contain
+         * calculated variable parameters.
+         */
+        try (PreparedStatement preparedStatementInsert 
+                = createPreparedStatement(connection, 
+                        "mainScreen/insert.allExpensesPlannedParams.byid")) {
             //Setting Query Parameters and executing Query;
             for (EntityExpense expense : list) {
                 if (expense.isCalculated()) {
-                    // Constant and Common Fixed Expense parameters for the DB 
-                    // record.
+                    /* Constant and Common Fixed Expense parameters for the DB 
+                     * record.
+                     */
                     int id = expense.getId();
                     String name = expense.getName();
                     // Variable Expense parameters for the DB record.
@@ -745,61 +730,46 @@ public class PlannedVariableParamsSQL extends SQLAbstract
                 }
             }
             preparedStatementInsert.executeBatch();
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedVariableParamsSQL "
-                    + "- executeUpdateAll(): Error while setting query "
-                    + "parameters or executing Update Query: "
-                    + ex.getMessage() + " ***");
-            return false;
-        } finally {
-            clear(preparedStatementInsert);
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
 
-        // Clearing variable parameters for the Expenses with calculated
-        // variable parameters.
+        /* Clearing variable parameters for the Expenses with calculated
+         * variable parameters.
+         */
         for (EntityExpense expense : list) {
             if (expense.isCalculated()) {
                 expense.resetVariableParams();
             }
         }
-        return true;
     }
 
     /**
      * {@inheritDoc} 
      */    
     @Override
-    public boolean executeDeleteByExpenseId(Connection connection, String id) {
-        /* Checking of input values. */
+    public void executeDeleteByExpenseId(Connection connection, String id) 
+            throws GenericDBOperationException, GenericDBException {
+        // Checking of input values.
         Integer idInt = stringToInt(id);
         if (idInt == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to delete all "
+                    + "Expense plan (planned and calculated parameter values) "
+                    + "from the database, provided Expense ID '" + id + "' is "
+                    + "invalid.");
         }
         
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection, 
-                    "mainScreen/delete.allExpensesPlannedParams.byid");       
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL "
-                    + "- executeDeleteByExpenseId(): SQL PreparedStatement "
-                    + "failure: " + ex.getMessage() + " ***");
-            return false;
-        }
-        try {
-            //Setting Query Parameters and executing Query;
+        try (PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "mainScreen/delete.allExpensesPlannedParams.byid")) {
+            // Setting Query Parameters and executing Query.
             preparedStatement.setInt(1, idInt);
             preparedStatement.setString(2, "1970-01-01");
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedVariableParamsSQL "
-                    + "- executeDeleteByExpenseId(): Error while setting query "
-                    + "parameters or executing Update Query: " 
-                    + ex.getMessage() + " ***");
-            return false;
-        } finally {
-            clear(preparedStatement);
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
-        return true;
     }
 }

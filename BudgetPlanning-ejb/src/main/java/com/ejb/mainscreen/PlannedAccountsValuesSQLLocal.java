@@ -1,6 +1,8 @@
 
 package com.ejb.mainscreen;
 
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,10 +24,15 @@ public interface PlannedAccountsValuesSQLLocal {
      * @param paramName name of the planned parameter of the Account.
      * @param updatedValues new values of the planned parameter mapped to the 
      * planning Periods dates.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean executeUpdate(Connection connection, String accountId,
-            String paramName, Map<String, String> updatedValues);
+    public void executeUpdate(Connection connection, String accountId,
+            String paramName, Map<String, String> updatedValues) 
+            throws GenericDBOperationException, GenericDBException;
 
     /**
      * Selects and returns planned parameter values of a given Account mapped 
@@ -36,9 +43,15 @@ public interface PlannedAccountsValuesSQLLocal {
      * @param paramName name of the planned parameter of the Account.
      * @return planned parameter values of a given Account mapped to the 
      * planning Periods dates from database.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public TreeMap<String, Double> selectPlannedAccountsValuesById(Connection 
-            connection, Integer id, String paramName);
+            connection, Integer id, String paramName) 
+            throws GenericDBOperationException, GenericDBException;
     
     /**
      * Updates planned and calculated parameters of all the Accounts in the 
@@ -48,10 +61,15 @@ public interface PlannedAccountsValuesSQLLocal {
      * 
      * @param connection database Connection
      * @param inputPlanningPeriodsFrequency planning Periods Frequency.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean executeUpdateAll(Connection connection,
-            String inputPlanningPeriodsFrequency);
+    public void executeUpdateAll(Connection connection,
+            String inputPlanningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException;
     
     /**
      * Sets current Period in the database table that contains Accounts plan.
@@ -59,7 +77,12 @@ public interface PlannedAccountsValuesSQLLocal {
      * @param connection database Connection
      * @param date the date of the new current planning Period in ISO8601 
      * format.
-     * @return "true" in case of success of the operation and "false" otherwise.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public boolean setCurrentPeriodDate(Connection connection, String date);
+    public void setCurrentPeriodDate(Connection connection, String date) 
+            throws GenericDBOperationException, GenericDBException;
 }

@@ -3,8 +3,10 @@ package com.ejb.actualexpenses;
 
 import com.ejb.common.SQLAbstract;
 import com.ejb.calculation.EntityExpense;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import com.ejb.expstructure.ExpensesStructureSQLSelectLocal;
-import java.io.IOException;
+import com.ejb.expstructure.ExpensesTypes;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,17 +32,19 @@ public class ActualExpensesSQL extends SQLAbstract
      * {@inheritDoc}
      */
     @Override
-    public boolean executeInsert(Connection connection, String date, 
+    public void executeInsert(Connection connection, String date, 
             String expenseName, String expenseTitle, String shopName, 
-            String price, String qty, String comment) {
-        /* Checking of input values. */
+            String price, String qty, String comment) 
+            throws GenericDBOperationException, GenericDBException {
+        // Checking of input values.
         if (!inputCheckNullBlank(date) || !inputCheckNullBlank(expenseName)
                 || !inputCheckNullBlank(price) || stringToDouble(price) == null
                 || !inputCheckLength(expenseName) 
                 || !inputCheckLength(expenseTitle) 
                 || !inputCheckLength(shopName) || !inputCheckLength(comment)) {
-            return false;
-        }        
+            throw new GenericDBOperationException("Unable to add the actual "
+                    + "expense, empty or wrong parameters provided.");
+        }
         
         String week;
         int dayN;
@@ -54,22 +58,30 @@ public class ActualExpensesSQL extends SQLAbstract
         double costDouble;
         
         /* Checking if Expense with given name exists in the database 
-        (EXPENSES_STRUCTURE table). If exists:
-        1) getting Expense ID. 
-        2) checking it's type (only SIMPLE_EXPENSES and GOODS can be populated 
-        in ACTUAL_EXPENSES table. */
+         * (EXPENSES_STRUCTURE table). If exists:
+         * 1) getting Expense ID. 
+         * 2) checking it's type (only SIMPLE_EXPENSES and GOODS can be 
+         * populated in the ACTUAL_EXPENSES table).
+         */
         EntityExpense expenseGiven = select.executeSelectByName(connection, expenseName);
         if (expenseGiven == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to add the actual "
+                    + "expense, the provided Expense '" + expenseName
+                    + "' is not present in the Expenses Structure database "
+                    + "table.");
         } else {
             expenseIdInt = expenseGiven.getId();
             String type = expenseGiven.getType();
-            if (!"SIMPLE_EXPENSES".equals(type) && !"GOODS".equals(type)) {
-                return false;
+            if (!ExpensesTypes.ExpenseType.SIMPLE_EXPENSES.getType()
+                    .equals(type) && !ExpensesTypes.ExpenseType.GOODS.getType()
+                            .equals(type)) {
+                throw new GenericDBOperationException("Unable to add the actual "
+                        + "expense, the provided Expense '" + expenseName
+                        + "' is not a Simple Expense or Good.");
             }
         }
-
-        /* setting QTY to 1 if user did not enter QTY. */
+        
+        // Setting QTY to 1 if user did not enter QTY.
         if (qty == null || qty.trim().isEmpty()) {
             qtyDouble = (double) 1;
         } else {
@@ -78,7 +90,7 @@ public class ActualExpensesSQL extends SQLAbstract
         
         costDouble = round(priceDouble * qtyDouble, 2);
 
-        /* Calculating time parameters. */
+        // Calculating time parameters.
         String[] partOfDate = date.split("\\-");
         dayN = Integer.parseInt(partOfDate[2]);
         monthN = Integer.parseInt(partOfDate[1]);
@@ -90,19 +102,9 @@ public class ActualExpensesSQL extends SQLAbstract
         monthC = getMonth(monthN);
         week = getWeek(c.get(Calendar.WEEK_OF_YEAR));
         
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "actualExpenses/insert");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ActualExpensesSQL - executeInsert(): "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }
-        
-        try {
-            //Setting Query Parameters and executing Query;
+        try (PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, "actualExpenses/insert")) {
+            // Setting Query Parameters and executing Query.
             preparedStatement.setString(1, date);
             preparedStatement.setString(2, week);
             preparedStatement.setInt(3, dayN);
@@ -119,32 +121,29 @@ public class ActualExpensesSQL extends SQLAbstract
             preparedStatement.setDouble(14, costDouble);
             preparedStatement.setString(15, comment);
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("*** ActualExpensesSQL - executeInsert(): Error "
-                    + "while setting query parameters or executing Insert "
-                    + "Query: " + ex.getMessage() + " ***");
-            return false;
-        } finally {
-            clear(preparedStatement);
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
-        return true;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean executeUpdate(Connection connection, String idForUpdate, 
+    public void executeUpdate(Connection connection, String idForUpdate, 
             String date, String expenseName, String expenseTitle, String shopName, 
-            String price, String qty, String comment) {
-        /* Checking of input values. */
+            String price, String qty, String comment) 
+            throws GenericDBOperationException, GenericDBException {
+        // Checking of input values.
         if (stringToInt(idForUpdate) == null || !inputCheckNullBlank(date) 
                 || !inputCheckNullBlank(expenseName)
                 || !inputCheckNullBlank(price) || stringToDouble(price) == null
                 || !inputCheckLength(expenseName) 
                 || !inputCheckLength(expenseTitle) 
                 || !inputCheckLength(shopName) || !inputCheckLength(comment)) {
-            return false;
+            throw new GenericDBOperationException("Unable to update the actual "
+                    + "expense, empty or wrong parameters provided.");
         }        
         
         String week;
@@ -160,22 +159,30 @@ public class ActualExpensesSQL extends SQLAbstract
         int idForUpdateInt = stringToInt(idForUpdate);
         
         /* Checking if Expense with given name exists in the database 
-        (EXPENSES_STRUCTURE table). If exists:
-        1) getting Expense ID. 
-        2) checking it's type (only SIMPLE_EXPENSES and GOODS can be populated 
-        in ACTUAL_EXPENSES table. */
+         * (EXPENSES_STRUCTURE table). If exists:
+         * 1) getting Expense ID. 
+         * 2) checking it's type (only SIMPLE_EXPENSES and GOODS can be populated 
+         * in ACTUAL_EXPENSES table.
+         */
         EntityExpense expenseGiven = select.executeSelectByName(connection, expenseName);
         if (expenseGiven == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to add the actual "
+                    + "expense, the provided Expense '" + expenseName
+                    + "' is not present in the Expenses Structure database "
+                    + "table.");
         } else {
             expenseIdInt = expenseGiven.getId();
             String type = expenseGiven.getType();
-            if (!"SIMPLE_EXPENSES".equals(type) && !"GOODS".equals(type)) {
-                return false;
+            if (!ExpensesTypes.ExpenseType.SIMPLE_EXPENSES.getType()
+                    .equals(type) && !ExpensesTypes.ExpenseType.GOODS.getType()
+                            .equals(type)) {
+                throw new GenericDBOperationException("Unable to add the actual "
+                        + "expense, the provided Expense '" + expenseName
+                        + "' is not a Simple Expense or Good.");
             }
         }
 
-        /* setting QTY to 1 if user did not enter QTY. */
+        // Setting QTY to 1 if user did not enter QTY.
         if (qty == null || qty.trim().isEmpty()) {
             qtyDouble = (double) 1;
         } else {
@@ -184,7 +191,7 @@ public class ActualExpensesSQL extends SQLAbstract
         
         costDouble = round(priceDouble * qtyDouble, 2);
 
-        /* Calculating time parameters. */
+        // Calculating time parameters.
         String[] partOfDate = date.split("\\-");
         dayN = Integer.parseInt(partOfDate[2]);
         monthN = Integer.parseInt(partOfDate[1]);
@@ -196,19 +203,9 @@ public class ActualExpensesSQL extends SQLAbstract
         monthC = getMonth(monthN);
         week = getWeek(c.get(Calendar.WEEK_OF_YEAR));
         
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "actualExpenses/update");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ActualExpensesSQL - executeUpdate(): "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }        
-        
-        try {
-            //Setting Query Parameters and executing Query;
+        try (PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, "actualExpenses/update")) {
+            // Setting Query Parameters and executing Query.
             preparedStatement.setString(1, date);
             preparedStatement.setString(2, week);
             preparedStatement.setInt(3, dayN);
@@ -226,51 +223,33 @@ public class ActualExpensesSQL extends SQLAbstract
             preparedStatement.setString(15, comment);
             preparedStatement.setInt(16, idForUpdateInt);
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("*** ActualExpensesSQL - executeUpdate(): Error "
-                    + "while setting query parameters or executing Update "
-                    + "Query: " + ex.getMessage() + " ***");
-            return false;
-        } finally {
-            clear(preparedStatement);
-        }
-        return true;        
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
+        }       
     }
 
     /**
      * {@inheritDoc}
      */    
     @Override
-    public boolean executeDelete(Connection connection, String id) {
+    public void executeDelete(Connection connection, String id) 
+            throws GenericDBOperationException, GenericDBException {
         if (stringToInt(id) == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to delete the actual "
+                    + "expense, empty or wrong record id '" + id + "' provided.");
         }
         int idInt = stringToInt(id);
         
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "actualExpenses/delete");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ActualExpensesSQL - executeDelete(): "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }          
-        
-        try {
-            //Setting Query Parameters and executing Query;
+        try (PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, "actualExpenses/delete")) {
+            // Setting Query Parameters and executing Query.
             preparedStatement.setInt(1, idInt);
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("*** ActualExpensesSQL - executeDelete(): Error "
-                    + "while setting query parameters or executing Delete "
-                    + "Query: " + ex.getMessage() + " ***");
-            return false;
-        } finally {
-            clear(preparedStatement);
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
-        return true;
     }
 
     /**
@@ -279,10 +258,14 @@ public class ActualExpensesSQL extends SQLAbstract
     @Override
     public TreeMap<String, Double> calculateActualExpenses(Connection 
             connection, TreeSet<String> timePeriodDates, 
-            String planningPeriodsFrequency, Integer expenseId) {
-        
+            String planningPeriodsFrequency, Integer expenseId) 
+            throws GenericDBOperationException, GenericDBException {
         if (!inputCheckFrequency(planningPeriodsFrequency)) {
-            return null;
+            throw new GenericDBOperationException("Unable to calculate values "
+                    + "of actual expenses for Expense ID '" + expenseId + "' "
+                    + "for each of the Planning time Period: provided Planning "
+                    + "Periods frequency '" + planningPeriodsFrequency + "' is "
+                    + "invalid.");
         }
         
         TreeMap<String, Double> result = new TreeMap<>();
@@ -304,98 +287,106 @@ public class ActualExpensesSQL extends SQLAbstract
         c.set(year, monthN-1, dayN);
         weekN = c.get(Calendar.WEEK_OF_YEAR);
         
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement = null;
         try {
             switch (planningPeriodsFrequency) {
                 case "W":
-                    preparedStatement = createPreparedStatement(connection, 
+                    preparedStatement = createPreparedStatement(connection,
                             "actualExpenses/select.calculateActualExpenses"
-                                    + ".byExpenseId.weekly");
+                            + ".byExpenseId.weekly");
                     preparedStatement.setInt(1, expenseId);
                     preparedStatement.setInt(2, weekN);
                     break;
                 case "M":
-                    preparedStatement = createPreparedStatement(connection, 
+                    preparedStatement = createPreparedStatement(connection,
                             "actualExpenses/select.calculateActualExpenses"
-                                    + ".byExpenseId.monthly");
+                            + ".byExpenseId.monthly");
                     preparedStatement.setInt(1, expenseId);
                     preparedStatement.setInt(2, monthN);
                     break;
                 case "D":
-                    preparedStatement = createPreparedStatement(connection, 
+                    preparedStatement = createPreparedStatement(connection,
                             "actualExpenses/select.calculateActualExpenses"
-                                    + ".byExpenseId.daily");
+                            + ".byExpenseId.daily");
                     preparedStatement.setInt(1, expenseId);
                     preparedStatement.setString(2, currentPeriodDate);
                     break;
                 default:
-                    return null;
+                    throw new GenericDBOperationException("Unable to calculate "
+                            + "values of actual expenses for Expense ID '" 
+                            + expenseId + "' for each of the Planning time "
+                            + "Period: provided Planning Periods frequency '" 
+                            + planningPeriodsFrequency + "' is invalid.");
             }
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "calculateActualExpense() "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return null;
-        }
-        try (ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                
-                /* Defining which value (in PCS or CUR) extract from the 
-                resultSet based on the Expense type. */
-                Double value = (double) 0;
-                String type = resultSet.getString("TYPE");
-                if (type.equals("SIMPLE_EXPENSES")) {
-                    value = resultSet.getDouble("ACTUAL_CUR");
-                } else if (type.equals("GOODS")) {
-                    value = resultSet.getDouble("ACTUAL_PCS");
-                }
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
 
-                /* Loop over time period dates.
-                 * Put into result the resultSet actual expense values that
-                 * match the corresponding time period based on the input
-                 * frequency.
-                 */
-                for (String date : timePeriodDates) {
-                    partOfDate = date.split("\\-");
-                    dayN = Integer.parseInt(partOfDate[2]);
-                    monthN = Integer.parseInt(partOfDate[1]);
-                    year = Integer.parseInt(partOfDate[0]);
-                    c.set(year, monthN-1, dayN);
-                    weekN = c.get(Calendar.WEEK_OF_YEAR);                 
-                    switch (planningPeriodsFrequency) {
-                        case "W":
-                            if (weekN == resultSet.getInt("WEEK")) {
-                                result.put(date, value);
-                            } else {
-                                result.put(date, (double) 0);
-                            }
-                            break;
-                        case "M":
-                            if (monthN == resultSet.getInt("MONTH_N")) {
-                                result.put(date, value);
-                            } else {
-                                result.put(date, (double) 0);
-                            }
-                            break;
-                        case "D":
-                            if (date.equals(resultSet.getString("DATE"))) {
-                                result.put(date, value);
-                            } else {
-                                result.put(date, (double) 0);
-                            }
-                            break;
-                        default:
-                            return null;
+                    /* Defining which value (in PCS or CUR) extract from the 
+                     * resultSet based on the Expense type.
+                     */
+                    Double value = (double) 0;
+                    String type = resultSet.getString("TYPE");
+                    if (type.equals(ExpensesTypes.ExpenseType.SIMPLE_EXPENSES
+                            .getType())) {
+                        value = resultSet.getDouble("ACTUAL_CUR");
+                    } else if (type.equals(ExpensesTypes.ExpenseType.GOODS
+                            .getType())) {
+                        value = resultSet.getDouble("ACTUAL_PCS");
+                    }
+
+                    /* Loop over time period dates.
+                     * Put into result the resultSet actual expense values that
+                     * match the corresponding time period based on the input
+                     * frequency.
+                     */
+                    for (String date : timePeriodDates) {
+                        partOfDate = date.split("\\-");
+                        dayN = Integer.parseInt(partOfDate[2]);
+                        monthN = Integer.parseInt(partOfDate[1]);
+                        year = Integer.parseInt(partOfDate[0]);
+                        c.set(year, monthN - 1, dayN);
+                        weekN = c.get(Calendar.WEEK_OF_YEAR);
+                        switch (planningPeriodsFrequency) {
+                            case "W":
+                                if (weekN == resultSet.getInt("WEEK")) {
+                                    result.put(date, value);
+                                } else {
+                                    result.put(date, (double) 0);
+                                }
+                                break;
+                            case "M":
+                                if (monthN == resultSet.getInt("MONTH_N")) {
+                                    result.put(date, value);
+                                } else {
+                                    result.put(date, (double) 0);
+                                }
+                                break;
+                            case "D":
+                                if (date.equals(resultSet.getString("DATE"))) {
+                                    result.put(date, value);
+                                } else {
+                                    result.put(date, (double) 0);
+                                }
+                                break;
+                            default:
+                                throw new GenericDBOperationException("Unable "
+                                        + "to calculate values of actual "
+                                        + "expenses for Expense ID '"
+                                        + expenseId + "' for each of the "
+                                        + "Planning time Period: provided "
+                                        + "Planning Periods frequency '"
+                                        + planningPeriodsFrequency + "' is "
+                                        + "invalid.");
+                        }
                     }
                 }
+            } catch (SQLException sqlex) {
+                throw new GenericDBOperationException(sqlex.getMessage() == null
+                        ? "" : sqlex.getMessage(), sqlex);
             }
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "calculateActualExpense() Error while "
-                    + "executing Select Query: "
-                    + ex.getMessage() + "***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
@@ -406,73 +397,50 @@ public class ActualExpensesSQL extends SQLAbstract
      * {@inheritDoc}
      */    
     @Override
-    public boolean setExpenseToDeleted (Connection connection, String id) {
+    public void setExpenseToDeleted (Connection connection, String id) 
+            throws GenericDBOperationException, GenericDBException {
         if (stringToInt(id) == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to set Expense to "
+                    + "deleted state in the Actual Expenses database table, "
+                    + "provided Expense ID '" + id + "' is invalid.");
         }
         int idInt = stringToInt(id);
-        
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "actualExpenses/update.setExpenseToDeleted");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ActualExpensesSQL - setExpenseToDeleted(): "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
-        }          
-        
-        try {
-            //Setting Query Parameters and executing Query;
+
+        try (PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "actualExpenses/update.setExpenseToDeleted")) {
+            // Setting Query Parameters and executing Query.
             preparedStatement.setInt(1, idInt);
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("*** ActualExpensesSQL - setExpenseToDeleted(): "
-                    + "Error while setting query parameters or executing "
-                    + "Update Query: " + ex.getMessage() + " ***");
-            return false;
-        } finally {
-            clear(preparedStatement);
-        }
-        return true;        
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null
+                    ? "" : sqlex.getMessage(), sqlex);
+        }    
     }
 
     /**
      * {@inheritDoc}
      */    
     @Override
-    public boolean recoverDeletedExpenseId (Connection connection, 
-            Integer expenseId, String expenseName) {
+    public void recoverDeletedExpenseId (Connection connection, 
+            Integer expenseId, String expenseName) 
+            throws GenericDBOperationException, GenericDBException {
         if (expenseId == null || !inputCheckNullBlank(expenseName)) {
-            return false;
+            throw new GenericDBOperationException("Unable to recover Expense "
+                    + "from deleted state in the Actual Expenses database "
+                    + "table, inalid input parameter(s) provided.");
         }
-        
-        PreparedStatement preparedStatement;
-        try {
-            preparedStatement = createPreparedStatement(connection,
-                    "actualExpenses/update.recoverDeletedExpenseId");
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** ActualExpensesSQL "
-                    + "- recoverDeletedExpenseId(): SQL PreparedStatement "
-                    + "failure: " + ex.getMessage() + " ***");
-            return false;
-        }          
-        
-        try {
+
+        try (PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "actualExpenses/update.recoverDeletedExpenseId")) {
             //Setting Query Parameters and executing Query;
                 preparedStatement.setInt(1, expenseId);
                 preparedStatement.setString(2, expenseName);
                 preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("*** ActualExpensesSQL "
-                    + "- recoverDeletedExpenseId(): Error while setting query "
-                    + "parameters or executing Update Query: " 
-                    + ex.getMessage() + " ***");
-            return false;
-        } finally {
-            clear(preparedStatement);
-        }
-        return true;
-    }       
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null
+                    ? "" : sqlex.getMessage(), sqlex);
+        } 
+    }
 }

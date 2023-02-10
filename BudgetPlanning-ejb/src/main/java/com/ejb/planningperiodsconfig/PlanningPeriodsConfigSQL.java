@@ -2,7 +2,8 @@
 package com.ejb.planningperiodsconfig;
 
 import com.ejb.common.SQLAbstract;
-import java.io.IOException;
+import com.ejb.common.exceptions.GenericDBOperationException;
+import com.ejb.database.exceptions.GenericDBException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,36 +23,37 @@ public class PlanningPeriodsConfigSQL extends SQLAbstract
      */
     @Override
     public Integer getPlanningPeriodsHorizon(Connection 
-            connection, String planningPeriodsFrequency) {
+            connection, String planningPeriodsFrequency) 
+            throws GenericDBOperationException, GenericDBException{
         if (!inputCheckNullBlank(planningPeriodsFrequency) ||
                 planningPeriodsFrequency.length() > 1) {
-            return null;
+            throw new GenericDBOperationException("Unable to get current "
+                    + "planning period horizon from the database planning "
+                    + "periods configuration table, provided planning period "
+                    + "freqency '" + planningPeriodsFrequency + "' is invalid.");
         }
         
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "planningPeriodsConfig/select.planningPeriodsHorizon"
+                                + ".byFreq");
         try {
-            preparedStatement = createPreparedStatement(connection, 
-                    "planningPeriodsConfig/select.planningPeriodsHorizon.byFreq");
             preparedStatement.setString(1, planningPeriodsFrequency);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "getPlanningPeriodsHorizon() "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return null;
+        } catch (SQLException sqlex) {
+            clear(preparedStatement);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
+        
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
             if (resultSet.next()) {
                 return resultSet.getInt("PL_PER_HORIZON");
             } else {
                 return null;
             }
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "getPlanningPeriodsHorizon() Error while "
-                    + "executing Select Query: "
-                    + ex.getMessage() + "***");
-            return null;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
@@ -61,27 +63,29 @@ public class PlanningPeriodsConfigSQL extends SQLAbstract
      * {@inheritDoc}
      */    
     @Override
-    public boolean setPlanningPeriodsHorizon(Connection 
+    public void setPlanningPeriodsHorizon(Connection 
             connection, String planningPeriodsFrequency, 
-            String planningPeriodsHorizon) {
+            String planningPeriodsHorizon) 
+            throws GenericDBOperationException, GenericDBException {
         if (!inputCheckNullBlank(planningPeriodsFrequency) ||
                 planningPeriodsFrequency.length() > 1 ||
                 !inputCheckNullBlank(planningPeriodsHorizon) ||
                 stringToInt(planningPeriodsHorizon) == null) {
-            return false;
+            throw new GenericDBOperationException("Unable to set current value "
+                    + "of planning periods horizon in the database planning "
+                    + "periods configuration table, invalid input parameter(s).");
         }
         
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "planningPeriodsConfig/update.planningPeriodsHorizon"
+                                + ".byFreq");
         try {
-            preparedStatement = createPreparedStatement(connection, 
-                    "planningPeriodsConfig/update.planningPeriodsHorizon.byFreq");
             preparedStatement.setString(1, planningPeriodsFrequency);
-        } catch (SQLException | IOException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "setPlanningPeriodsHorizon() "
-                    + "SQL PreparedStatement failure: "
-                    + ex.getMessage() + " ***");
-            return false;
+        } catch (SQLException sqlex) {
+            clear(preparedStatement);
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
         
         int planningPeriodsHorizonInt = stringToInt(planningPeriodsHorizon);
@@ -90,15 +94,11 @@ public class PlanningPeriodsConfigSQL extends SQLAbstract
             preparedStatement.setInt(1, planningPeriodsHorizonInt);
             preparedStatement.setString(2, planningPeriodsFrequency);
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("*** PlannedVariableParamsSQL: "
-                    + "setPlanningPeriodsHorizon() Error while "
-                    + "executing Select Query: "
-                    + ex.getMessage() + "***");
-            return false;
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         } finally {
             clear(preparedStatement);
         }
-        return true;
     }
 }
