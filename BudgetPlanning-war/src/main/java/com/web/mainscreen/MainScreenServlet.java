@@ -30,6 +30,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 
 
 /**
@@ -91,18 +92,20 @@ public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
         HttpSession session = request.getSession();
         
         Connection DBConnection = null;
+        
+        List<Integer> expensesIdList = new ArrayList<>();
+        List<Integer> accountsIdList = new ArrayList<>();
         try {
-            DBConnection = connector.connection(session, 
+            DBConnection = connector.connection(session,
                     "mainScreenDBConnection");
-        } catch (GenericDBException ex) {
+            expensesIdList = commonMethods.getIdList(DBConnection,
+                    "EXPENSES_STRUCTURE");
+            accountsIdList = commonMethods.getIdList(DBConnection,
+                    "ACCOUNTS_STRUCTURE");
+        } catch (GenericDBException | GenericDBOperationException ex) {
             log.add(session, ex.getMessage());
         }
-        
-        ArrayList<Integer> expensesIdList = commonMethods
-                .getIdList(DBConnection, "EXPENSES_STRUCTURE");
-        ArrayList<Integer> accountsIdList = commonMethods
-                .getIdList(DBConnection, "ACCOUNTS_STRUCTURE");        
-        
+
         EntityExpense selectedExpense;
         
         // Processing Shift of Planning Period (one Period Forward).

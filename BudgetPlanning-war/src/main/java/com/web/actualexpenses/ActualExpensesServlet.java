@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import com.web.common.WebServletCommonMethods;
+import java.util.List;
 import org.json.JSONObject;
 
 /**
@@ -65,18 +66,20 @@ public class ActualExpensesServlet extends HttpServlet {
         HttpSession session = request.getSession();
         
         Connection DBConnection = null;
+        
+        List<Integer> actualExpensesIdList = new ArrayList<>();
+        List<Integer> expensesIdList = new ArrayList<>();
         try {
-            DBConnection = connector.connection(session, 
+            DBConnection = connector.connection(session,
                     "actualExpensesDBConnection");
-        } catch (GenericDBException ex) {
+            actualExpensesIdList = commonMethods.getIdList(DBConnection, 
+                    "ACTUAL_EXPENSES");
+            expensesIdList = commonMethods.getIdList(DBConnection, 
+                    "EXPENSES_STRUCTURE");
+        } catch (GenericDBException | GenericDBOperationException ex) {
             log.add(session, ex.getMessage());
         }
-        
-        ArrayList<Integer> actualExpensesIdList = commonMethods
-                .getIdList(DBConnection, "ACTUAL_EXPENSES");        
-        ArrayList<Integer> expensesIdList = commonMethods
-                .getIdList(DBConnection, "EXPENSES_STRUCTURE");   
-        
+
         // Processing Add operation.
         if (request.getParameter("addActualExpense") != null) {
             String inputDate = request.getParameter("inputDate");

@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import com.web.common.WebServletCommonMethods;
+import java.util.List;
 
 /**
  * AccountsStructureServlet Servlet processes commands that come from user form 
@@ -65,16 +66,16 @@ public class AccountsStructureServlet extends HttpServlet {
         HttpSession session = request.getSession();
         
         Connection DBConnection = null;
+        List<Integer> accountsIdList = new ArrayList<>();
         try {
             DBConnection = connector.connection(session,
-                    "accountsStructureDBConnection");      
-        } catch (GenericDBException ex) {
+                    "accountsStructureDBConnection");
+            accountsIdList = commonMethods.getIdList(DBConnection, 
+                    "ACCOUNTS_STRUCTURE");
+        } catch (GenericDBException | GenericDBOperationException ex) {
             log.add(session, ex.getMessage());
         }
-        
-        ArrayList<Integer> accountsIdList = commonMethods
-                .getIdList(DBConnection, "ACCOUNTS_STRUCTURE");
-                     
+    
          // Processing Add operation.
         if (request.getParameter("addAccount") != null) {
             String inputName = request.getParameter("inputName");

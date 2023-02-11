@@ -1,6 +1,7 @@
 
 package com.web.common;
 
+import com.ejb.common.exceptions.GenericDBOperationException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,39 +26,22 @@ public class WebServletCommonMethods {
      * @param connection database Connection.
      * @param tableName name of the database table.
      * @return collection of IDs from a database table with a given name.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
     public ArrayList<Integer> getIdList(Connection connection,
-            String tableName) {
-
-        Statement statement = null;
+            String tableName) throws GenericDBOperationException {
         String query = "select ID from " + tableName;
-
-        try {
-            statement = connection.createStatement();
-        } catch (SQLException ex) {
-            System.out.println("*** WebServletCommonMethods : getIdList() "
-                    + "error while creating statement: " + ex.getMessage());
-            return null;
-        }
-
-        try (ResultSet resultSet = statement.executeQuery(query)) {
+        try (Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query)) {
             Collection<Integer> IdList = new LinkedList<>();
             while (resultSet.next()) {
                 IdList.add(resultSet.getInt("ID"));
             }
             return new ArrayList<>(IdList);
-        } catch (SQLException ex) {
-            System.out.println("*** WebServletCommonMethods : getIdList() "
-                    + "error while executing '" + query + "' query: "
-                    + ex.getMessage());
-            return null;
-        } finally {
-            try {
-                statement.close();
-            } catch (SQLException ex) {
-                System.out.println("*** WebServletCommonMethods : getIdList() "
-                        + "error while closing statement: " + ex.getMessage());
-            }
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
     }
 
@@ -68,39 +52,22 @@ public class WebServletCommonMethods {
      * @param connection database Connection.
      * @return collection of planning dates from PLANNED_VARIABLE_PARAMS 
      * database table.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
      */
-    public ArrayList<String> getDatesList(Connection connection) {
-
-        Statement statement = null;
+    public ArrayList<String> getDatesList(Connection connection) 
+            throws GenericDBOperationException {
         String query = "select distinct DATE from PLANNED_VARIABLE_PARAMS";
-
-        try {
-            statement = connection.createStatement();
-        } catch (SQLException ex) {
-            System.out.println("*** WebServletCommonMethods : getDatesList() "
-                    + "error while creating statement: " + ex.getMessage());
-            return null;
-        }
-
-        try (ResultSet resultSet = statement.executeQuery(query)) {
+        try (Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query)) {
             Collection<String> DatesList = new LinkedList<>();
             while (resultSet.next()) {
                 DatesList.add(resultSet.getString("DATE"));
             }
             return new ArrayList<>(DatesList);
-        } catch (SQLException ex) {
-            System.out.println("*** WebServletCommonMethods : getDatesList() "
-                    + "error while executing '" + query + "' query: "
-                    + ex.getMessage());
-            return null;
-        } finally {
-            try {
-                statement.close();
-            } catch (SQLException ex) {
-                System.out.println("*** WebServletCommonMethods : "
-                        + "getDatesList() error while closing statement: " 
-                        + ex.getMessage());
-            }
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
         }
     }
 }
