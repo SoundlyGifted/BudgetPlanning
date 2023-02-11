@@ -10,9 +10,7 @@ import com.ejb.common.exceptions.GenericDBOperationException;
 import com.ejb.database.exceptions.GenericDBException;
 import java.io.IOException;
 import java.sql.Connection;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -63,9 +61,6 @@ public class ActualExpensesServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
-
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
-                .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
         
@@ -74,7 +69,7 @@ public class ActualExpensesServlet extends HttpServlet {
             DBConnection = connector.connection(session, 
                     "actualExpensesDBConnection");
         } catch (GenericDBException ex) {
-            log.add(session, currentDateTime + " " + ex.getMessage());
+            log.add(session, ex.getMessage());
         }
         
         ArrayList<Integer> actualExpensesIdList = commonMethods
@@ -108,12 +103,10 @@ public class ActualExpensesServlet extends HttpServlet {
                         inputIdint);
                 // Updating Expenses Plan.
                 plannedParams.executeUpdateAll(DBConnection, "W");
-                log.add(session, currentDateTime
-                        + " [Add Actual Expense command entered] : "
+                log.add(session, "[Add Actual Expense command entered] : "
                         + "Actual Expense added");
             } catch (GenericDBOperationException | GenericDBException ex) {
-                log.add(session, currentDateTime
-                        + " [Add Actual Expense command entered] "
+                log.add(session, "[Add Actual Expense command entered] : "
                         + ex.getMessage());
             }
             request.getRequestDispatcher("ActualExpensesPage.jsp")
@@ -160,12 +153,10 @@ public class ActualExpensesServlet extends HttpServlet {
                                 updateIdInt);
                         // Updating Expenses Plan.
                         plannedParams.executeUpdateAll(DBConnection, "W");
-                        log.add(session, currentDateTime
-                                + " [Update Actual Expense command entered] : "
+                        log.add(session, "[Update Actual Expense command entered] : "
                                 + "Actual Expense updated");
                     } catch (GenericDBOperationException | GenericDBException ex) {
-                        log.add(session, currentDateTime 
-                                + " [Update Actual Expense command entered] " 
+                        log.add(session, "[Update Actual Expense command entered] : " 
                                 + ex.getMessage());
                     }
                     request.getRequestDispatcher("ActualExpensesPage.jsp")
@@ -199,12 +190,10 @@ public class ActualExpensesServlet extends HttpServlet {
                                 expenseId);
                         // Updating Expenses Plan.
                         plannedParams.executeUpdateAll(DBConnection, "W");
-                        log.add(session, currentDateTime
-                                + " [Delete Actual Expense command entered] : "
+                        log.add(session, "[Delete Actual Expense command entered] : "
                                 + "Actual Expense deleted");
                     } catch (GenericDBOperationException | GenericDBException ex) {
-                        log.add(session, currentDateTime 
-                                + " [Delete Actual Expense command entered] " 
+                        log.add(session, "[Delete Actual Expense command entered] : " 
                                 + ex.getMessage());
                     }
                     request.getRequestDispatcher("ActualExpensesPage.jsp")

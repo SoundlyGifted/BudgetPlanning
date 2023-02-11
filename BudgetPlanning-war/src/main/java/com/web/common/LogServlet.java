@@ -3,8 +3,6 @@ package com.web.common;
 
 import com.ejb.common.OperationResultLogLocal;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -37,15 +35,12 @@ public class LogServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
-
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
-                .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
         
         // Refreshing the page.
         if (request.getParameter("refresh") != null) {
-            log.add(session, currentDateTime + " Awaiting for user command...");
+            log.add(session, "Awaiting for user command...");
             String pageName = request.getParameter("pageName");
             if (pageName == null || pageName.trim().isEmpty()) {
                 pageName = "index.jsp";

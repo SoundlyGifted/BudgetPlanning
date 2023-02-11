@@ -17,10 +17,10 @@ public interface OperationResultLogLocal {
      * 
      * @param session HttpSession to which "operationResult" attribute the 
      * operation result record will be added.
-     * @param resultToAdd String record representing result of any application 
+     * @param message String message representing result of any application 
      * operation.
      */
-    public void add(HttpSession session, String resultToAdd);
+    public void add(HttpSession session, String message);
     
     /**
      * Clears "operationResult" attribute of a given HttpSession.

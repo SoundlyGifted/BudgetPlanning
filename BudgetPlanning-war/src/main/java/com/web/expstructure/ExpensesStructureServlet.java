@@ -16,8 +16,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.ejb.expstructure.ExpensesStructureSQLDeleteLocal;
 import com.ejb.expstructure.ExpensesStructureSQLSelectLocal;
 import java.sql.Connection;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import jakarta.servlet.http.HttpSession;
 import com.ejb.calculation.ExpensesHandlerLocal;
 import com.ejb.common.exceptions.GenericDBOperationException;
@@ -68,9 +66,6 @@ public class ExpensesStructureServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
-                .format(Calendar.getInstance().getTime());
-        
         HttpSession session = request.getSession();
         
         Connection DBConnection = null;
@@ -78,7 +73,7 @@ public class ExpensesStructureServlet extends HttpServlet {
             DBConnection = connector.connection(session, 
                     "expensesStructureDBConnection");
         } catch (GenericDBException ex) {
-            log.add(session, currentDateTime + " " + ex.getMessage());
+            log.add(session, ex.getMessage());
         }
 
         // Handling dropdown "NAME" expense category list for Update operation.
@@ -139,14 +134,12 @@ public class ExpensesStructureServlet extends HttpServlet {
                     request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp")
                             .forward(request, response);
                 } catch (GenericDBException | GenericDBOperationException ex) {
-                    log.add(session, currentDateTime 
-                            + " [Select Expense command entered] " 
+                    log.add(session, "[Select Expense command entered] : " 
                             + ex.getMessage());
                 }
             } else {
-                log.add(session, currentDateTime 
-                        + " [Select Expense command entered] : Expense select "
-                                + "error");
+                log.add(session, "[Select Expense command entered] : "
+                        + "Expense select error");
                 request.getRequestDispatcher("ExpensesStructurePage.jsp")
                         .forward(request, response);
             }
@@ -181,12 +174,10 @@ public class ExpensesStructureServlet extends HttpServlet {
                         // Updating Expenses Plan.
                         plannedParams.executeUpdateAll(DBConnection, "W");
                     }
-                    log.add(session, currentDateTime
-                            + " [Delete Expense command entered] : Expense "
-                            + "deleted");                 
+                    log.add(session, "[Delete Expense command entered] : "
+                            + "Expense deleted");                 
                 } catch (GenericDBException | GenericDBOperationException ex) {
-                    log.add(session, currentDateTime 
-                            + " [Delete Expense command entered] " 
+                    log.add(session, "[Delete Expense command entered] : " 
                             + ex.getMessage());
                 }
             }
@@ -209,11 +200,10 @@ public class ExpensesStructureServlet extends HttpServlet {
                 insert.execute(DBConnection, inputType,
                         inputName, inputAccountId, inputPrice, inputSafetyStockPcs,
                         inputOrderQtyPcs);
-                log.add(session, currentDateTime
-                        + " [Add Expense command entered] : Expense added");             
+                log.add(session, "[Add Expense command entered] : "
+                        + "Expense added");             
             } catch (GenericDBException | GenericDBOperationException ex) {
-                log.add(session, currentDateTime
-                        + " [Add Expense command entered] "
+                log.add(session, "[Add Expense command entered] : "
                         + ex.getMessage());
             }
             request.getRequestDispatcher("ExpensesStructurePage.jsp")

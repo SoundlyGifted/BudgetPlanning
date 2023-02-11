@@ -10,9 +10,7 @@ import com.ejb.common.exceptions.GenericDBOperationException;
 import com.ejb.database.exceptions.GenericDBException;
 import java.io.IOException;
 import java.sql.Connection;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -63,9 +61,6 @@ public class AccountsStructureServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
-
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
-                .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
         
@@ -74,7 +69,7 @@ public class AccountsStructureServlet extends HttpServlet {
             DBConnection = connector.connection(session,
                     "accountsStructureDBConnection");      
         } catch (GenericDBException ex) {
-            log.add(session, currentDateTime + " " + ex.getMessage());
+            log.add(session, ex.getMessage());
         }
         
         ArrayList<Integer> accountsIdList = commonMethods
@@ -87,11 +82,9 @@ public class AccountsStructureServlet extends HttpServlet {
                     .getParameter("inputCurrentRemainder");
             try {
                 sql.executeInsert(DBConnection, inputName, inputCurrentRemainder);
-                log.add(session, currentDateTime 
-                        + " [Add Account command entered] : Account added");                
+                log.add(session, "[Add Account command entered] : Account added");                
             } catch (GenericDBException | GenericDBOperationException ex) {
-                log.add(session, currentDateTime
-                        + " [Add Account command entered] "
+                log.add(session, "[Add Account command entered] " 
                         + ex.getMessage());
             }
             request.getRequestDispatcher("AccountsStructurePage.jsp")
@@ -138,11 +131,10 @@ public class AccountsStructureServlet extends HttpServlet {
                         // Updating Accounts Plan.
                         plannedAccountsValues.executeUpdateAll(DBConnection, "W");
                     }
-                    log.add(session, currentDateTime + " [Update Account "
-                            + "command entered] : Account updated");                   
+                    log.add(session, "[Update Account command entered] : "
+                            + "Account updated");                   
                 } catch (GenericDBException | GenericDBOperationException ex) {
-                    log.add(session, currentDateTime
-                            + " [Update Account command entered] "
+                    log.add(session, "[Update Account command entered] : "
                             + ex.getMessage());
                 }
                 request.getRequestDispatcher("AccountsStructurePage.jsp")
@@ -168,11 +160,10 @@ public class AccountsStructureServlet extends HttpServlet {
             if (request.getParameter("delete_" + String.valueOf(id)) != null) {
                 try {
                     sql.executeDelete(DBConnection, String.valueOf(id));
-                    log.add(session, currentDateTime + " [Delete Account "
-                            + "command entered] : Account deleted");                  
+                    log.add(session, "[Delete Account command entered] : "
+                            + "Account deleted");                  
                 } catch (GenericDBException | GenericDBOperationException ex) {
-                    log.add(session, currentDateTime
-                            + " [Delete Account command entered] "
+                    log.add(session, "[Delete Account command entered] : "
                             + ex.getMessage());
                 }
                 request.getRequestDispatcher("AccountsStructurePage.jsp")

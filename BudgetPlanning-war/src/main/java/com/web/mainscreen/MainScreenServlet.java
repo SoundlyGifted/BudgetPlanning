@@ -19,9 +19,7 @@ import com.ejb.expstructure.ExpensesStructureSQLUpdateLocal;
 import com.ejb.expstructure.ExpensesTypes;
 import java.io.IOException;
 import java.sql.Connection;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -89,9 +87,6 @@ public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
-
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
-                .format(Calendar.getInstance().getTime());
         
         HttpSession session = request.getSession();
         
@@ -100,7 +95,7 @@ public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
             DBConnection = connector.connection(session, 
                     "mainScreenDBConnection");
         } catch (GenericDBException ex) {
-            log.add(session, currentDateTime + " " + ex.getMessage());
+            log.add(session, ex.getMessage());
         }
         
         ArrayList<Integer> expensesIdList = commonMethods
@@ -152,16 +147,14 @@ public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
                         EntityExpenseListString());
                 request.setAttribute("currentEntityAccountList",
                         EntityAccountListString());
-                log.add(session, currentDateTime
-                        + " [Shift one Period forward command entered] "
+                log.add(session, "[Shift one Period forward command entered] : "
                         + "Shifted one Period forward.");                
             } catch (GenericDBOperationException | GenericDBException ex) {
                 request.setAttribute("currentEntityExpenseList",
                         EntityExpenseListString());
                 request.setAttribute("currentEntityAccountList",
                         EntityAccountListString());                
-                log.add(session, currentDateTime
-                        + " [Shift one Period forward command entered] "
+                log.add(session, "[Shift one Period forward command entered] : "
                         + ex.getMessage());
             }
             request.getRequestDispatcher("index.jsp")
@@ -211,16 +204,14 @@ public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
                         EntityExpenseListString());
                 request.setAttribute("currentEntityAccountList",
                         EntityAccountListString());
-                log.add(session, currentDateTime
-                        + " [Shift one Period backward command entered] "
+                log.add(session, "[Shift one Period backward command entered] : "
                         + "Shifted one Period backward.");                
             } catch (GenericDBOperationException | GenericDBException ex) {
                 request.setAttribute("currentEntityExpenseList",
                         EntityExpenseListString());
                 request.setAttribute("currentEntityAccountList",
                         EntityAccountListString());               
-                log.add(session, currentDateTime
-                        + " [Shift one Period backward command entered] "
+                log.add(session, "[Shift one Period backward command entered] : "
                         + ex.getMessage());
             }
             request.getRequestDispatcher("index.jsp")
@@ -285,16 +276,14 @@ public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
                             EntityExpenseListString());
                     request.setAttribute("currentEntityAccountList",
                             EntityAccountListString());                    
-                    log.add(session, currentDateTime 
-                            + " [Adjust Current Stock command entered] : "
+                    log.add(session, "[Adjust Current Stock command entered] : "
                             + "Current Stock adjusted");
                 } catch (GenericDBOperationException | GenericDBException ex) {
                     request.setAttribute("currentEntityExpenseList",
                             EntityExpenseListString());
                     request.setAttribute("currentEntityAccountList",
                             EntityAccountListString());
-                    log.add(session, currentDateTime
-                            + " [Adjust Current Stock command entered] "
+                    log.add(session, "[Adjust Current Stock command entered] : "
                             + ex.getMessage());
                 }
                 request.getRequestDispatcher("index.jsp")
@@ -350,16 +339,14 @@ public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
                             EntityExpenseListString());
                     request.setAttribute("currentEntityAccountList",
                             EntityAccountListString());
-                    log.add(session, currentDateTime
-                            + " [Update Expenses Plan PCS command entered] : "
+                    log.add(session, "[Update Expenses Plan PCS command entered] : "
                             + "Expenses Plan updated");
                 } catch (GenericDBOperationException | GenericDBException ex) {
                     request.setAttribute("currentEntityExpenseList",
                             EntityExpenseListString());
                     request.setAttribute("currentEntityAccountList",
                             EntityAccountListString());
-                    log.add(session, currentDateTime
-                            + " [Update Expenses Plan PCS command entered] "
+                    log.add(session, "[Update Expenses Plan PCS command entered] : "
                             + ex.getMessage());
                 }
                 request.getRequestDispatcher("index.jsp")
@@ -415,16 +402,14 @@ public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
                             EntityExpenseListString());
                     request.setAttribute("currentEntityAccountList",
                             EntityAccountListString());
-                    log.add(session, currentDateTime
-                            + " [Update Consumption PCS command entered] : "
+                    log.add(session, "[Update Consumption PCS command entered] : "
                             + "Expenses Plan updated");
                 } catch (GenericDBOperationException | GenericDBException ex) {
                     request.setAttribute("currentEntityExpenseList",
                             EntityExpenseListString());
                     request.setAttribute("currentEntityAccountList",
                             EntityAccountListString());
-                    log.add(session, currentDateTime
-                            + " [Update Consumption PCS command entered] "
+                    log.add(session, "[Update Consumption PCS command entered] : "
                             + ex.getMessage());
                 }
                 request.getRequestDispatcher("index.jsp")
@@ -480,16 +465,14 @@ public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
                             EntityExpenseListString());
                     request.setAttribute("currentEntityAccountList",
                             EntityAccountListString());
-                    log.add(session, currentDateTime
-                            + " [Update Expenses Plan CUR command entered] : "
+                    log.add(session, "[Update Expenses Plan CUR command entered] : "
                             + "Expenses Plan updated");
                 } catch (GenericDBOperationException | GenericDBException ex) {
                     request.setAttribute("currentEntityExpenseList",
                             EntityExpenseListString());
                     request.setAttribute("currentEntityAccountList",
                             EntityAccountListString());
-                    log.add(session, currentDateTime
-                            + " [Update Expenses Plan CUR command entered] "
+                    log.add(session, "[Update Expenses Plan CUR command entered] : "
                             + ex.getMessage());
                 }
                 request.getRequestDispatcher("index.jsp")
@@ -540,16 +523,14 @@ public class MainScreenServlet extends HttpServlet implements ExpensesTypes {
                             EntityExpenseListString());
                     request.setAttribute("currentEntityAccountList",
                             EntityAccountListString());
-                    log.add(session, currentDateTime 
-                            + " [Update Income Plan CUR command entered] : "
+                    log.add(session, "[Update Income Plan CUR command entered] : "
                             + "Income Plan updated");
                 } catch (GenericDBOperationException | GenericDBException ex) {
                     request.setAttribute("currentEntityExpenseList",
                             EntityExpenseListString());
                     request.setAttribute("currentEntityAccountList",
                             EntityAccountListString());
-                    log.add(session, currentDateTime
-                            + " [Update Income Plan CUR command entered] "
+                    log.add(session, "[Update Income Plan CUR command entered] : "
                             + ex.getMessage());
                 }
                 request.getRequestDispatcher("index.jsp")

@@ -14,8 +14,6 @@ import com.ejb.expstructure.ExpensesStructureSQLSelectLocal;
 import com.ejb.expstructure.ExpensesStructureSQLUpdateLocal;
 import java.io.IOException;
 import java.sql.Connection;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -71,16 +69,13 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
-        String currentDateTime = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]")
-                .format(Calendar.getInstance().getTime());
-
         HttpSession session = request.getSession();
         Connection DBConnection = null;
         try {
             DBConnection = connector.connection(session, 
                     "expensesStructureDBConnection");
         } catch (GenericDBException ex) {
-            log.add(session, currentDateTime + " " + ex.getMessage());
+            log.add(session, ex.getMessage());
         }
 
         // EntityExpense Selected by User for the Update operation.
@@ -103,7 +98,7 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                 selectedExpenseToRequestAttributes(DBConnection, request,
                         expenseSelected);              
             } catch (GenericDBException | GenericDBOperationException ex) {
-                log.add(session, currentDateTime + " " + ex.getMessage());
+                log.add(session, ex.getMessage());
             }
         }
         
@@ -116,10 +111,9 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                     session.setAttribute("ExpensesStructure_ExpenseSelected",
                             expenseSelected);
                     request.setAttribute("currentName", expenseSelected.getName());
-                    log.add(session, currentDateTime 
-                            + " Awaiting for user command...");
+                    log.add(session, "Awaiting for user command...");
                 } catch (GenericDBException | GenericDBOperationException ex) {
-                    log.add(session, currentDateTime + " " + ex.getMessage());
+                    log.add(session, ex.getMessage());
                 }
             }
             request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp")
@@ -138,7 +132,7 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                     log.clear(session);
                     log.add(session, "Awaiting for initial user command...");               
                 } catch (GenericDBException | GenericDBOperationException ex) {
-                    log.add(session, currentDateTime + " " + ex.getMessage());
+                    log.add(session, ex.getMessage());
                 }
             }
             request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp")
@@ -274,12 +268,10 @@ public class ExpensesStructureServletUpdate extends HttpServlet {
                                 .executeUpdateAll(DBConnection, "W");
                     }
                 }
-                log.add(session, currentDateTime
-                        + " [Update Expense command entered] : Expense "
-                        + "attributes updated");          
+                log.add(session, "[Update Expense command entered] : "
+                        + "Expense attributes updated");          
             } catch (GenericDBException | GenericDBOperationException ex) {
-                log.add(session, currentDateTime
-                        + " [Update Expense command entered] "
+                log.add(session, "[Update Expense command entered] : "
                         + ex.getMessage());
             }
             request.getRequestDispatcher("ExpensesStructurePageUpdate.jsp")
