@@ -64,6 +64,7 @@ local.properties
 ##############################
 ## NetBeans
 ##############################
+drafts/
 **/nbproject/private/
 build/
 nbbuild/
