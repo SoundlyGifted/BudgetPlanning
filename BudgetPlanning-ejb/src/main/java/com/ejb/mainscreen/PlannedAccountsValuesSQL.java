@@ -387,4 +387,29 @@ public class PlannedAccountsValuesSQL extends SQLAbstract
             clear(psInsertRecordsForGivenDate);
         }
     }
+    
+    @Override
+    public void executeDeleteByAccountId(Connection connection, String id)
+            throws GenericDBOperationException, GenericDBException {
+        // Checking of input values.
+        Integer idInt = stringToInt(id);
+        if (idInt == null) {
+            throw new GenericDBOperationException("Unable to delete all "
+                    + "Account plan (planned and calculated parameter values) "
+                    + "from the database, provided Account ID '" + id + "' is "
+                    + "invalid.");
+        }
+        
+        try (PreparedStatement preparedStatement 
+                = createPreparedStatement(connection, 
+                        "mainScreen/delete.allAccountsPlannedParams.byid")) {
+            // Setting Query Parameters and executing Query.
+            preparedStatement.setInt(1, idInt);
+            preparedStatement.setString(2, "1970-01-01");
+            preparedStatement.executeUpdate();
+        } catch (SQLException sqlex) {
+            throw new GenericDBOperationException(sqlex.getMessage() == null 
+                    ? "" : sqlex.getMessage(), sqlex);
+        }
+    }
 }

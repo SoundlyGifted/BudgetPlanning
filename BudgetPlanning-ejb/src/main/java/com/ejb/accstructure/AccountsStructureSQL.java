@@ -6,6 +6,7 @@ import com.ejb.common.SQLAbstract;
 import com.ejb.calculation.EntityAccount;
 import com.ejb.common.exceptions.GenericDBOperationException;
 import com.ejb.database.exceptions.GenericDBException;
+import com.ejb.mainscreen.PlannedAccountsValuesSQLLocal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,6 +29,9 @@ public class AccountsStructureSQL extends SQLAbstract
     
     @EJB
     private AccountsHandlerLocal aHandler;
+    
+    @EJB
+    private PlannedAccountsValuesSQLLocal plannedAccountsSQL;
     
     /**
      * {@inheritDoc}
@@ -124,20 +128,23 @@ public class AccountsStructureSQL extends SQLAbstract
                         "expensesStructure/update.expenseLinkToAccount");              
 
         try {
-            //Setting Query Parameters and executing Query;
+            // Setting Account to "NOT SET" for all the linked Expenses.
             preparedStatementExpenseLinkToAccount.setInt(1, 0);
             preparedStatementExpenseLinkToAccount.setString(2, "NOT SET");
             preparedStatementExpenseLinkToAccount.setInt(3, idInt);
             preparedStatementExpenseLinkToAccount.executeUpdate();            
+
+            // Removing Account from the EntityAccountList.
+            EntityAccount acctToDelete = executeSelectById(connection, idInt);
+            aHandler.removeFromEntityAccountList(acctToDelete);
             
+            // Removing all Plan for the deleted Account (database).
+            plannedAccountsSQL.executeDeleteByAccountId(connection, id);
+            
+            // Removing the Account from the Accounts Structure (database).
             preparedStatement.setInt(1, idInt);
-            preparedStatement.executeUpdate();
+            preparedStatement.executeUpdate();            
             
-            EntityAccount accountInList = aHandler
-                    .getEntityAccountList().get(idInt);
-            if (accountInList != null) {
-                aHandler.removeFromEntityAccountList(accountInList);
-            }
         } catch (SQLException sqlex) {
             throw new GenericDBOperationException(sqlex.getMessage() == null 
                     ? "" : sqlex.getMessage(), sqlex);

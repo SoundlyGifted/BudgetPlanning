@@ -85,4 +85,19 @@ public interface PlannedAccountsValuesSQLLocal {
      */
     public void setCurrentPeriodDate(Connection connection, String date) 
             throws GenericDBOperationException, GenericDBException;
+    
+    /**
+     * Deletes all Account plan (planned and calculated parameter values) from
+     * the database for the given Account ID.
+     * 
+     * @param connection database Connection.
+     * @param id database Account ID.
+     * @throws com.ejb.database.exceptions.GenericDBException if a database 
+     * connection operation or an sql-file reading operation throws an 
+     * exception.
+     * @throws com.ejb.common.exceptions.GenericDBOperationException if a 
+     * database operation related exception is thrown.
+     */
+    public void executeDeleteByAccountId(Connection connection, String id) 
+            throws GenericDBOperationException, GenericDBException;
 }
