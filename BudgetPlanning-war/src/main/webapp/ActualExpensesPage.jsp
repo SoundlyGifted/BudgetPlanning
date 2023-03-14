@@ -24,8 +24,20 @@
     <!-- JSTL sql query to select all records from EXPENSES_STRUCTURE table -->
     <sql:query dataSource = "${outputDBConnection}" 
                var = "expensesStructureResultSet">
-        SELECT * FROM EXPENSES_STRUCTURE
-        WHERE ID > 0
+        SELECT T1.*,
+            CASE
+                WHEN T2.LINKED_TO_COMPLEX_NAME IS NULL 
+                    THEN '[NOT LINKED]: ' || T1.NAME
+                ELSE T2.LINKED_TO_COMPLEX_NAME || ': ' || T1.NAME
+            END AS NAME_CONCAT
+        FROM
+        (SELECT * FROM EXPENSES_STRUCTURE
+        WHERE ID > 0 AND TYPE <> 'COMPLEX_EXPENSES') AS T1
+        LEFT JOIN
+        (SELECT ID, NAME AS LINKED_TO_COMPLEX_NAME FROM EXPENSES_STRUCTURE
+        WHERE TYPE = 'COMPLEX_EXPENSES') AS T2
+        ON T2.ID = T1.LINKED_TO_COMPLEX_ID
+        ORDER BY LINKED_TO_COMPLEX_ID, NAME
     </sql:query>        
 
     <head>
@@ -181,7 +193,7 @@
                                         <!--passing JSON object with expense id 
                                         and name as chosen option.-->
                                         <option value='{"id":"${row2.ID}","name"
-                                                :"${row2.NAME}"}'>${row2.NAME}
+                                                :"${row2.NAME}"}'>${row2.NAME_CONCAT}
                                         </option>
                                     </c:forEach>
                                 </select>                            
@@ -261,7 +273,7 @@
                                                 items="${expensesStructureResultSet
                                                          .rows}">
                                                 <option value="${row2.NAME}">
-                                                    ${row2.NAME}
+                                                    ${row2.NAME_CONCAT}
                                                 </option>
                                             </c:forEach>
                                         </select>                                          
