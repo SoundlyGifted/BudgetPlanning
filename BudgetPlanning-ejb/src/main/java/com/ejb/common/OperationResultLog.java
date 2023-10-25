@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpSession;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,11 +23,14 @@ public class OperationResultLog implements OperationResultLogLocal {
     private LoggerProviderLocal loggerProvider;
     
     private Logger logger;
+    private Handler handler;
 
     private Logger getLogger() {
         if (logger == null) {
             logger = loggerProvider.getLogger();
         }
+        handler = loggerProvider.getFileHandler();
+        logger.addHandler(handler);
         return logger;
     }
     
@@ -58,6 +62,7 @@ public class OperationResultLog implements OperationResultLogLocal {
     public void add(HttpSession session, String message) {
         if (message != null && !message.trim().isEmpty()) {
             getLogger().log(Level.INFO, message);
+            handler.close();
             addToApplicationLog(session, message);
         }
     }
@@ -70,6 +75,7 @@ public class OperationResultLog implements OperationResultLogLocal {
     public void add(HttpSession session, String message, Throwable ex) {
         if (message != null && !message.trim().isEmpty() && ex != null) {
             getLogger().log(Level.SEVERE, message, ex);
+            handler.close();
             addToApplicationLog(session, message);
         }
     }    

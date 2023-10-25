@@ -1,6 +1,7 @@
 package com.ejb.common;
 
 import jakarta.ejb.Local;
+import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 /**
@@ -16,4 +17,11 @@ public interface LoggerProviderLocal {
      * @return java.util.logging.Logger object.
      */
     public Logger getLogger();
+    
+    /**
+     * Returns java.util.logging.FileHandler object.
+     * 
+     * @return 
+     */
+    public FileHandler getFileHandler();
 }
